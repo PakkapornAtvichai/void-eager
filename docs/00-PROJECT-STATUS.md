@@ -68,3 +68,18 @@ The complete vertical slice now runs:
 Maintenance -> interruption -> secondary task -> resume -> Storage -> deduction -> reflection.
 
 Next phase: frontend testing. Do not add features before test findings are recorded.
+
+## Implementation checkpoint — T07–T09 / frontend-test handoff
+
+Completed:
+- T07 Storage physical-part + serial cross-check
+- T08 evidence-supported deduction with recoverable wrong-answer path
+- T09 neutral reflection summary and restart
+- stable frontend test hooks across the full loop
+
+Validation:
+- `npm run build`: passes
+- dev server: HTTP 200
+- `git diff --check`: passes
+
+Current status: implementation complete through reflection. Next step is frontend/UX testing; do not add features before the first test pass.
