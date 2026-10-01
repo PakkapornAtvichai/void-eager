@@ -33,3 +33,5 @@ npm run build
 T01–T04 are implemented: app skeleton, explicit client-side game state, Maintenance work-order investigation, scripted interruption, and Quick Pin/non-pin switching.
 
 The secondary task screen is intentionally a placeholder. Continue with T05 only after reviewing this checkpoint.
+
+T05–T06 are also complete: the interruption now contains a bounded classification task and returns to Maintenance with different resumption support depending on whether Quick Pin was used.

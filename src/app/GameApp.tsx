@@ -18,8 +18,18 @@ export function GameApp() {
       <div className="workspace">
         <StatusRail state={state} />
         {state.scene === 'maintenance'
-          ? <MaintenanceScene opened={recordOpened} onOpen={() => dispatch({ type: 'OPEN_WORK_ORDER' })} />
-          : <SecondaryScene quickPin={state.quickPin} />}
+          ? <MaintenanceScene
+              opened={recordOpened}
+              resumed={state.secondaryTaskComplete}
+              quickPin={state.quickPin}
+              onOpen={() => dispatch({ type: 'OPEN_WORK_ORDER' })}
+            />
+          : <SecondaryScene
+              quickPin={state.quickPin}
+              complete={state.secondaryTaskComplete}
+              onComplete={() => dispatch({ type: 'COMPLETE_SECONDARY_TASK' })}
+              onReturn={() => dispatch({ type: 'RETURN_TO_INVESTIGATION' })}
+            />}
       </div>
       {state.interruption && <InterruptionModal interruption={state.interruption}
         onPinAndOpen={() => dispatch({ type: 'PIN_AND_OPEN_INTERRUPTION' })}

@@ -41,3 +41,16 @@ Validation:
 - Vite dev server: responds locally
 
 Next ticket: T05 — bounded secondary task.
+
+## Implementation checkpoint — T05–T06
+
+Completed:
+- T05 bounded coolant-alert classification task
+- T06 return/resume flow
+- pinned return shows thread + last evidence + location
+- unpinned return preserves access to the investigation but provides no Quick Pin reconstruction cue
+
+Validation:
+- `npm run build`: passes
+
+Next ticket: T07 — Storage cross-check.

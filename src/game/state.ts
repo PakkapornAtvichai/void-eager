@@ -19,6 +19,8 @@ export type GameAction =
   | { type: 'OPEN_WORK_ORDER' }
   | { type: 'PIN_AND_OPEN_INTERRUPTION' }
   | { type: 'OPEN_INTERRUPTION' }
+  | { type: 'COMPLETE_SECONDARY_TASK' }
+  | { type: 'RETURN_TO_INVESTIGATION' }
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
@@ -48,6 +50,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         quickPin: null,
         interruption: null,
         scene: 'secondary',
+      }
+    case 'COMPLETE_SECONDARY_TASK':
+      return {
+        ...state,
+        secondaryTaskComplete: true,
+      }
+    case 'RETURN_TO_INVESTIGATION':
+      return {
+        ...state,
+        scene: 'maintenance',
       }
     default:
       return state

@@ -64,3 +64,19 @@ h2 { margin-bottom: 10px; }
   .status-rail { grid-template-columns: 1fr; }
   .status-rail > div { border-right: 0; border-bottom: 1px solid #26384b; padding-bottom: 14px; }
 }
+.classification { width: min(100%, 620px); margin: 0; padding: 18px;
+  border: 1px solid #38526b; border-radius: 12px; display: grid; gap: 12px; }
+.classification legend { padding: 0 6px; color: #b9d7e8; font-weight: 700; }
+.classification label { display: flex; gap: 10px; align-items: flex-start; color: #d9e7f2; }
+.classification input { margin-top: 3px; }
+.task-feedback { margin: 2px 0 0; color: #ffd7a1; }
+.task-complete { width: min(100%, 620px); display: grid; gap: 10px;
+  padding: 18px; border: 1px solid #477896; border-radius: 12px; background: #0d1824; }
+.task-complete span { color: #a9bdcc; }
+.task-complete .primary { justify-self: start; margin-top: 6px; }
+.resume-cue { width: min(100%, 620px); margin: 16px 0 2px; padding: 16px;
+  border: 1px solid #3c5064; border-radius: 12px; background: #101a25; }
+.resume-cue.pinned { border-color: #4e87a8; background: #0e1f2b; }
+.resume-cue strong, .resume-cue span { display: block; margin-bottom: 6px; }
+.resume-cue span { color: #a8bfd0; font-size: .92rem; }
+.resume-cue p:last-child { margin-bottom: 0; color: #acbdca; }
