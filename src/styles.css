@@ -80,3 +80,89 @@ h2 { margin-bottom: 10px; }
 .resume-cue strong, .resume-cue span { display: block; margin-bottom: 6px; }
 .resume-cue span { color: #a8bfd0; font-size: .92rem; }
 .resume-cue p:last-child { margin-bottom: 0; color: #acbdca; }
+.part-card, .comparison-card, .deduction-evidence, .reflection-summary, .reflection-prompts, .evidence-note {
+  width: min(100%, 620px);
+  margin: 14px 0;
+  padding: 18px;
+  border: 1px solid #38526b;
+  border-radius: 12px;
+  background: #0a131f;
+  display: grid;
+  gap: 9px;
+}
+.part-card strong, .comparison-card strong, .evidence-note strong { color: #f5fbff; }
+.evidence-note, .comparison-card { border-color: #477896; background: #0d1824; }
+.deduction-evidence span, .reflection-summary span { color: #c4d3df; }
+.reflection-prompts p { margin: 0; line-height: 1.55; }
+.prototype-complete { margin-top: 16px; font-weight: 800; color: #b9e6ff; }
+.scene-card > .primary + .secondary,
+.scene-card > .secondary + .primary,
+.scene-card > .evidence-note + .secondary,
+.scene-card > .comparison-card + .primary { margin-top: 10px; }
+.scene-card > button + button,
+.scene-card > .resume-cue + .work-order,
+.scene-card > .evidence-note + button { margin-top: 12px; }
+
+.part-card, .comparison-card, .evidence-note {
+  width: min(100%, 620px);
+  margin: 18px 0;
+  padding: 18px;
+  border: 1px solid #38526b;
+  border-radius: 12px;
+  background: #0a131f;
+  display: grid;
+  gap: 8px;
+}
+
+.part-card strong, .comparison-card strong, .evidence-note strong {
+  color: #dff4ff;
+}
+
+.evidence-note { border-color: #477896; }
+.comparison-card { border-color: #6697b4; background: #0d1c28; }
+.evidence-picker {
+  width: min(100%, 620px);
+  margin: 16px 0;
+  padding: 18px;
+  border: 1px solid #38526b;
+  border-radius: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.evidence-picker legend {
+  padding: 0 6px;
+  color: #b9d7e8;
+  font-weight: 700;
+}
+
+.evidence-picker label {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: #d9e7f2;
+}
+
+.evidence-picker input { margin-top: 3px; }
+.reflection-summary, .reflection-prompts {
+  width: min(100%, 620px);
+  margin: 16px 0;
+  padding: 18px;
+  border: 1px solid #38526b;
+  border-radius: 12px;
+  background: #0d1722;
+  display: grid;
+  gap: 10px;
+}
+
+.reflection-summary span {
+  color: #d9e7f2;
+}
+
+.reflection-prompts p {
+  margin: 0;
+  color: #c3d3df;
+  line-height: 1.5;
+}
+
+.scene-card > .secondary:last-child { margin-top: 8px; }

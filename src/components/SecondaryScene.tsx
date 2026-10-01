@@ -24,7 +24,7 @@ export function SecondaryScene({ quickPin, complete, onComplete, onReturn }: Pro
   }
 
   return (
-    <section className="scene-card" aria-labelledby="secondary-title">
+    <section className="scene-card" data-testid="secondary-scene" aria-labelledby="secondary-title">
       <p className="eyebrow">INCIDENT SYSTEM // ALERT C-17</p>
       <h2 id="secondary-title">Classify coolant telemetry alert</h2>
       <p className="muted">
@@ -76,7 +76,7 @@ export function SecondaryScene({ quickPin, complete, onComplete, onReturn }: Pro
               Recheck the stable pressure, nominal flow, and intermittent sensor signal.
             </p>
           )}
-          <button className="primary" onClick={submit} disabled={!classification}>
+          <button className="primary" data-testid="confirm-classification" onClick={submit} disabled={!classification}>
             Confirm classification
           </button>
         </fieldset>
@@ -84,7 +84,7 @@ export function SecondaryScene({ quickPin, complete, onComplete, onReturn }: Pro
         <div className="task-complete">
           <strong>Alert classified.</strong>
           <span>No immediate intervention required.</span>
-          <button className="primary" onClick={onReturn}>
+          <button className="primary" data-testid="return-investigation" onClick={onReturn}>
             Return to investigation
           </button>
         </div>

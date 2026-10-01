@@ -54,3 +54,17 @@ Validation:
 - `npm run build`: passes
 
 Next ticket: T07 — Storage cross-check.
+
+## Implementation checkpoint — T07–T09
+
+Completed:
+- T07 Storage cross-check
+- T08 evidence-supported deduction with retry on unsupported/wrong conclusions
+- T09 neutral reflection screen
+- restart path for pinned vs unpinned comparison
+- frontend testing hooks and brief
+
+The complete vertical slice now runs:
+Maintenance -> interruption -> secondary task -> resume -> Storage -> deduction -> reflection.
+
+Next phase: frontend testing. Do not add features before test findings are recorded.

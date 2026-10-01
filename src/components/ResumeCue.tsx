@@ -6,7 +6,7 @@ type Props = {
 
 export function ResumeCue({ quickPin }: Props) {
   return (
-    <div className={quickPin ? 'resume-cue pinned' : 'resume-cue'}>
+    <div data-testid={quickPin ? 'resume-cue-pinned' : 'resume-cue-unpinned'} className={quickPin ? 'resume-cue pinned' : 'resume-cue'}>
       <p className="eyebrow">{quickPin ? 'QUICK PIN // RESUME CUE' : 'INVESTIGATION RESUMED'}</p>
       {quickPin ? (
         <>

@@ -35,3 +35,9 @@ T01–T04 are implemented: app skeleton, explicit client-side game state, Mainte
 The secondary task screen is intentionally a placeholder. Continue with T05 only after reviewing this checkpoint.
 
 T05–T06 are also complete: the interruption now contains a bounded classification task and returns to Maintenance with different resumption support depending on whether Quick Pin was used.
+
+## Frontend-test boundary
+
+T01–T09 are implemented. The vertical slice is complete through reflection and is ready for frontend playthrough testing.
+
+Use `docs/15-FRONTEND-TEST-BRIEF.md` before changing UX or adding visual polish.

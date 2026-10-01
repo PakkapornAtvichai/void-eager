@@ -2,7 +2,7 @@ import type { GameState } from '../game/types'
 
 export function StatusRail({ state }: { state: GameState }) {
   return (
-    <aside className="status-rail" aria-label="Investigation status">
+    <aside className="status-rail" data-testid="status-rail" aria-label="Investigation status">
       <div>
         <p className="eyebrow">CURRENT THREAD</p>
         <p>{state.currentThread ?? 'No active investigation thread'}</p>

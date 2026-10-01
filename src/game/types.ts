@@ -1,4 +1,4 @@
-export type Scene = 'maintenance' | 'secondary'
+export type Scene = 'maintenance' | 'secondary' | 'storage' | 'deduction' | 'reflection'
 
 export type QuickPin = {
   thread: string

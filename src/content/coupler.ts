@@ -8,7 +8,18 @@ export const COUPLER = {
     component: 'Guidance Stabilizer Coupler',
     status: 'COUPLER REPLACED',
     technician: 'GLINT',
+    replacementSerial: 'GSC-8842-A',
   },
+} as const
+
+export const STORAGE_COUPLER = {
+  evidenceId: 'STO_NEW_COUPLER',
+  serialEvidenceId: 'STO_NEW_COUPLER_SERIAL',
+  component: 'Guidance Stabilizer Coupler',
+  serial: 'GSC-8842-A',
+  workOrderSerial: 'GSC-8842-A',
+  knowledgeFlag: 'K_NEW_COUPLER_STILL_IN_STORAGE',
+  serialFlag: 'K_SERIAL_MATCHES_WORK_ORDER',
 } as const
 
 export const INCIDENT_INTERRUPTION = {
