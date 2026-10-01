@@ -41,3 +41,9 @@ T05–T06 are also complete: the interruption now contains a bounded classificat
 T01–T09 are implemented. The vertical slice is complete through reflection and is ready for frontend playthrough testing.
 
 Use `docs/15-FRONTEND-TEST-BRIEF.md` before changing UX or adding visual polish.
+
+## Frontend-test readiness
+
+T07–T09 are implemented. The Coupler vertical slice now runs from Maintenance through interruption/recovery, Storage cross-check, evidence-supported deduction, and reflection.
+
+Frontend test instructions live in `docs/15-FRONTEND-TEST-HANDOFF.md`.
