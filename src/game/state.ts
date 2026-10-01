@@ -1,77 +1,113 @@
-import { COUPLER, INCIDENT_INTERRUPTION, STORAGE_COUPLER } from '../content/coupler'
-import type { GameState } from './types'
+import { COUPLER, STORAGE_COUPLER } from '../content/coupler'
+import { POWER_SPIKE } from '../content/power'
+import type { GameState, ThreadId } from './types'
 
 export const initialGameState: GameState = {
   scene: 'maintenance',
-  currentThread: null,
+  currentThread: 'coupler',
   evidenceFound: [],
   knowledgeFlags: [],
   quickPin: null,
-  interruption: null,
+  interruptionStatus: 'idle',
   secondaryTaskComplete: false,
-  deduction: null,
+  secondaryResponse: null,
+  theory: null,
+  theoryEvidence: [],
+  firstThreadAfterInterruption: null,
+  resumedFromPin: false,
 }
 
 const addOnce = (items: string[], value: string) =>
   items.includes(value) ? items : [...items, value]
 
+const resumedThread = (state: GameState, thread: ThreadId) =>
+  state.secondaryTaskComplete && !state.firstThreadAfterInterruption
+    ? thread
+    : state.firstThreadAfterInterruption
 export type GameAction =
   | { type: 'OPEN_WORK_ORDER' }
-  | { type: 'PIN_AND_OPEN_INTERRUPTION' }
-  | { type: 'OPEN_INTERRUPTION' }
-  | { type: 'COMPLETE_SECONDARY_TASK' }
-  | { type: 'RETURN_TO_INVESTIGATION' }
+  | { type: 'TRIGGER_INTERRUPTION' }
+  | { type: 'PIN_CURRENT_CONTEXT'; scrollOffset: number }
+  | { type: 'START_INTERRUPTION' }
+  | { type: 'COMPLETE_SECONDARY_TASK'; response: string }
+  | { type: 'RETURN_TO_HUB' }
+  | { type: 'OPEN_THREAD'; thread: ThreadId }
+  | { type: 'RESUME_PIN' }
   | { type: 'GO_TO_STORAGE' }
   | { type: 'INSPECT_STORAGE_COUPLER' }
   | { type: 'CHECK_STORAGE_SERIAL' }
+  | { type: 'INSPECT_POWER_SPIKE' }
+  | { type: 'INSPECT_POWER_PROTECTION' }
+  | { type: 'BACK_TO_HUB' }
   | { type: 'OPEN_DEDUCTION' }
-  | { type: 'SUBMIT_DEDUCTION'; answer: 'replaced' | 'not-replaced' }
+  | { type: 'SAVE_THEORY'; answer: 'replaced' | 'not-replaced'; evidence: string[] }
   | { type: 'OPEN_REFLECTION' }
   | { type: 'RESET' }
-
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'OPEN_WORK_ORDER':
       return {
         ...state,
-        currentThread: COUPLER.thread,
+        currentThread: COUPLER.threadId,
         evidenceFound: addOnce(state.evidenceFound, COUPLER.evidenceId),
         knowledgeFlags: addOnce(state.knowledgeFlags, COUPLER.knowledgeFlag),
-        interruption: { ...INCIDENT_INTERRUPTION },
       }
-    case 'PIN_AND_OPEN_INTERRUPTION':
+    case 'TRIGGER_INTERRUPTION':
+      return state.interruptionStatus === 'idle'
+        ? { ...state, interruptionStatus: 'warning' }
+        : state
+    case 'PIN_CURRENT_CONTEXT':
       return {
         ...state,
         quickPin: {
-          thread: state.currentThread ?? COUPLER.thread,
-          evidenceId: COUPLER.evidenceId,
-          evidenceLabel: COUPLER.evidenceLabel,
-          location: 'Maintenance',
+          threadId: COUPLER.threadId,
+          thread: COUPLER.thread,
+          location: 'Maintenance report',
+          context: `Replacement serial ${COUPLER.workOrder.replacementSerial}; installation verification not attached.`,
+          scrollOffset: action.scrollOffset,
         },
-        interruption: null,
-        scene: 'secondary',
       }
-    case 'OPEN_INTERRUPTION':
+    case 'START_INTERRUPTION':
       return {
         ...state,
-        quickPin: null,
-        interruption: null,
+        interruptionStatus: 'handled',
         scene: 'secondary',
       }
     case 'COMPLETE_SECONDARY_TASK':
       return {
         ...state,
         secondaryTaskComplete: true,
+        secondaryResponse: action.response,
       }
-    case 'RETURN_TO_INVESTIGATION':
+    case 'RETURN_TO_HUB':
       return {
         ...state,
-        scene: 'maintenance',
+        scene: 'hub',
+        currentThread: null,
+        resumedFromPin: false,
+      }
+    case 'OPEN_THREAD':
+      return {
+        ...state,
+        scene: action.thread === 'coupler' ? 'maintenance' : 'power',
+        currentThread: action.thread,
+        firstThreadAfterInterruption: resumedThread(state, action.thread),
+        resumedFromPin: false,
+      }
+    case 'RESUME_PIN':
+      if (!state.quickPin) return state
+      return {
+        ...state,
+        scene: state.quickPin.threadId === 'coupler' ? 'maintenance' : 'power',
+        currentThread: state.quickPin.threadId,
+        firstThreadAfterInterruption: resumedThread(state, state.quickPin.threadId),
+        resumedFromPin: true,
       }
     case 'GO_TO_STORAGE':
       return {
         ...state,
         scene: 'storage',
+        currentThread: 'coupler',
       }
     case 'INSPECT_STORAGE_COUPLER':
       return {
@@ -85,19 +121,35 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         evidenceFound: addOnce(state.evidenceFound, STORAGE_COUPLER.serialEvidenceId),
         knowledgeFlags: addOnce(state.knowledgeFlags, STORAGE_COUPLER.serialFlag),
       }
+    case 'INSPECT_POWER_SPIKE':
+      return {
+        ...state,
+        evidenceFound: addOnce(state.evidenceFound, POWER_SPIKE.evidenceId),
+        knowledgeFlags: addOnce(state.knowledgeFlags, 'K_POWER_SPIKE_FOUND'),
+      }
+    case 'INSPECT_POWER_PROTECTION':
+      return {
+        ...state,
+        evidenceFound: addOnce(state.evidenceFound, POWER_SPIKE.protectionEvidenceId),
+        knowledgeFlags: addOnce(state.knowledgeFlags, 'K_PROTECTION_CONTAINED_SPIKE'),
+      }
+    case 'BACK_TO_HUB':
+      return {
+        ...state,
+        scene: 'hub',
+        currentThread: null,
+        resumedFromPin: false,
+      }
     case 'OPEN_DEDUCTION':
       return {
         ...state,
         scene: 'deduction',
-        deduction: null,
       }
-    case 'SUBMIT_DEDUCTION':
+    case 'SAVE_THEORY':
       return {
         ...state,
-        deduction: action.answer === 'not-replaced' ? 'correct' : 'incorrect',
-        knowledgeFlags: action.answer === 'not-replaced'
-          ? addOnce(state.knowledgeFlags, 'K_COUPLER_NOT_REPLACED')
-          : state.knowledgeFlags,
+        theory: action.answer,
+        theoryEvidence: action.evidence,
       }
     case 'OPEN_REFLECTION':
       return {

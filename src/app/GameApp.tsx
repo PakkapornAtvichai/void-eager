@@ -1,7 +1,10 @@
-import { useReducer } from 'react'
+import { useCallback, useEffect, useReducer, useState } from 'react'
 import { DeductionScene } from '../components/DeductionScene'
-import { InterruptionModal } from '../components/InterruptionModal'
+import { HubScene } from '../components/HubScene'
+import { IncomingInterruption } from '../components/IncomingInterruption'
 import { MaintenanceScene } from '../components/MaintenanceScene'
+import { PowerScene } from '../components/PowerScene'
+import { QuickPinCard } from '../components/QuickPinCard'
 import { ReflectionScene } from '../components/ReflectionScene'
 import { SecondaryScene } from '../components/SecondaryScene'
 import { StatusRail } from '../components/StatusRail'
@@ -10,31 +13,61 @@ import { gameReducer, initialGameState } from '../game/state'
 
 export function GameApp() {
   const [state, dispatch] = useReducer(gameReducer, initialGameState)
+  const [maintenanceScroll, setMaintenanceScroll] = useState(0)
 
   const recordOpened = state.evidenceFound.includes('MAI_COUPLER_REPLACEMENT_RECORD')
   const storageInspected = state.evidenceFound.includes('STO_NEW_COUPLER')
   const serialChecked = state.evidenceFound.includes('STO_NEW_COUPLER_SERIAL')
+  const spikeFound = state.evidenceFound.includes('ENG_POWER_SPIKE_LOG')
+  const protectionFound = state.evidenceFound.includes('ENG_PROTECTION_ACTIVE_LOG')
+
+  const startInterruption = useCallback(() => {
+    dispatch({ type: 'START_INTERRUPTION' })
+  }, [])
+  useEffect(() => {
+    if (!recordOpened) return
+    if (state.scene !== 'maintenance') return
+    if (state.interruptionStatus !== 'idle') return
+    if (state.secondaryTaskComplete) return
+
+    const timer = window.setTimeout(() => {
+      dispatch({ type: 'TRIGGER_INTERRUPTION' })
+    }, 12000)
+
+    return () => window.clearTimeout(timer)
+  }, [recordOpened, state.scene, state.interruptionStatus, state.secondaryTaskComplete])
 
   const scene = (() => {
     if (state.scene === 'maintenance') {
       return (
         <MaintenanceScene
           opened={recordOpened}
-          resumed={state.secondaryTaskComplete}
-          quickPin={state.quickPin}
+          postInterruption={state.secondaryTaskComplete}
+          restoreScrollOffset={
+            state.resumedFromPin && state.quickPin ? state.quickPin.scrollOffset : null
+          }
+          onScrollChange={setMaintenanceScroll}
           onOpen={() => dispatch({ type: 'OPEN_WORK_ORDER' })}
           onStorage={() => dispatch({ type: 'GO_TO_STORAGE' })}
         />
       )
     }
-
     if (state.scene === 'secondary') {
       return (
         <SecondaryScene
-          quickPin={state.quickPin}
           complete={state.secondaryTaskComplete}
-          onComplete={() => dispatch({ type: 'COMPLETE_SECONDARY_TASK' })}
-          onReturn={() => dispatch({ type: 'RETURN_TO_INVESTIGATION' })}
+          response={state.secondaryResponse}
+          onComplete={(response) => dispatch({ type: 'COMPLETE_SECONDARY_TASK', response })}
+          onReturn={() => dispatch({ type: 'RETURN_TO_HUB' })}
+        />
+      )
+    }
+
+    if (state.scene === 'hub') {
+      return (
+        <HubScene
+          onCoupler={() => dispatch({ type: 'OPEN_THREAD', thread: 'coupler' })}
+          onPower={() => dispatch({ type: 'OPEN_THREAD', thread: 'power' })}
         />
       )
     }
@@ -50,11 +83,24 @@ export function GameApp() {
         />
       )
     }
+    if (state.scene === 'power') {
+      return (
+        <PowerScene
+          spikeFound={spikeFound}
+          protectionFound={protectionFound}
+          onInspectSpike={() => dispatch({ type: 'INSPECT_POWER_SPIKE' })}
+          onInspectProtection={() => dispatch({ type: 'INSPECT_POWER_PROTECTION' })}
+          onBack={() => dispatch({ type: 'BACK_TO_HUB' })}
+        />
+      )
+    }
+
     if (state.scene === 'deduction') {
       return (
         <DeductionScene
-          deduction={state.deduction}
-          onSubmit={(answer) => dispatch({ type: 'SUBMIT_DEDUCTION', answer })}
+          theory={state.theory}
+          theoryEvidence={state.theoryEvidence}
+          onSave={(answer, evidence) => dispatch({ type: 'SAVE_THEORY', answer, evidence })}
           onReflection={() => dispatch({ type: 'OPEN_REFLECTION' })}
         />
       )
@@ -64,11 +110,18 @@ export function GameApp() {
       <ReflectionScene
         usedQuickPin={Boolean(state.quickPin)}
         evidenceCount={state.evidenceFound.length}
-        onRestart={() => dispatch({ type: 'RESET' })}
+        firstThread={state.firstThreadAfterInterruption}
+        theory={state.theory}
+        theoryEvidenceCount={state.theoryEvidence.length}
+        secondaryResponse={state.secondaryResponse}
+        onRestart={() => {
+          setMaintenanceScroll(0)
+          window.scrollTo({ top: 0, behavior: 'auto' })
+          dispatch({ type: 'RESET' })
+        }}
       />
     )
   })()
-
   return (
     <main className="app-shell">
       <header className="topbar">
@@ -76,18 +129,30 @@ export function GameApp() {
           <p className="eyebrow">VOID-EAGER</p>
           <h1>Incident Review</h1>
         </div>
-        <span className="prototype-badge">3-DAY PROTOTYPE</span>
+        <span className="prototype-badge">ASYNC LOOP V2</span>
       </header>
+
       <div className="workspace">
         <StatusRail state={state} />
         {scene}
       </div>
+      {state.interruptionStatus === 'warning' && state.scene === 'maintenance' && (
+        <IncomingInterruption
+          pinned={Boolean(state.quickPin)}
+          onPin={() => dispatch({ type: 'PIN_CURRENT_CONTEXT', scrollOffset: maintenanceScroll })}
+          onHandle={startInterruption}
+        />
+      )}
 
-      {state.interruption && (
-        <InterruptionModal
-          interruption={state.interruption}
-          onPinAndOpen={() => dispatch({ type: 'PIN_AND_OPEN_INTERRUPTION' })}
-          onOpen={() => dispatch({ type: 'OPEN_INTERRUPTION' })}
+      {state.quickPin && (
+        <QuickPinCard
+          pin={state.quickPin}
+          canResume={
+            state.secondaryTaskComplete &&
+            state.scene !== 'secondary' &&
+            state.scene !== 'reflection'
+          }
+          onResume={() => dispatch({ type: 'RESUME_PIN' })}
         />
       )}
     </main>

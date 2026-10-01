@@ -1,25 +1,34 @@
-export type Scene = 'maintenance' | 'secondary' | 'storage' | 'deduction' | 'reflection'
+export type ThreadId = 'coupler' | 'power'
+
+export type Scene =
+  | 'maintenance'
+  | 'secondary'
+  | 'hub'
+  | 'storage'
+  | 'power'
+  | 'deduction'
+  | 'reflection'
 
 export type QuickPin = {
+  threadId: ThreadId
   thread: string
-  evidenceId: string
-  evidenceLabel: string
   location: string
+  context: string
+  scrollOffset: number
 }
 
-export type Interruption = {
-  id: string
-  title: string
-  body: string
-}
-
+export type InterruptionStatus = 'idle' | 'warning' | 'handled'
 export type GameState = {
   scene: Scene
-  currentThread: string | null
+  currentThread: ThreadId | null
   evidenceFound: string[]
   knowledgeFlags: string[]
   quickPin: QuickPin | null
-  interruption: Interruption | null
+  interruptionStatus: InterruptionStatus
   secondaryTaskComplete: boolean
-  deduction: string | null
+  secondaryResponse: string | null
+  theory: 'replaced' | 'not-replaced' | null
+  theoryEvidence: string[]
+  firstThreadAfterInterruption: ThreadId | null
+  resumedFromPin: boolean
 }

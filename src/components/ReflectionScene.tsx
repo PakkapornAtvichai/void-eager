@@ -1,28 +1,57 @@
+import type { ThreadId } from '../game/types'
+
 type Props = {
   usedQuickPin: boolean
   evidenceCount: number
+  firstThread: ThreadId | null
+  theory: 'replaced' | 'not-replaced' | null
+  theoryEvidenceCount: number
+  secondaryResponse: string | null
   onRestart: () => void
 }
 
-export function ReflectionScene({ usedQuickPin, evidenceCount, onRestart }: Props) {
+const threadLabel = (thread: ThreadId | null) => {
+  if (thread === 'coupler') return 'Coupler replacement'
+  if (thread === 'power') return 'Power Spike'
+  return 'None recorded'
+}
+
+const theoryLabel = (theory: Props['theory']) => {
+  if (theory === 'replaced') return 'The recorded replacement happened'
+  if (theory === 'not-replaced') return 'The recorded replacement did not happen'
+  return 'No theory saved'
+}
+export function ReflectionScene({
+  usedQuickPin,
+  evidenceCount,
+  firstThread,
+  theory,
+  theoryEvidenceCount,
+  secondaryResponse,
+  onRestart,
+}: Props) {
   return (
     <section className="scene-card" data-testid="reflection-scene" aria-labelledby="reflection-title">
       <p className="eyebrow">POST-INCIDENT // REFLECTION</p>
       <h2 id="reflection-title">You completed the prototype loop.</h2>
       <p className="muted">
-        This screen does not score task switching. It records what happened and asks what supported your return.
+        This screen records your process. It does not score task switching or label your theory as right or wrong.
       </p>
 
       <div className="reflection-summary">
         <span>Interruptions encountered: 1</span>
         <span>Quick Pin used: {usedQuickPin ? 'Yes' : 'No'}</span>
+        <span>First thread resumed: {threadLabel(firstThread)}</span>
         <span>Evidence logged: {evidenceCount}</span>
-        <span>Unfinished investigation resumed: Yes</span>
+        <span>Incident response: {secondaryResponse ?? 'Not recorded'}</span>
+        <span>Final case theory: {theoryLabel(theory)}</span>
+        <span>Evidence cited for theory: {theoryEvidenceCount}</span>
       </div>
+
       <div className="reflection-prompts">
-        <p>What helped you remember what you were checking before the interruption?</p>
-        <p>Did the interruption change what you were thinking about?</p>
-        <p>What would make returning to the unfinished task easier next time?</p>
+        <p>What helped you remember what you were doing before the interruption?</p>
+        <p>Which thread did you choose to return to first, and why?</p>
+        <p>Did any later evidence change how you interpreted an earlier clue?</p>
       </div>
 
       <button className="secondary" data-testid="restart-prototype" onClick={onRestart}>

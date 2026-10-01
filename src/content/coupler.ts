@@ -1,4 +1,5 @@
 export const COUPLER = {
+  threadId: 'coupler' as const,
   thread: 'Was the coupler actually replaced?',
   evidenceId: 'MAI_COUPLER_REPLACEMENT_RECORD',
   evidenceLabel: 'Coupler Replacement Record',

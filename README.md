@@ -47,3 +47,17 @@ Use `docs/15-FRONTEND-TEST-BRIEF.md` before changing UX or adding visual polish.
 T07–T09 are implemented. The Coupler vertical slice now runs from Maintenance through interruption/recovery, Storage cross-check, evidence-supported deduction, and reflection.
 
 Frontend test instructions live in `docs/15-FRONTEND-TEST-HANDOFF.md`.
+
+## Asynchronous Loop v2
+
+The current experimental build replaces the linear interruption flow with a research-informed asynchronous loop.
+
+Key differences:
+- interruption arrives while the Maintenance report is already being read;
+- the player gets a brief preparation window;
+- Quick Pin minimizes and persists;
+- Pin restores the saved report reading position;
+- after the interruption, the player chooses between Coupler and Power Spike threads;
+- final Coupler output is a saved theory, not an instantly graded quiz answer.
+
+See `docs/17-ASYNCHRONOUS-LOOP-V2.md` and `docs/18-FRONTEND-TEST-BRIEF-V2.md`.

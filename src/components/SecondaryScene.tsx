@@ -1,34 +1,23 @@
 import { useState } from 'react'
-import type { QuickPin } from '../game/types'
-
-type Props = {
-  quickPin: QuickPin | null
-  complete: boolean
-  onComplete: () => void
-  onReturn: () => void
-}
 
 type Classification = 'sensor-mismatch' | 'maintenance' | 'emergency'
 
-export function SecondaryScene({ quickPin, complete, onComplete, onReturn }: Props) {
-  const [classification, setClassification] = useState<Classification | null>(null)
-  const [needsReview, setNeedsReview] = useState(false)
+type Props = {
+  complete: boolean
+  response: string | null
+  onComplete: (response: Classification) => void
+  onReturn: () => void
+}
 
-  const submit = () => {
-    if (classification === 'sensor-mismatch') {
-      setNeedsReview(false)
-      onComplete()
-      return
-    }
-    setNeedsReview(true)
-  }
+export function SecondaryScene({ complete, response, onComplete, onReturn }: Props) {
+  const [classification, setClassification] = useState<Classification | null>(null)
 
   return (
     <section className="scene-card" data-testid="secondary-scene" aria-labelledby="secondary-title">
       <p className="eyebrow">INCIDENT SYSTEM // ALERT C-17</p>
       <h2 id="secondary-title">Classify coolant telemetry alert</h2>
       <p className="muted">
-        Review the alert data and choose the appropriate response.
+        Review the alert and choose an operational response. The system records your choice.
       </p>
 
       <div className="system-panel alert-data">
@@ -71,26 +60,24 @@ export function SecondaryScene({ quickPin, complete, onComplete, onReturn }: Pro
             />
             Trigger emergency isolation
           </label>
-          {needsReview && (
-            <p className="task-feedback" role="status">
-              Recheck the stable pressure, nominal flow, and intermittent sensor signal.
-            </p>
-          )}
-          <button className="primary" data-testid="confirm-classification" onClick={submit} disabled={!classification}>
-            Confirm classification
+          <button
+            className="primary"
+            data-testid="confirm-classification"
+            onClick={() => classification && onComplete(classification)}
+            disabled={!classification}
+          >
+            Log response
           </button>
         </fieldset>
       ) : (
         <div className="task-complete">
-          <strong>Alert classified.</strong>
-          <span>No immediate intervention required.</span>
+          <strong>Response logged.</strong>
+          <span>Recorded action: {response ?? 'Unspecified'}</span>
           <button className="primary" data-testid="return-investigation" onClick={onReturn}>
-            Return to investigation
+            Return to incident board
           </button>
         </div>
       )}
-
-      {quickPin && <p className="pin-confirm">Quick Pin saved before switching.</p>}
     </section>
   )
 }

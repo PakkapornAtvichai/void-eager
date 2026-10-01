@@ -83,3 +83,25 @@ Validation:
 - `git diff --check`: passes
 
 Current status: implementation complete through reflection. Next step is frontend/UX testing; do not add features before the first test pass.
+
+## Redesign checkpoint — Asynchronous Loop v2
+
+The linear frontend-tested prototype remains tagged as `linear-frontend-baseline`.
+
+v2 now implements:
+- system-timed interruption during report reading;
+- 8-second preparation window;
+- Quick Pin without immediate task switch;
+- persistent minimized Pin;
+- saved Maintenance report scroll position;
+- resumption through Pin restores the saved reading position;
+- post-interruption Incident Board with Coupler + Power Spike threads;
+- operational interruption response without correctness feedback;
+- case theory saving without immediate right/wrong judgment;
+- reflection that records process and theory neutrally.
+
+Validation:
+- `npm run build`: passes
+- `git diff --check`: passes
+
+Next step: frontend test using `docs/18-FRONTEND-TEST-BRIEF-V2.md`.
