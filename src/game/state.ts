@@ -33,6 +33,7 @@ export type GameAction =
   | { type: 'RETURN_TO_HUB' }
   | { type: 'OPEN_THREAD'; thread: ThreadId }
   | { type: 'RESUME_PIN' }
+  | { type: 'UNLOCK_STORAGE_LEAD' }
   | { type: 'GO_TO_STORAGE' }
   | { type: 'INSPECT_STORAGE_COUPLER' }
   | { type: 'CHECK_STORAGE_SERIAL' }
@@ -102,6 +103,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         currentThread: state.quickPin.threadId,
         firstThreadAfterInterruption: resumedThread(state, state.quickPin.threadId),
         resumedFromPin: true,
+      }
+    case 'UNLOCK_STORAGE_LEAD':
+      return {
+        ...state,
+        knowledgeFlags: addOnce(state.knowledgeFlags, 'K_STORAGE_LEAD_UNLOCKED'),
       }
     case 'GO_TO_STORAGE':
       return {

@@ -34,7 +34,9 @@ export function DeductionScene({ theory, theoryEvidence, onSave, onReflection }:
   }
 
   return (
-    <section className="scene-card" data-testid="deduction-scene" aria-labelledby="deduction-title">
+    <section className="stage-console-scene case-review-scene" data-testid="deduction-scene" aria-labelledby="deduction-title">
+      <div className="case-review-backdrop" aria-hidden="true" />
+      <div className="stage-console-panel case-review-panel">
       <p className="eyebrow">INCIDENT REVIEW // CURRENT THEORY</p>
       <h2 id="deduction-title">What do you currently believe happened to the coupler?</h2>
       <p className="muted">
@@ -101,6 +103,7 @@ export function DeductionScene({ theory, theoryEvidence, onSave, onReflection }:
           <span>No correctness judgment is shown at this stage.</span>
         </div>
       )}
+      </div>
     </section>
   )
 }

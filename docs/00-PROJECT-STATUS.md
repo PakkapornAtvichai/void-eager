@@ -105,3 +105,54 @@ Validation:
 - `git diff --check`: passes
 
 Next step: frontend test using `docs/18-FRONTEND-TEST-BRIEF-V2.md`.
+
+## UX continuity pass
+
+The Yoko-integrated build is moving from prototype-page navigation to a stable in-game HUD and explicit investigation continuity.
+
+Locked changes:
+- Thread, Leads, Quick Pin, and Evidence are separate HUD concepts.
+- Quick Pin details are collapsed until intentionally opened.
+- `Trace serial` unlocks a Storage Lead; it no longer teleports immediately.
+- Newly unlocked controls use a brief pulse, then settle.
+- Navigation controls use a neutral/steel treatment separate from cyan investigation actions.
+- Voluntary scene changes use a short location transition.
+- Interruption remains the only system-driven context takeover.
+
+See `docs/20-UX-CONTINUITY-AND-LEADS.md`.
+
+## Visual UX audit pass 2
+
+Automated 21-state desktop capture completed successfully and GPT-6 Luna visual audit returned **ONE MORE UX PASS**.
+
+Resolved enough for demo:
+- coolant / Incident Board / Power Spike now use ship-system framing;
+- Storage has a recognizable CSS placeholder environment and visible coupler/crate;
+- HUD semantics are scene-aware;
+- Storage Lead has current/complete states;
+- Reflection no longer exposes stale actionable Pin/Lead controls;
+- no generated raster placeholder is required before demo; wait for Yoko.
+
+Remaining freeze blockers are intentionally small:
+1. increase navigation prominence;
+2. explicitly label an unfollowed Storage Lead as AVAILABLE;
+3. reduce the remaining centered-card feel in Coolant / Incident Board / Power Spike.
+
+After those three items: rerun deterministic capture, then freeze Loop 1.
+
+## Loop 1 frozen for demo
+
+Final deterministic 21-state desktop capture completed successfully after the freeze pass.
+
+GPT-6 Luna final visual gate:
+- **VERDICT: FREEZE LOOP 1**
+- blockers: none
+- Storage CSS/HTML physical placeholder is sufficient for demo
+- generated Storage art should wait for Yoko
+- Coolant / Incident Board / Power are sufficient as placeholder ship-system screens
+- navigation controls are visible
+- Storage Lead AVAILABLE / CURRENT / COMPLETE state language is readable
+- Reflection no longer exposes stale actionable Lead/Quick Pin controls
+- automated implementation -> 21-state capture -> visual audit pipeline is viable
+
+Further changes to Loop 1 should now be limited to critical bugs, accessibility fixes, or direct Yoko asset replacement. Do not add gameplay scope before the class demo.

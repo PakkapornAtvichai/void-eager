@@ -117,3 +117,14 @@ v2 is ready for frontend testing when:
 - the player can save either Coupler theory without instant correction;
 - reflection records process rather than correctness;
 - production build passes.
+
+## UX continuity update
+
+Scene-change rules are now locked in `docs/20-UX-CONTINUITY-AND-LEADS.md`.
+
+Important distinction:
+- evidence/action may unlock a **Lead** without moving the player;
+- following the Lead is a separate player-directed navigation action;
+- only an external interruption may take control without a navigation choice.
+
+For the Coupler path, tracing the replacement serial now unlocks `Storage B-04` as a Lead in the HUD. The player remains at the workstation until they choose that Lead.

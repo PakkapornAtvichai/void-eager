@@ -31,7 +31,9 @@ export function ReflectionScene({
   onRestart,
 }: Props) {
   return (
-    <section className="scene-card" data-testid="reflection-scene" aria-labelledby="reflection-title">
+    <section className="stage-console-scene reflection-review-scene" data-testid="reflection-scene" aria-labelledby="reflection-title">
+      <div className="case-review-backdrop reflection-backdrop" aria-hidden="true" />
+      <div className="stage-console-panel reflection-review-panel">
       <p className="eyebrow">POST-INCIDENT // REFLECTION</p>
       <h2 id="reflection-title">You completed the prototype loop.</h2>
       <p className="muted">
@@ -54,9 +56,10 @@ export function ReflectionScene({
         <p>Did any later evidence change how you interpreted an earlier clue?</p>
       </div>
 
-      <button className="secondary" data-testid="restart-prototype" onClick={onRestart}>
+      <button className="navigation-button" data-testid="restart-prototype" onClick={onRestart}>
         Restart prototype
       </button>
+      </div>
     </section>
   )
 }

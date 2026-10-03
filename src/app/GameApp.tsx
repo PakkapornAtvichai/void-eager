@@ -3,8 +3,8 @@ import { DeductionScene } from '../components/DeductionScene'
 import { HubScene } from '../components/HubScene'
 import { IncomingInterruption } from '../components/IncomingInterruption'
 import { MaintenanceScene } from '../components/MaintenanceScene'
+import { WorkstationFocusScene } from '../components/WorkstationFocusScene'
 import { PowerScene } from '../components/PowerScene'
-import { QuickPinCard } from '../components/QuickPinCard'
 import { ReflectionScene } from '../components/ReflectionScene'
 import { SecondaryScene } from '../components/SecondaryScene'
 import { StatusRail } from '../components/StatusRail'
@@ -14,12 +14,15 @@ import { gameReducer, initialGameState } from '../game/state'
 export function GameApp() {
   const [state, dispatch] = useReducer(gameReducer, initialGameState)
   const [maintenanceScroll, setMaintenanceScroll] = useState(0)
+  const [workstationFocused, setWorkstationFocused] = useState(false)
+  const [locationTransition, setLocationTransition] = useState<string | null>(null)
 
   const recordOpened = state.evidenceFound.includes('MAI_COUPLER_REPLACEMENT_RECORD')
   const storageInspected = state.evidenceFound.includes('STO_NEW_COUPLER')
   const serialChecked = state.evidenceFound.includes('STO_NEW_COUPLER_SERIAL')
   const spikeFound = state.evidenceFound.includes('ENG_POWER_SPIKE_LOG')
   const protectionFound = state.evidenceFound.includes('ENG_PROTECTION_ACTIVE_LOG')
+  const storageLeadUnlocked = state.knowledgeFlags.includes('K_STORAGE_LEAD_UNLOCKED')
 
   const startInterruption = useCallback(() => {
     dispatch({ type: 'START_INTERRUPTION' })
@@ -37,19 +40,51 @@ export function GameApp() {
     return () => window.clearTimeout(timer)
   }, [recordOpened, state.scene, state.interruptionStatus, state.secondaryTaskComplete])
 
+  useEffect(() => {
+    if (state.scene === 'maintenance' && recordOpened && (state.resumedFromPin || state.firstThreadAfterInterruption !== null)) {
+      setWorkstationFocused(true)
+    }
+    if (state.scene !== 'maintenance') setWorkstationFocused(false)
+  }, [recordOpened, state.scene, state.resumedFromPin, state.firstThreadAfterInterruption])
+
+  const followStorageLead = useCallback(() => {
+    if (locationTransition) return
+    setLocationTransition('STORAGE B-04')
+    window.setTimeout(() => {
+      dispatch({ type: 'GO_TO_STORAGE' })
+      setLocationTransition(null)
+    }, 360)
+  }, [locationTransition])
+
+  const currentLocation = (() => {
+    if (state.scene === 'maintenance') {
+      return workstationFocused ? 'MAINTENANCE // WORKSTATION' : 'MAINTENANCE'
+    }
+    if (state.scene === 'secondary') return 'INCIDENT SYSTEM // C-17'
+    if (state.scene === 'hub') return 'INCIDENT BOARD'
+    if (state.scene === 'storage') return 'STORAGE // B-04'
+    if (state.scene === 'power') return 'ENGINEERING // POWER LOG'
+    if (state.scene === 'deduction') return 'INCIDENT REVIEW'
+    return 'POST-INCIDENT'
+  })()
+
   const scene = (() => {
     if (state.scene === 'maintenance') {
       return (
-        <MaintenanceScene
-          opened={recordOpened}
-          postInterruption={state.secondaryTaskComplete}
-          restoreScrollOffset={
-            state.resumedFromPin && state.quickPin ? state.quickPin.scrollOffset : null
-          }
-          onScrollChange={setMaintenanceScroll}
-          onOpen={() => dispatch({ type: 'OPEN_WORK_ORDER' })}
-          onStorage={() => dispatch({ type: 'GO_TO_STORAGE' })}
-        />
+        workstationFocused ? (
+          <WorkstationFocusScene
+            opened={recordOpened}
+            postInterruption={state.secondaryTaskComplete}
+            restoreScrollOffset={state.resumedFromPin && state.quickPin ? state.quickPin.scrollOffset : null}
+            onScrollChange={setMaintenanceScroll}
+            storageLeadUnlocked={storageLeadUnlocked}
+            onOpen={() => dispatch({ type: 'OPEN_WORK_ORDER' })}
+            onUnlockStorageLead={() => dispatch({ type: 'UNLOCK_STORAGE_LEAD' })}
+            onBack={() => setWorkstationFocused(false)}
+          />
+        ) : (
+          <MaintenanceScene onWorkstation={() => setWorkstationFocused(true)} />
+        )
       )
     }
     if (state.scene === 'secondary') {
@@ -80,6 +115,7 @@ export function GameApp() {
           onInspect={() => dispatch({ type: 'INSPECT_STORAGE_COUPLER' })}
           onCheckSerial={() => dispatch({ type: 'CHECK_STORAGE_SERIAL' })}
           onDeduction={() => dispatch({ type: 'OPEN_DEDUCTION' })}
+          onBack={() => dispatch({ type: 'BACK_TO_HUB' })}
         />
       )
     }
@@ -116,45 +152,56 @@ export function GameApp() {
         secondaryResponse={state.secondaryResponse}
         onRestart={() => {
           setMaintenanceScroll(0)
+          setLocationTransition(null)
           window.scrollTo({ top: 0, behavior: 'auto' })
           dispatch({ type: 'RESET' })
         }}
       />
     )
   })()
+  const canResumePin =
+    Boolean(state.quickPin) &&
+    state.secondaryTaskComplete &&
+    state.scene !== 'secondary' &&
+    state.scene !== 'reflection'
+
   return (
-    <main className="app-shell">
-      <header className="topbar">
-        <div>
-          <p className="eyebrow">VOID-EAGER</p>
-          <h1>Incident Review</h1>
-        </div>
-        <span className="prototype-badge">ASYNC LOOP V2</span>
-      </header>
-
-      <div className="workspace">
-        <StatusRail state={state} />
+    <main className="game-root">
+      <div className="game-stage" data-testid="game-stage">
         {scene}
-      </div>
-      {state.interruptionStatus === 'warning' && state.scene === 'maintenance' && (
-        <IncomingInterruption
-          pinned={Boolean(state.quickPin)}
-          onPin={() => dispatch({ type: 'PIN_CURRENT_CONTEXT', scrollOffset: maintenanceScroll })}
-          onHandle={startInterruption}
-        />
-      )}
 
-      {state.quickPin && (
-        <QuickPinCard
-          pin={state.quickPin}
-          canResume={
-            state.secondaryTaskComplete &&
+        <StatusRail
+          state={state}
+          location={currentLocation}
+          storageLeadUnlocked={storageLeadUnlocked}
+          storageSerialChecked={serialChecked}
+          canFollowStorageLead={
+            storageLeadUnlocked &&
             state.scene !== 'secondary' &&
+            state.scene !== 'storage' &&
+            state.scene !== 'deduction' &&
             state.scene !== 'reflection'
           }
-          onResume={() => dispatch({ type: 'RESUME_PIN' })}
+          canResumePin={canResumePin}
+          onFollowStorageLead={followStorageLead}
+          onResumePin={() => dispatch({ type: 'RESUME_PIN' })}
         />
-      )}
+
+        {locationTransition && (
+          <div className="location-transition" data-testid="location-transition" role="status" aria-live="polite">
+            <span>NAVIGATION</span>
+            <strong>{locationTransition}</strong>
+          </div>
+        )}
+
+        {state.interruptionStatus === 'warning' && state.scene === 'maintenance' && (
+          <IncomingInterruption
+            pinned={Boolean(state.quickPin)}
+            onPin={() => dispatch({ type: 'PIN_CURRENT_CONTEXT', scrollOffset: maintenanceScroll })}
+            onHandle={startInterruption}
+          />
+        )}
+      </div>
     </main>
   )
 }
