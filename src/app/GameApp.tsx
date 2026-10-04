@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useReducer, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { DeductionScene } from '../components/DeductionScene'
 import { HubScene } from '../components/HubScene'
 import { IncomingInterruption } from '../components/IncomingInterruption'
@@ -10,6 +11,7 @@ import { SecondaryScene } from '../components/SecondaryScene'
 import { StatusRail } from '../components/StatusRail'
 import { StorageScene } from '../components/StorageScene'
 import { gameReducer, initialGameState } from '../game/state'
+import { YOKO_PACK_ASSETS } from '../content/yokoPackAssets'
 
 export function GameApp() {
   const [state, dispatch] = useReducer(gameReducer, initialGameState)
@@ -167,7 +169,17 @@ export function GameApp() {
 
   return (
     <main className="game-root">
-      <div className="game-stage" data-testid="game-stage">
+      <div
+        className="game-stage"
+        data-testid="game-stage"
+        style={{
+          '--ui-frame-cyan': `url("${YOKO_PACK_ASSETS.uiFrameCyan}")`,
+          '--ui-frame-amber': `url("${YOKO_PACK_ASSETS.uiFrameAmber}")`,
+          '--ui-button-neutral': `url("${YOKO_PACK_ASSETS.uiButtonNeutral}")`,
+          '--ui-button-cyan': `url("${YOKO_PACK_ASSETS.uiButtonCyan}")`,
+          '--ui-panel-cyan-small': `url("${YOKO_PACK_ASSETS.uiPanelCyanSmall}")`,
+        } as CSSProperties}
+      >
         {scene}
 
         <StatusRail

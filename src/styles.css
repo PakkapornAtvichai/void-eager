@@ -2058,3 +2058,412 @@ body {
     padding: 6px 9px;
   }
 }
+
+/* =========================================================
+   YOKO PACK A/B/C INTEGRATION
+   Pack A: physical Incident Hub
+   Pack B: reusable UI skins
+   Pack C: graphical Storage evidence interaction
+   ========================================================= */
+
+.hub-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  background: #05080a;
+}
+
+.hub-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.hub-screen-interface {
+  position: absolute;
+  z-index: 5;
+  left: 30.45%;
+  top: 22.9%;
+  width: 38.35%;
+  height: 28.1%;
+  padding: .55% .7% .62%;
+  overflow: hidden;
+  color: #dff7ff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background:
+    linear-gradient(180deg, rgba(3, 18, 27, .74), rgba(2, 11, 17, .82));
+  box-shadow: inset 0 0 34px rgba(48, 197, 241, .05);
+}
+
+.hub-screen-interface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .12;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(139, 224, 251, .12) 0 1px,
+    transparent 1px 4px
+  );
+}
+
+.hub-screen-header,
+.hub-screen-body {
+  position: relative;
+  z-index: 2;
+}
+
+.hub-screen-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 0 4px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid rgba(102, 214, 248, .3);
+  color: #7ee2ff;
+  font-size: clamp(.38rem, .48vw, .56rem);
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+
+.hub-screen-header strong {
+  color: #93ffc2;
+}
+
+.hub-screen-body {
+  padding: 0;
+}
+
+.hub-screen-body .eyebrow {
+  margin: 0 0 2px;
+  font-size: clamp(.34rem, .42vw, .5rem);
+}
+
+.hub-screen-body h2 {
+  margin: 0 0 2px;
+  color: #f2fbff;
+  font-size: clamp(.62rem, .78vw, .92rem);
+  line-height: 1.08;
+}
+
+.hub-screen-body > .muted {
+  margin: 0 0 6px;
+  font-size: clamp(.34rem, .42vw, .5rem);
+  line-height: 1.15;
+}
+
+.hub-thread-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.hub-thread-card {
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid rgba(104, 214, 247, .28);
+  background: rgba(3, 17, 25, .62);
+}
+
+.hub-thread-card > span,
+.hub-thread-card > small {
+  color: #76c9e2;
+  font-size: clamp(.31rem, .38vw, .46rem);
+  letter-spacing: .06em;
+}
+
+.hub-thread-card > strong {
+  min-height: 2.15em;
+  color: #eefaff;
+  font-size: clamp(.43rem, .54vw, .64rem);
+  line-height: 1.08;
+}
+
+.hub-thread-card > small {
+  color: #8faeb8;
+}
+
+.hub-thread-card .console-choice {
+  min-height: 27px;
+  margin-top: 2px;
+  padding: 4px 8px;
+  font-size: clamp(.34rem, .42vw, .5rem);
+}
+
+.hub-location-tag {
+  position: absolute;
+  z-index: 6;
+  bottom: 31%;
+  width: 13%;
+  min-height: 4.5%;
+  display: grid;
+  place-items: center;
+  padding: .4%;
+  color: #d8f7ff;
+  font: 800 clamp(.38rem, .48vw, .58rem)/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .08em;
+  text-align: center;
+  text-shadow: 0 0 8px rgba(73, 211, 252, .32);
+  background-image: var(--ui-button-cyan);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  opacity: .86;
+}
+
+.hub-location-tag--left { left: 4%; }
+.hub-location-tag--right { right: 4%; }
+
+/* Pack B: image-backed controls keep text dynamic while sharing Yoko's visual language. */
+.console-choice,
+.primary,
+.hud-action {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  background-image: var(--ui-button-cyan) !important;
+  background-size: 100% 100% !important;
+  background-repeat: no-repeat !important;
+  color: #eafaff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.7);
+  box-shadow: none !important;
+}
+
+.navigation-button,
+.workstation-back.navigation-button {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  background-image: var(--ui-button-neutral) !important;
+  background-size: 100% 100% !important;
+  background-repeat: no-repeat !important;
+  color: #14191c !important;
+  text-shadow: 0 1px rgba(255,255,255,.34);
+  box-shadow: none !important;
+}
+
+.incoming-interruption {
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 30px 38px 32px !important;
+  background-color: transparent !important;
+  background-image: var(--ui-frame-amber) !important;
+  background-size: 100% 100% !important;
+  background-repeat: no-repeat !important;
+  box-shadow: 0 18px 55px rgba(0,0,0,.52) !important;
+}
+
+.incoming-interruption .eyebrow {
+  color: #ffc56f;
+}
+
+.stage-console-panel:not(.reflection-review-panel),
+.storage-inspection-panel {
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  background-image: var(--ui-frame-cyan);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  box-shadow: 0 20px 70px rgba(0,0,0,.48);
+}
+
+.stage-console-panel:not(.reflection-review-panel) {
+  padding: 34px 42px 38px;
+}
+
+.stage-console-panel:not(.reflection-review-panel) > .stage-console-header {
+  margin: -8px 0 0;
+  background: transparent;
+}
+
+.stage-console-panel:not(.reflection-review-panel) > .stage-console-body {
+  padding: 18px 10px 8px;
+}
+
+/* Pack C: real graphical Storage evidence chain. */
+.storage-object-stage {
+  position: absolute;
+  z-index: 4;
+  left: 4%;
+  top: 16%;
+  width: 61%;
+  height: 66%;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.storage-object-button,
+.storage-serial-focus {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: auto;
+}
+
+.storage-object-button {
+  cursor: pointer;
+}
+
+.storage-object-button img,
+.storage-serial-focus img {
+  display: block;
+  max-width: 74%;
+  max-height: 73%;
+  object-fit: contain;
+  filter: drop-shadow(0 24px 35px rgba(0,0,0,.58));
+  transition: transform .16s ease, filter .16s ease;
+}
+
+.storage-object-button:hover img,
+.storage-object-button:focus-visible img {
+  transform: scale(1.025);
+  filter:
+    drop-shadow(0 24px 35px rgba(0,0,0,.6))
+    drop-shadow(0 0 18px rgba(88, 214, 250, .18));
+}
+
+.storage-object-button--coupler img {
+  max-width: 84%;
+  max-height: 68%;
+}
+
+.storage-object-button > span,
+.storage-serial-focus > span {
+  position: absolute;
+  left: 50%;
+  bottom: 4%;
+  min-width: 250px;
+  transform: translateX(-50%);
+  padding: 12px 26px;
+  color: #eafaff;
+  font: 800 clamp(.48rem, .64vw, .76rem)/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .08em;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0,0,0,.75);
+  background-image: var(--ui-button-cyan);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.storage-serial-focus img {
+  max-width: 66%;
+  max-height: 72%;
+}
+
+.storage-inspection-panel {
+  right: 3.25%;
+  top: 17%;
+  width: 31.5%;
+  max-height: 64%;
+  padding: 34px 35px 38px;
+  overflow: auto;
+}
+
+.storage-inspection-panel > .stage-console-header {
+  margin: -7px 0 0;
+  background: transparent;
+}
+
+.storage-inspection-panel > .stage-console-body {
+  padding: 16px 5px 5px;
+}
+
+.storage-inspection-panel .comparison-card strong {
+  display: none;
+}
+
+.storage-stage--yoko .coupler-pedestal,
+.storage-stage--yoko .coupler-crate,
+.storage-stage--yoko .coupler-ring,
+.storage-stage--yoko .coupler-core {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .hub-screen-interface {
+    left: 30.2%;
+    width: 38.7%;
+  }
+
+  .hub-location-tag {
+    display: none;
+  }
+
+  .storage-object-stage {
+    left: 2%;
+    width: 56%;
+  }
+
+  .storage-inspection-panel {
+    right: 2%;
+    width: 38%;
+  }
+
+  .storage-object-button img,
+  .storage-serial-focus img {
+    max-width: 86%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .storage-object-button img {
+    transition: none;
+  }
+}
+
+/* Pack B regression fixes: keep live content clear of decorative frame rails. */
+.case-review-panel {
+  padding: 62px 76px 66px !important;
+}
+
+.case-review-panel > .eyebrow {
+  margin-top: 0;
+}
+
+.power-console-panel .navigation-button {
+  min-width: 220px;
+  min-height: 38px;
+  padding-inline: 24px;
+}
+
+@media (max-width: 900px) {
+  .case-review-panel {
+    padding: 42px 48px 50px !important;
+  }
+}
+
+/* Case Review safe-area correction after full-resolution Pack B inspection. */
+.case-review-panel {
+  width: min(72%, 1240px) !important;
+  min-height: 56% !important;
+  max-height: 72% !important;
+  padding: 78px 86px 82px !important;
+  overflow: auto;
+}
+
+.case-review-panel .primary {
+  min-width: 210px;
+  min-height: 42px;
+  padding: 10px 24px;
+}
+
+@media (max-width: 900px) {
+  .case-review-panel {
+    width: 84% !important;
+    min-height: 58% !important;
+    padding: 54px 58px 62px !important;
+  }
+}

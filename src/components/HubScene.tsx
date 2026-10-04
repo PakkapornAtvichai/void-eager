@@ -1,5 +1,6 @@
 import { COUPLER } from '../content/coupler'
 import { POWER_SPIKE } from '../content/power'
+import { YOKO_PACK_ASSETS } from '../content/yokoPackAssets'
 
 type Props = {
   onCoupler: () => void
@@ -8,34 +9,47 @@ type Props = {
 
 export function HubScene({ onCoupler, onPower }: Props) {
   return (
-    <section className="stage-console-scene incident-board-scene" data-testid="hub-scene" aria-labelledby="hub-title">
-      <div className="system-grid-backdrop" aria-hidden="true" />
-      <div className="stage-console-panel incident-board-panel">
-        <header className="stage-console-header">
+    <section className="hub-stage" data-testid="hub-scene" aria-labelledby="hub-title">
+      <img
+        className="hub-background"
+        src={YOKO_PACK_ASSETS.hubBackground}
+        alt="Incident Hub aboard Void-eager with a central command display and corridors leading deeper into the ship"
+      />
+
+      <div className="hub-location-tag hub-location-tag--left" aria-hidden="true">
+        MAINTENANCE ACCESS
+      </div>
+      <div className="hub-location-tag hub-location-tag--right" aria-hidden="true">
+        ENGINEERING ACCESS
+      </div>
+
+      <div className="hub-screen-interface">
+        <header className="hub-screen-header">
           <span>INCIDENT BOARD // ACTIVE THREADS</span>
           <strong>02 OPEN</strong>
         </header>
-        <div className="stage-console-body">
+
+        <div className="hub-screen-body">
           <p className="eyebrow">THREAD SELECTION</p>
           <h2 id="hub-title">Choose what to investigate next</h2>
           <p className="muted">The interruption is over. Your previous task is not reopened automatically.</p>
 
-          <div className="thread-grid thread-grid--console">
-            <article className="thread-card thread-card--console">
+          <div className="hub-thread-grid">
+            <article className="hub-thread-card">
               <span>THREAD A // MAINTENANCE</span>
               <strong>{COUPLER.thread}</strong>
-              <p>Maintenance record + replacement part trail.</p>
+              <small>LOCATION // MAINTENANCE WORKSTATION</small>
               <button className="console-choice" data-testid="open-coupler-thread" onClick={onCoupler}>
-                Open Coupler thread
+                Return to Coupler / Workstation
               </button>
             </article>
 
-            <article className="thread-card thread-card--console">
+            <article className="hub-thread-card">
               <span>THREAD B // ENGINEERING</span>
               <strong>{POWER_SPIKE.thread}</strong>
-              <p>Engineering power log around 21:11–21:12.</p>
+              <small>LOCATION // ENGINEERING POWER LOG</small>
               <button className="console-choice" data-testid="open-power-thread" onClick={onPower}>
-                Open Power Spike thread
+                Open Power Spike / Engineering
               </button>
             </article>
           </div>

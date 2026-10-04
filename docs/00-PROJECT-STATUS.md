@@ -156,3 +156,29 @@ GPT-6 Luna final visual gate:
 - automated implementation -> 21-state capture -> visual audit pipeline is viable
 
 Further changes to Loop 1 should now be limited to critical bugs, accessibility fixes, or direct Yoko asset replacement. Do not add gameplay scope before the class demo.
+
+## Yoko Packs A/B/C accepted and integrated
+
+Yoko delivered three new source assets under `assets/incoming-yoko`:
+- `Industrial Sci-Fi Incident Hub.png`
+- `Pixel Sci-Fi HUD Asset Sheet.png`
+- `Mechanical Crate and Coupler Asset Sheet.png`
+
+Acceptance result: **PASS — no further Yoko revision required before implementation.**
+
+Runtime processing:
+- Pack A was normalized from 1672×941 to the native 1920×1080 game canvas without meaningful aspect distortion.
+- Pack B was sliced into reusable transparent frame/button/panel assets while all live text remains HTML.
+- Pack C was sliced into four graphical investigation states: closed crate, open crate, Coupler inspection, and serial detail.
+
+Implemented behavior:
+- Incident Board now lives inside a physical Main Hub / Incident Station background rather than floating on an abstract backdrop.
+- Hub visibly anchors Maintenance access and Engineering access; Coupler selection explicitly returns to the Maintenance Workstation.
+- Pack B cyan/amber/neutral UI art now skins live system panels, interruption, investigation actions, and navigation controls.
+- Storage now requires physical graphical inspection: open crate → inspect Coupler → locate serial plate.
+- Storage no longer reveals the serial before physical inspection and no longer states the deduction `Serials match`; it presents the two observed values for the player to interpret.
+
+Validation:
+- production build passes;
+- `git diff --check` passes;
+- automated 1920×1080 runtime capture passed Hub, Storage interaction states, interruption, coolant, Power, Theory, and Reflection.
