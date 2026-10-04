@@ -109,3 +109,51 @@ Choosing Storage lead
 ```
 
 The distinction between **lead discovery**, **player navigation**, and **external interruption** must remain visible in the interaction design.
+
+## First-time-player navigation correction
+
+The Incident Hub is now a persistent investigation home after the interruption, not a one-time post-interruption menu.
+
+Required navigation contract:
+
+```text
+Maintenance Workstation
+  -> interruption arrives; player chooses when to handle it
+  -> coolant task takes over the physical workstation display
+  -> Incident Hub
+
+Incident Hub
+  -> Coupler case thread -> Maintenance / Workstation
+  -> optional Power context thread -> Engineering Power Log
+  -> Case Review becomes available after Storage serial verification
+
+Maintenance Room
+  -> explicit Incident Hub exit remains available after the interruption
+
+Storage
+  -> physical crate -> Coupler -> serial inspection
+  -> return to Incident Hub
+  -> does NOT automatically advance to Case Review
+
+Case Review
+  -> save working theory
+  -> return to Incident Hub
+  -> does NOT automatically advance to Reflection
+
+Incident Hub after theory saved
+  -> continue investigating, or
+  -> deliberately End Investigation Session
+  -> Reflection
+```
+
+First-time-player meaning:
+- the Hub answers `where do I go next?` and remains revisitable;
+- `NAV // ROOM` only changes focus inside Maintenance and cannot strand the player because the room exposes an Incident Hub exit;
+- the Power thread is labeled as optional context for reconstructing the incident timeline;
+- Storage provides evidence but does not push the player toward an ending;
+- Reflection is entered only after an explicit end-session action.
+
+The forced interruption countdown has been removed. The interruption still arrives unexpectedly, but the player chooses when to handle it and whether to Quick Pin first.
+
+Known visual dependency:
+- Storage still uses a CSS placeholder environment. Its object-interaction sequence is production-ready, but the room background should be replaced by final art if time permits.

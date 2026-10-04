@@ -7,7 +7,6 @@ type Props = {
   serialChecked: boolean
   onInspect: () => void
   onCheckSerial: () => void
-  onDeduction: () => void
   onBack: () => void
 }
 
@@ -16,7 +15,6 @@ export function StorageScene({
   serialChecked,
   onInspect,
   onCheckSerial,
-  onDeduction,
   onBack,
 }: Props) {
   const [crateOpen, setCrateOpen] = useState(inspected || serialChecked)
@@ -136,19 +134,14 @@ export function StorageScene({
             <div className="comparison-card" data-testid="serial-comparison">
               <span>Observed on coupler: {STORAGE_COUPLER.serial}</span>
               <span>Replacement serial in work order: {COUPLER.workOrder.replacementSerial}</span>
+              <small>Return to the Incident Hub when you are ready to decide what to do next.</small>
             </div>
           )}
 
           <div className="storage-actions">
             <button className="navigation-button nav-primary" data-testid="storage-back-hub" onClick={onBack}>
-              ← NAV // INCIDENT BOARD
+              ← NAV // INCIDENT HUB
             </button>
-
-            {serialChecked && (
-              <button className="primary" data-testid="open-deduction" onClick={onDeduction}>
-                Review current theory
-              </button>
-            )}
           </div>
         </div>
       </div>

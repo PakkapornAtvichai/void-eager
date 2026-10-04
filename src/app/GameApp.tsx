@@ -26,6 +26,13 @@ export function GameApp() {
   const protectionFound = state.evidenceFound.includes('ENG_PROTECTION_ACTIVE_LOG')
   const storageLeadUnlocked = state.knowledgeFlags.includes('K_STORAGE_LEAD_UNLOCKED')
 
+  useEffect(() => {
+    Object.values(YOKO_PACK_ASSETS).forEach((src) => {
+      const preload = new Image()
+      preload.src = src
+    })
+  }, [])
+
   const startInterruption = useCallback(() => {
     dispatch({ type: 'START_INTERRUPTION' })
   }, [])
@@ -63,7 +70,7 @@ export function GameApp() {
       return workstationFocused ? 'MAINTENANCE // WORKSTATION' : 'MAINTENANCE'
     }
     if (state.scene === 'secondary') return 'INCIDENT SYSTEM // C-17'
-    if (state.scene === 'hub') return 'INCIDENT BOARD'
+    if (state.scene === 'hub') return 'INCIDENT HUB'
     if (state.scene === 'storage') return 'STORAGE // B-04'
     if (state.scene === 'power') return 'ENGINEERING // POWER LOG'
     if (state.scene === 'deduction') return 'INCIDENT REVIEW'
@@ -85,7 +92,11 @@ export function GameApp() {
             onBack={() => setWorkstationFocused(false)}
           />
         ) : (
-          <MaintenanceScene onWorkstation={() => setWorkstationFocused(true)} />
+          <MaintenanceScene
+            onWorkstation={() => setWorkstationFocused(true)}
+            hubAvailable={state.secondaryTaskComplete}
+            onHub={() => dispatch({ type: 'BACK_TO_HUB' })}
+          />
         )
       )
     }
@@ -103,8 +114,14 @@ export function GameApp() {
     if (state.scene === 'hub') {
       return (
         <HubScene
+          storageLeadUnlocked={storageLeadUnlocked}
+          serialChecked={serialChecked}
+          powerReviewed={protectionFound}
+          theorySaved={Boolean(state.theory)}
           onCoupler={() => dispatch({ type: 'OPEN_THREAD', thread: 'coupler' })}
           onPower={() => dispatch({ type: 'OPEN_THREAD', thread: 'power' })}
+          onCaseReview={() => dispatch({ type: 'OPEN_DEDUCTION' })}
+          onEndSession={() => dispatch({ type: 'OPEN_REFLECTION' })}
         />
       )
     }
@@ -116,7 +133,6 @@ export function GameApp() {
           serialChecked={serialChecked}
           onInspect={() => dispatch({ type: 'INSPECT_STORAGE_COUPLER' })}
           onCheckSerial={() => dispatch({ type: 'CHECK_STORAGE_SERIAL' })}
-          onDeduction={() => dispatch({ type: 'OPEN_DEDUCTION' })}
           onBack={() => dispatch({ type: 'BACK_TO_HUB' })}
         />
       )
@@ -139,7 +155,7 @@ export function GameApp() {
           theory={state.theory}
           theoryEvidence={state.theoryEvidence}
           onSave={(answer, evidence) => dispatch({ type: 'SAVE_THEORY', answer, evidence })}
-          onReflection={() => dispatch({ type: 'OPEN_REFLECTION' })}
+          onBack={() => dispatch({ type: 'BACK_TO_HUB' })}
         />
       )
     }
@@ -180,6 +196,14 @@ export function GameApp() {
           '--ui-panel-cyan-small': `url("${YOKO_PACK_ASSETS.uiPanelCyanSmall}")`,
         } as CSSProperties}
       >
+        <div className="runtime-asset-preload" aria-hidden="true">
+          <img src={YOKO_PACK_ASSETS.hubBackground} alt="" />
+          <img src={YOKO_PACK_ASSETS.storageCrateClosed} alt="" />
+          <img src={YOKO_PACK_ASSETS.storageCrateOpen} alt="" />
+          <img src={YOKO_PACK_ASSETS.storageCouplerInspection} alt="" />
+          <img src={YOKO_PACK_ASSETS.storageSerialDetail} alt="" />
+        </div>
+
         {scene}
 
         <StatusRail

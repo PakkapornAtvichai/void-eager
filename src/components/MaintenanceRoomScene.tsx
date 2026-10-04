@@ -3,9 +3,11 @@ import { WorldAssetHotspot } from './WorldAssetHotspot'
 
 type Props = {
   onWorkstation: () => void
+  hubAvailable: boolean
+  onHub: () => void
 }
 
-export function MaintenanceRoomScene({ onWorkstation }: Props) {
+export function MaintenanceRoomScene({ onWorkstation, hubAvailable, onHub }: Props) {
   return (
     <section className="maintenance-stage" data-testid="maintenance-room" aria-label="Maintenance room">
       <div className="maintenance-canvas">
@@ -34,6 +36,19 @@ export function MaintenanceRoomScene({ onWorkstation }: Props) {
           bounds={HOTSPOT_BOUNDS.junction}
           disabled
         />
+
+        {hubAvailable && (
+          <button
+            type="button"
+            className="maintenance-hub-exit"
+            data-testid="maintenance-hub-exit"
+            onClick={onHub}
+            aria-label="Leave Maintenance and return to the Incident Hub"
+          >
+            <span>INCIDENT HUB</span>
+            <small>EXIT MAINTENANCE</small>
+          </button>
+        )}
       </div>
     </section>
   )

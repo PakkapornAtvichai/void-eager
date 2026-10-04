@@ -2467,3 +2467,305 @@ body {
     padding: 54px 58px 62px !important;
   }
 }
+
+/* =========================================================
+   FIRST-TIME PLAYER CONTINUITY PASS
+   Persistent Incident Hub, visible Maintenance exit, and
+   workstation-native coolant interruption task.
+   ========================================================= */
+
+.maintenance-hub-exit {
+  position: absolute;
+  z-index: 18;
+  right: 6.7%;
+  top: 58.5%;
+  width: 13.5%;
+  min-height: 7.2%;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  padding: .45% .8%;
+  border: 0;
+  border-radius: 0;
+  background: transparent var(--ui-button-neutral) center / 100% 100% no-repeat;
+  color: #13191c;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 900;
+  letter-spacing: .07em;
+  cursor: pointer;
+  text-shadow: 0 1px rgba(255,255,255,.32);
+}
+
+.maintenance-hub-exit span {
+  font-size: clamp(.5rem, .67vw, .78rem);
+}
+
+.maintenance-hub-exit small {
+  font-size: clamp(.36rem, .46vw, .56rem);
+  opacity: .72;
+}
+
+.maintenance-hub-exit:hover,
+.maintenance-hub-exit:focus-visible {
+  filter: brightness(1.14);
+  outline: 2px solid rgba(135, 226, 255, .72);
+  outline-offset: 3px;
+}
+
+.secondary-workstation-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #05080a;
+  color: #d8eef6;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.secondary-workstation-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.secondary-workstation-dimmer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 48% 34%,
+      rgba(2, 8, 12, .04) 0 28%,
+      rgba(2, 7, 10, .22) 55%,
+      rgba(2, 7, 10, .38) 100%
+    );
+}
+
+.secondary-monitor-interface {
+  position: absolute;
+  z-index: 5;
+  left: 24.15%;
+  top: 17.2%;
+  width: 48.6%;
+  height: 34.7%;
+  overflow: auto;
+  padding: .7% .9% .75%;
+  background:
+    linear-gradient(180deg, rgba(4, 24, 34, .94), rgba(2, 15, 23, .965));
+  box-shadow:
+    inset 0 0 36px rgba(51, 196, 235, .055),
+    0 0 12px rgba(0,0,0,.35);
+}
+
+.secondary-monitor-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 5px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(104, 215, 247, .32);
+  color: #7ee2ff;
+  font-size: clamp(.38rem, .48vw, .58rem);
+  font-weight: 800;
+  letter-spacing: .09em;
+}
+
+.secondary-monitor-header strong {
+  color: #ffc56f;
+}
+
+.secondary-monitor-body .eyebrow {
+  margin: 0 0 2px;
+  font-size: clamp(.35rem, .43vw, .5rem);
+}
+
+.secondary-monitor-body h2 {
+  margin: 0 0 3px;
+  color: #f3fbff;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(.78rem, 1vw, 1.16rem);
+  line-height: 1.05;
+}
+
+.secondary-monitor-body > .muted {
+  margin: 0 0 7px;
+  font-size: clamp(.34rem, .42vw, .5rem);
+}
+
+.secondary-monitor-body .telemetry-grid {
+  gap: 5px;
+  margin: 6px 0 5px;
+}
+
+.secondary-monitor-body .telemetry-grid > div {
+  padding: 6px 7px;
+}
+
+.secondary-monitor-body .telemetry-grid span,
+.secondary-monitor-body .diagnostic-line span {
+  font-size: clamp(.28rem, .35vw, .42rem);
+}
+
+.secondary-monitor-body .telemetry-grid strong,
+.secondary-monitor-body .diagnostic-line strong {
+  font-size: clamp(.42rem, .52vw, .62rem);
+}
+
+.secondary-monitor-body .diagnostic-line {
+  margin-bottom: 6px;
+  padding: 6px 8px;
+}
+
+.secondary-monitor-body .console-classification {
+  margin-top: 4px;
+  padding: 5px 7px 6px;
+}
+
+.secondary-monitor-body .console-classification legend {
+  font-size: clamp(.36rem, .44vw, .52rem);
+}
+
+.secondary-monitor-body .console-classification label {
+  min-height: 22px;
+  padding: 3px 5px;
+  font-size: clamp(.34rem, .42vw, .5rem);
+}
+
+.secondary-monitor-body .console-classification .primary,
+.secondary-monitor-body .console-complete .navigation-button {
+  min-height: 26px;
+  margin-top: 4px;
+  padding: 4px 10px;
+  font-size: clamp(.34rem, .42vw, .5rem);
+}
+
+.secondary-monitor-body .console-complete {
+  padding: 8px 9px;
+}
+
+.secondary-monitor-body .console-complete strong,
+.secondary-monitor-body .console-complete span,
+.secondary-monitor-body .console-complete p {
+  display: block;
+  margin: 0 0 4px;
+  font-size: clamp(.34rem, .42vw, .5rem);
+}
+
+.hub-case-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 7px;
+  border: 1px solid rgba(105, 214, 247, .26);
+  background: rgba(3, 17, 25, .54);
+}
+
+.hub-case-actions > div {
+  display: grid;
+  gap: 2px;
+}
+
+.hub-case-actions > div > span {
+  color: #84d9f2;
+  font-size: clamp(.31rem, .38vw, .45rem);
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.hub-case-actions > div > small {
+  color: #a8c1ca;
+  font-size: clamp(.31rem, .38vw, .45rem);
+}
+
+.hub-case-actions .console-choice {
+  width: 220px;
+}
+
+.hub-end-session {
+  filter: saturate(.7);
+}
+
+.incoming-interruption {
+  width: min(44%, 850px) !important;
+  min-height: 15% !important;
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  align-items: center !important;
+  gap: 22px !important;
+  padding: 32px 42px 34px !important;
+}
+
+.incoming-interruption > div:first-child {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.incoming-interruption > div:first-child strong {
+  font-size: clamp(.78rem, 1vw, 1.14rem);
+  line-height: 1.1;
+}
+
+.incoming-interruption > div:first-child span {
+  color: #d4c6ae;
+  font-size: clamp(.46rem, .58vw, .7rem);
+  line-height: 1.25;
+}
+
+.incoming-interruption .button-row {
+  display: grid;
+  min-width: 205px;
+  gap: 7px;
+}
+
+.incoming-interruption .button-row button {
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .secondary-monitor-interface {
+    left: 22.5%;
+    top: 16%;
+    width: 53%;
+    height: 39%;
+  }
+
+  .incoming-interruption {
+    width: min(72%, 760px) !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .incoming-interruption .button-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .maintenance-hub-exit {
+    right: 5%;
+    width: 17%;
+  }
+}
+
+.runtime-asset-preload {
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.runtime-asset-preload img {
+  width: 1px;
+  height: 1px;
+}

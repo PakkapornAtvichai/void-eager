@@ -182,3 +182,22 @@ Validation:
 - production build passes;
 - `git diff --check` passes;
 - automated 1920×1080 runtime capture passed Hub, Storage interaction states, interruption, coolant, Power, Theory, and Reflection.
+
+## First-time-player continuity pass
+
+User blind-play feedback exposed a navigation/meaning problem rather than a simple wording issue. The following were corrected:
+- removed forced interruption countdown;
+- coolant task now occupies the physical Maintenance workstation monitor at the 1920x1080 game stage;
+- Incident Hub is now a persistent investigation home;
+- Maintenance room has an explicit post-interruption exit back to Incident Hub;
+- Storage returns to Hub and no longer launches Theory directly;
+- Power is explicitly framed as an optional context/timeline thread;
+- Case Review is launched deliberately from Hub after Storage serial verification;
+- saving a theory returns to Hub;
+- Reflection requires an explicit `End Investigation Session` action from Hub;
+- Pack C open-crate crop artifact removed;
+- Hub/Storage art is preloaded to avoid first-arrival blank-background flashes.
+
+Automated first-time path validated 11 states from interruption through deliberate Reflection, including the previously soft-locking `Workstation -> NAV ROOM -> Maintenance -> Incident Hub` route.
+
+Remaining important visual gap: final Storage environment/background.

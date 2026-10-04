@@ -14,22 +14,25 @@ export function SecondaryScene({ complete, response, onComplete, onReturn }: Pro
   const [classification, setClassification] = useState<Classification | null>(null)
 
   return (
-    <section className="stage-console-scene secondary-system-scene" data-testid="secondary-scene" aria-labelledby="secondary-title">
+    <section
+      className="secondary-workstation-scene"
+      data-testid="secondary-scene"
+      aria-labelledby="secondary-title"
+    >
       <img
-        className="stage-console-backdrop"
+        className="secondary-workstation-background"
         src={MAINTENANCE_ASSETS.focusedWorkstation}
-        alt=""
-        aria-hidden="true"
+        alt="Glint's workstation while the incident system takes over the main display"
       />
-      <div className="stage-console-dimmer" aria-hidden="true" />
+      <div className="secondary-workstation-dimmer" aria-hidden="true" />
 
-      <div className="stage-console-panel secondary-console-panel">
-        <header className="stage-console-header">
+      <div className="secondary-monitor-interface">
+        <header className="secondary-monitor-header">
           <span>INCIDENT SYSTEM // ALERT C-17</span>
           <strong>ATTENTION REQUIRED</strong>
         </header>
 
-        <div className="stage-console-body">
+        <div className="secondary-monitor-body">
           <p className="eyebrow">COOLANT TELEMETRY</p>
           <h2 id="secondary-title">Classify incoming sensor alert</h2>
           <p className="muted">Review the telemetry and choose an operational response.</p>
@@ -40,6 +43,7 @@ export function SecondaryScene({ complete, response, onComplete, onReturn }: Pro
             <div><span>PRESSURE</span><strong>STABLE</strong></div>
             <div><span>FLOW</span><strong>NOMINAL</strong></div>
           </div>
+
           <div className="diagnostic-line">
             <span>DIAGNOSTIC</span>
             <strong>SENSOR B SIGNAL INTERMITTENT</strong>
@@ -49,26 +53,42 @@ export function SecondaryScene({ complete, response, onComplete, onReturn }: Pro
             <fieldset className="classification console-classification">
               <legend>Response classification</legend>
               <label>
-                <input type="radio" name="classification" value="sensor-mismatch"
+                <input
+                  type="radio"
+                  name="classification"
+                  value="sensor-mismatch"
                   checked={classification === 'sensor-mismatch'}
-                  onChange={() => setClassification('sensor-mismatch')} />
+                  onChange={() => setClassification('sensor-mismatch')}
+                />
                 Log sensor mismatch and continue monitoring
               </label>
               <label>
-                <input type="radio" name="classification" value="maintenance"
+                <input
+                  type="radio"
+                  name="classification"
+                  value="maintenance"
                   checked={classification === 'maintenance'}
-                  onChange={() => setClassification('maintenance')} />
+                  onChange={() => setClassification('maintenance')}
+                />
                 Escalate to immediate maintenance response
               </label>
               <label>
-                <input type="radio" name="classification" value="emergency"
+                <input
+                  type="radio"
+                  name="classification"
+                  value="emergency"
                   checked={classification === 'emergency'}
-                  onChange={() => setClassification('emergency')} />
+                  onChange={() => setClassification('emergency')}
+                />
                 Trigger emergency isolation
               </label>
-              <button className="primary" data-testid="confirm-classification"
+
+              <button
+                className="primary"
+                data-testid="confirm-classification"
                 onClick={() => classification && onComplete(classification)}
-                disabled={!classification}>
+                disabled={!classification}
+              >
                 Log response
               </button>
             </fieldset>
@@ -76,8 +96,9 @@ export function SecondaryScene({ complete, response, onComplete, onReturn }: Pro
             <div className="task-complete console-complete">
               <strong>RESPONSE LOGGED</strong>
               <span>Recorded action: {response ?? 'Unspecified'}</span>
+              <p>The incident task is complete. Return to the Incident Hub to decide what to resume next.</p>
               <button className="navigation-button" data-testid="return-investigation" onClick={onReturn}>
-                Return to incident board
+                Return to Incident Hub
               </button>
             </div>
           )}
