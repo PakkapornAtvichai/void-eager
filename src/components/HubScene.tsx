@@ -45,52 +45,52 @@ export function HubScene({
         </header>
 
         <div className="hub-screen-body">
-          <p className="eyebrow">INVESTIGATION HOME</p>
+          <p className="eyebrow">INCIDENT REVIEW</p>
           <h2 id="hub-title">
             {theorySaved
-              ? 'Theory saved — close or revisit the case'
+              ? 'Theory saved'
               : serialChecked
-                ? 'Ready to record a working theory'
+                ? 'Review the Coupler evidence'
                 : storageLeadUnlocked
-                  ? 'New lead: Storage B-04'
-                  : 'Resume the Coupler investigation'}
+                  ? 'Storage lead available'
+                  : 'Continue the Coupler case'}
           </h2>
           <p className="muted">
             {theorySaved
-              ? 'End the session below, or revisit the investigation threads.'
+              ? 'End Session is available below.'
               : serialChecked
-                ? 'Choose Open Case Review below. Power remains optional.'
+                ? 'Record a working theory in Case Review.'
                 : storageLeadUnlocked
-                  ? 'Select REPLACEMENT SERIAL under LEADS in the bottom HUD. Power remains optional.'
-                  : 'Return to Workstation to trace the serial from the work order. The Power timeline is optional.'}
+                  ? 'Follow the Storage B-04 lead in the bottom HUD.'
+                  : 'Return to Workstation. Power Log is optional.'}
           </p>
 
           <div className="hub-thread-grid">
             <article className="hub-thread-card">
-              <span>CASE THREAD // MAINTENANCE</span>
+              <span>MAIN CASE // MAINTENANCE</span>
               <strong>{COUPLER.thread}</strong>
               <small>
                 {serialChecked
-                  ? 'STATUS // SERIAL VERIFIED'
+                  ? 'SERIAL LOGGED'
                   : storageLeadUnlocked
-                    ? 'STATUS // STORAGE LEAD AVAILABLE'
-                    : 'STATUS // WORKSTATION RECORD OPEN'}
+                    ? 'STORAGE LEAD READY'
+                    : 'WORK ORDER OPEN'}
               </small>
               <button className="console-choice" data-testid="open-coupler-thread" onClick={onCoupler}>
-                Return to Workstation
+                BACK TO WORKSTATION
               </button>
             </article>
 
             <article className="hub-thread-card">
-              <span>CONTEXT THREAD // ENGINEERING</span>
+              <span>OPTIONAL // POWER LOG</span>
               <strong>{POWER_SPIKE.thread}</strong>
               <small>
                 {powerReviewed
-                  ? 'STATUS // TIMELINE REVIEWED'
-                  : 'OPTIONAL // RECONSTRUCT INCIDENT TIMELINE'}
+                  ? 'TIMELINE REVIEWED'
+                  : 'EXTRA CONTEXT'}
               </small>
               <button className="console-choice" data-testid="open-power-thread" onClick={onPower}>
-                {powerReviewed ? 'Review Power Timeline' : 'Inspect Power Timeline'}
+                {powerReviewed ? 'REVIEW POWER LOG' : 'VIEW POWER LOG'}
               </button>
             </article>
           </div>
@@ -100,16 +100,16 @@ export function HubScene({
               <span>CASE REVIEW</span>
               <small>
                 {!serialChecked
-                  ? 'Verify the Storage serial before filing a theory.'
+                  ? 'Compare the part in Storage first.'
                   : theorySaved
-                    ? 'Theory saved. You may keep investigating or close the session.'
-                    : 'Enough Coupler evidence is available to file a working theory.'}
+                    ? 'Finish or continue investigating.'
+                    : 'You can now record your conclusion.'}
               </small>
             </div>
 
             {serialChecked && !theorySaved && (
               <button className="console-choice" data-testid="hub-open-case-review" onClick={onCaseReview}>
-                Open Case Review
+                CASE REVIEW
               </button>
             )}
 

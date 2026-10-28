@@ -24,7 +24,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
     return {
       id: 'reflect',
       category: 'REVIEW',
-      title: 'Reflect on how you returned to the case',
+      title: 'Reflect on task switching',
       hint: 'Consider what helped you remember the Coupler question after the alert. You can restart to try another approach.',
     }
   }
@@ -40,7 +40,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
       : {
           id: 'classify-alert',
           category: 'ALERT',
-          title: 'Choose a response to Coolant Alert C-17',
+          title: 'Classify the coolant alert',
           hint: 'Compare Sensor A and B with the pressure, flow, and diagnostic. Select one response, then choose Log response.',
         }
   }
@@ -50,13 +50,13 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
       ? {
           id: 'theory-saved',
           category: 'REVIEW',
-          title: 'Return to the Hub to finish or investigate more',
+          title: 'Return to the Hub',
           hint: 'Your working theory has been saved. Use Return to Incident Hub. End Session is available there; further exploration is optional.',
         }
       : {
           id: 'file-theory',
           category: 'REVIEW',
-          title: 'Choose an interpretation and cite evidence',
+          title: 'Choose theory and evidence',
           hint: 'Select what you currently think happened, check at least one relevant observation, then choose Save current theory. This is not graded as right or wrong.',
         }
   }
@@ -91,7 +91,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
       return {
         id: 'hub-finish',
         category: 'REVIEW',
-        title: 'End the session, or explore more',
+        title: 'Finish or continue investigating',
         hint: 'Your working theory is saved. Choose End Session in Case Review to reflect, or revisit either thread.',
       }
     }
@@ -99,8 +99,8 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
       return {
         id: 'hub-theory',
         category: 'CASE',
-        title: 'Open Case Review to record your theory',
-        hint: 'You have the work order and the observed serial from Storage. Use Open Case Review below the two thread choices.',
+        title: 'Record your theory',
+        hint: 'You have the work order and the observed serial from Storage. Use CASE REVIEW beneath the two thread choices.',
       }
     }
     if (view.storageLeadUnlocked) {
@@ -114,10 +114,10 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
     return {
       id: 'hub-resume',
       category: 'CASE',
-      title: 'Resume the Coupler investigation at Workstation',
+      title: 'Resume the Coupler case',
       hint: state.quickPin
-        ? 'You can use your saved Quick Pin to resume the report, or select Return to Workstation. Look for TRACE SERIAL -> STORAGE beneath the report.'
-        : 'Select Return to Workstation. Scroll to the report\'s Parts Reference, then use TRACE SERIAL -> STORAGE beneath the report.',
+        ? 'You can use your saved Quick Pin to resume the report, or select BACK TO WORKSTATION. Look for TRACE SERIAL -> STORAGE beneath the report.'
+        : 'Select BACK TO WORKSTATION. Scroll to the report\'s Parts Reference, then use TRACE SERIAL -> STORAGE beneath the report.',
     }
   }
 
@@ -128,8 +128,8 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
     return {
       id: 'alert-warning',
       category: 'ALERT',
-      title: 'Respond to the incoming coolant alert',
-      hint: 'The Coupler report will remain available. You may pin your reading context before choosing Handle incident, but pinning is optional.',
+      title: 'Respond to Alert C-17',
+      hint: 'The Coupler report will remain available. You may pin your reading context before choosing HANDLE ALERT, but pinning is optional.',
     }
   }
 
@@ -137,7 +137,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
     return {
       id: `optional-${view.maintenanceInspection}`,
       category: 'OPTIONAL',
-      title: 'Inspect details, or continue at Workstation',
+      title: 'Explore or open Workstation',
       hint: 'Workbench and Junction offer optional observations. They do not replace the formal work order. Use OPEN WORKSTATION / RECORD when ready.',
     }
   }
@@ -147,7 +147,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
       return {
         id: 'find-workstation',
         category: 'CASE',
-        title: 'Find Glint\'s maintenance work order',
+        title: 'Open the Workstation',
         hint: 'Click Open Workstation on the central desk. Workbench and Junction are optional places to explore first.',
       }
     }
@@ -179,7 +179,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
     return {
       id: 'open-work-order',
       category: 'CASE',
-      title: 'Open the maintenance record on the center display',
+      title: 'Open the Work Order',
       hint: 'Select ACCESS RECORD. Your question is whether the replacement was actually installed, not just marked complete.',
     }
   }
@@ -188,7 +188,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
     return {
       id: 'inspect-replacement',
       category: 'CASE',
-      title: 'Check the recorded replacement against its proof',
+      title: 'Look for installation proof',
       hint: 'Scroll through sections 02 and 03. What confirms that the listed serial was installed, rather than just entered in the work order?',
     }
   }
@@ -206,7 +206,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
     return {
       id: 'trace-serial',
       category: 'CASE',
-      title: 'Use TRACE SERIAL beneath the Work Order',
+      title: 'Trace the serial',
       hint: 'Find section 03 / PARTS REFERENCE. Select TRACE SERIAL -> STORAGE just below the report to add a navigable lead.',
     }
   }
@@ -214,7 +214,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
   return {
     id: 'follow-storage',
     category: 'CASE',
-    title: 'Follow the Storage B-04 lead in the HUD',
+    title: 'Follow Storage B-04 lead',
     hint: 'Select the green REPLACEMENT SERIAL lead in the bottom HUD to travel to Storage. The Power timeline remains optional.',
   }
 }
@@ -224,15 +224,15 @@ export function storageObjective(phase: StoragePhase): Objective {
     return {
       id: 'storage-open',
       category: 'CASE',
-      title: 'Open the replacement-parts crate',
-      hint: 'Select OPEN REPLACEMENT CRATE on the large crate image to inspect what was left in Storage B-04.',
+      title: 'Open the parts crate',
+      hint: 'Select OPEN CRATE on the large crate image to inspect what was left in Storage B-04.',
     }
   }
   if (phase === 'open') {
     return {
       id: 'storage-inspect',
       category: 'CASE',
-      title: 'Inspect the coupler inside the crate',
+      title: 'Inspect the Coupler',
       hint: 'Select INSPECT COUPLER on the opened crate. Note its condition before looking for identifying markings.',
     }
   }
@@ -240,14 +240,14 @@ export function storageObjective(phase: StoragePhase): Objective {
     return {
       id: 'storage-plate',
       category: 'CASE',
-      title: 'Locate the coupler\'s serial plate',
-      hint: 'Select LOCATE SERIAL PLATE on the component. You will be able to compare its serial with the work order.',
+      title: 'Find the serial plate',
+      hint: 'Select FIND SERIAL on the component. You will be able to compare its serial with the work order.',
     }
   }
   return {
     id: 'storage-compare',
     category: 'CASE',
-    title: 'Compare the two serials, then return to the Hub',
-    hint: 'Read COUPLER PLATE and WORK ORDER on the right. Are they the same part identifier? Use NAV / INCIDENT HUB when ready to form a theory.',
+    title: 'Compare the serials',
+    hint: 'Select REVIEW SERIAL to reopen the comparison. Then use INCIDENT HUB to file a theory.',
   }
 }

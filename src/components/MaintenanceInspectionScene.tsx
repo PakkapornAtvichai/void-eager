@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { CSSProperties } from 'react'
 import { MAINTENANCE_ASSETS } from '../content/maintenanceAssets'
+import { EvidenceModal } from './EvidenceModal'
 
 export type MaintenanceInspectionArea = 'workbench' | 'junction'
 
@@ -26,40 +27,40 @@ const INSPECTIONS: Record<MaintenanceInspectionArea, {
 }> = {
   workbench: {
     title: 'Maintenance Workbench',
-    description: 'Glint has left handwritten service notes and parts sketches on the bench. Choose an area to examine.',
+    description: 'Inspect Glint\'s service notes and part sketches.',
     image: MAINTENANCE_ASSETS.focusedWorkbench,
     imageAlt: 'Close view of the maintenance workbench with a handwritten checklist and sketches of coupler parts',
     targets: [
       {
         id: 'checklist',
         label: 'Service checklist',
-        observation: 'The handwritten checklist names routine checks, including junction and calibration work. There is also a reminder to update the maintenance log. These notes are not an installation verification.',
+        observation: 'Routine checks and a reminder to update the maintenance log. No installation verification appears here.',
         bounds: { left: 170, top: 395, width: 420, height: 415 },
       },
       {
         id: 'spare',
         label: 'Spare-part sketch',
-        observation: 'A sketch is marked "Spare?" and "Check stock." It suggests checking the replacement part, but does not establish whether the coupler was installed.',
+        observation: 'Handwritten: "Spare?" and "Check stock." A reason to trace the part, but not proof of installation.',
         bounds: { left: 1160, top: 720, width: 325, height: 250 },
       },
     ],
   },
   junction: {
     title: 'Junction Access',
-    description: 'Service panels and a local readout line this wall. Inspect them before deciding whether they help with the Coupler question.',
+    description: 'Inspect the local status display and closed panel.',
     image: MAINTENANCE_ASSETS.focusedJunction,
     imageAlt: 'Close view of the maintenance junction with a small blue system display and a closed electrical service panel',
     targets: [
       {
         id: 'display',
         label: 'Local status display',
-        observation: 'The local display is active, but the visible readout does not show a replacement-part serial. It cannot independently verify the work order.',
+        observation: 'The display is active but shows no replacement serial. It cannot verify the work order.',
         bounds: { left: 385, top: 345, width: 265, height: 360 },
       },
       {
         id: 'cover',
         label: 'Service enclosure',
-        observation: 'This is an enclosed electrical service panel. Its exterior alone cannot establish whether the Guidance Stabilizer Coupler was replaced. The formal work order and physical stock need to be compared.',
+        observation: 'The panel is closed. Its exterior cannot verify a replacement; compare the work order with physical stock.',
         bounds: { left: 1360, top: 270, width: 320, height: 550 },
       },
     ],
@@ -107,36 +108,19 @@ export function MaintenanceInspectionScene({ area, onBack, onWorkstation }: Prop
           </button>
         </nav>
 
-        <aside className="inspection-observation-panel" aria-label="Inspection observations">
-          <span className="inspection-panel-kicker">MAINTENANCE // VISUAL INSPECTION</span>
-          <h2>{inspection.title}</h2>
-          <p>{inspection.description}</p>
-          <div className="inspection-observation-options" aria-label="Choose an inspection point">
-            {inspection.targets.map((target) => (
-              <button
-                type="button"
-                key={target.id}
-                data-testid={`inspection-option-${target.id}`}
-                aria-pressed={selectedId === target.id}
-                className={selectedId === target.id ? 'is-selected' : ''}
-                onClick={() => setSelectedId(target.id)}
-              >
-                {target.label}
-              </button>
-            ))}
-          </div>
-          <div className="inspection-observation-result" role="status" aria-live="polite" data-testid="inspection-result">
-            {selected ? (
-              <>
-                <strong>{selected.label}</strong>
-                <p>{selected.observation}</p>
-              </>
-            ) : (
-              <p>Select a detail on the image or use the inspection buttons above.</p>
-            )}
-          </div>
-          <small>Field observation only. The formal replacement record is at the Workstation.</small>
-        </aside>
+        {selected && (
+          <EvidenceModal
+            title={selected.label}
+            kicker={inspection.title.toUpperCase() + ' // VISUAL INSPECTION'}
+            testId="inspection-dialog"
+            onClose={() => setSelectedId(null)}
+          >
+            <div data-testid="inspection-result" className="inspection-observation-result">
+              <p>{selected.observation}</p>
+            </div>
+            <small>Observation only. The formal Coupler record is at the Workstation.</small>
+          </EvidenceModal>
+        )}
       </div>
     </section>
   )

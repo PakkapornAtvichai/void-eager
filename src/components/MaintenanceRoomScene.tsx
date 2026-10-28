@@ -46,9 +46,9 @@ export function MaintenanceRoomScene({ onWorkstation, onInspect, briefingVisible
         {briefingVisible && (
           <aside className="mission-briefing" data-testid="mission-briefing" aria-label="Investigation briefing">
             <span className="mission-briefing__eyebrow">VOID-EAGER // INCIDENT SYSTEMS OFFICE</span>
-            <h1>Investigate the Coupler Record</h1>
-            <p>The ship suffered a Guidance Stabilizer cascade. Your task is to check a maintenance claim: was the replacement coupler actually installed?</p>
-            <p className="mission-briefing__assignment">Start with Glint's workstation. As Incident Systems Officer, you may also be called to handle shipwide telemetry while investigating.</p>
+            <h1>Verify the Coupler</h1>
+            <p>Void-eager's stabilizer failed. Glint's log says the Coupler was replaced. Check that claim.</p>
+            <p className="mission-briefing__assignment">Start at Workstation. Workbench and Junction are optional.</p>
             <div className="mission-briefing__actions">
               <button type="button" data-testid="begin-coupler-investigation" onClick={onWorkstation}>
                 REVIEW WORK ORDER
@@ -57,7 +57,7 @@ export function MaintenanceRoomScene({ onWorkstation, onInspect, briefingVisible
                 EXPLORE ROOM
               </button>
             </div>
-            <small>Workbench and Junction offer optional visual inspection. The Workstation contains the formal Coupler record.</small>
+
           </aside>
         )}
 

@@ -2,24 +2,65 @@ type Props = {
   pinned: boolean
   onPin: () => void
   onHandle: () => void
+  onMinimize: () => void
 }
 
-export function IncomingInterruption({ pinned, onPin, onHandle }: Props) {
+export function IncomingInterruption({ pinned, onPin, onHandle, onMinimize }: Props) {
   return (
-    <aside className="incoming-interruption" data-testid="incoming-interruption" aria-live="assertive">
-      <div>
-        <p className="eyebrow">INCOMING INCIDENT // C-17</p>
-        <strong>Shipwide coolant telemetry requires triage.</strong>
-        <span>Alert C-17 was routed to the Incident Systems Officer. Your Coupler report remains open. Pin it if a resumption cue would help.</span>
-      </div>
-      <div className="button-row">
-        <button className="secondary" data-testid="pin-current-context" onClick={onPin} disabled={pinned}>
-          {pinned ? 'Context pinned' : 'Pin current context'}
-        </button>
-        <button className="primary" data-testid="handle-interruption-now" onClick={onHandle}>
-          Handle incident
-        </button>
-      </div>
-    </aside>
+    <div className="incident-modal-backdrop" data-testid="incident-dialog-backdrop">
+      <section
+        className="incident-dialog-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="incident-dialog-title"
+        data-testid="incoming-interruption"
+      >
+        <div className="incident-dialog-card__header">
+          <span>SHIP SYSTEM // C-17</span>
+          <button type="button" data-testid="minimize-incident" onClick={onMinimize}>
+            LATER / MINIMIZE
+          </button>
+        </div>
+        <h2 id="incident-dialog-title">Coolant sensor alert</h2>
+        <p>The two coolant readings disagree. As Incident Systems Officer, classify the alert.</p>
+        <p className="incident-dialog-card__context">
+          Your Coupler investigation stays open. Save its context before switching, if helpful.
+        </p>
+        <div className="incident-dialog-card__actions">
+          <button
+            className="secondary"
+            type="button"
+            data-testid="pin-current-context"
+            onClick={onPin}
+            disabled={pinned}
+          >
+            {pinned ? 'CONTEXT SAVED' : 'SAVE CONTEXT'}
+          </button>
+          <button
+            className="primary"
+            type="button"
+            data-testid="handle-interruption-now"
+            onClick={onHandle}
+          >
+            HANDLE ALERT
+          </button>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+export function PendingIncidentTab({ onOpen }: { onOpen: () => void }) {
+  return (
+    <button
+      type="button"
+      className="pending-incident-tab"
+      data-testid="pending-incident-tab"
+      onClick={onOpen}
+      aria-label="Open pending Coolant Incident C-17"
+    >
+      <strong>! C-17 PENDING</strong>
+      <span>OPEN ALERT</span>
+    </button>
   )
 }

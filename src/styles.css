@@ -3625,3 +3625,337 @@ body {
 @media (max-width: 1100px) {
   .secondary-monitor-interface { top: 9%; height: 70%; }
 }
+
+
+/* 2026-10-28 — Scene-first interaction pass.
+   No permanent evidence descriptions. Dialogs only open on player interaction. */
+.evidence-modal-backdrop,
+.incident-modal-backdrop {
+  position: absolute;
+  inset: 0 0 11.6%;
+  z-index: 110;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background: rgba(0, 7, 13, .63);
+  backdrop-filter: blur(1.5px);
+}
+.evidence-modal {
+  width: min(585px, 64%);
+  max-height: min(74%, 550px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 2px solid rgba(100, 211, 239, .83);
+  border-left-width: 5px;
+  border-radius: 5px;
+  background: linear-gradient(150deg, rgba(7, 28, 41, .985), rgba(3, 14, 23, .985));
+  box-shadow: 0 25px 80px rgba(0, 0, 0, .85), inset 0 0 36px rgba(39, 160, 195, .07);
+  color: #eaf8ff;
+  padding: clamp(19px, 2.1vw, 30px);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+.evidence-modal__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+  margin-bottom: 15px;
+}
+.evidence-modal__header > span {
+  min-width: 0;
+  font-size: clamp(12px, .84vw, 14px);
+  font-weight: 800;
+  color: #8cdaf0;
+  line-height: 1.3;
+  letter-spacing: .05em;
+  overflow-wrap: anywhere;
+}
+.evidence-modal__close {
+  flex: 0 0 auto;
+  min-height: 42px;
+  min-width: 112px;
+  padding: 8px 14px;
+  border: 1px solid #c1f3ff;
+  border-radius: 3px;
+  background: #245269;
+  color: white;
+  font: 800 clamp(13px, .94vw, 16px)/1.22 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  cursor: pointer;
+}
+.evidence-modal__close:is(:hover, :focus-visible) {
+  outline: 2px solid #d7f8ff;
+  outline-offset: 2px;
+  background: #367794;
+}
+.evidence-modal h2 {
+  margin: 0 0 15px;
+  color: #f1fcff;
+  font: 800 clamp(21px, 1.65vw, 29px)/1.18 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+.evidence-modal__content {
+  display: grid;
+  gap: 12px;
+  color: #d9eaf1;
+  font-size: clamp(14px, 1.03vw, 17px);
+  line-height: 1.48;
+  overflow-wrap: anywhere;
+}
+.evidence-modal__content p { margin: 0; }
+.evidence-modal__content small { color: #a3cbd9; font-size: .82em; line-height: 1.4; }
+.evidence-modal__finding {
+  display: grid;
+  gap: 7px;
+  border-left: 3px solid #6cc6e0;
+  padding: 9px 13px;
+  background: rgba(12, 61, 82, .33);
+}
+.evidence-modal__finding strong { color: #b9f4ff; }
+.evidence-modal .inspection-observation-result {
+  border: 0;
+  padding: 0;
+  min-height: 0;
+}
+.serial-comparison-modal {
+  display: grid;
+  border: 1px solid rgba(108, 204, 227, .5);
+  background: rgba(4, 22, 33, .8);
+  padding: 4px 13px;
+}
+.serial-comparison-modal > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 0;
+  flex-wrap: wrap;
+}
+.serial-comparison-modal > div + div { border-top: 1px solid rgba(117, 200, 219, .3); }
+.serial-comparison-modal span { color: #9ad0df; font-size: .82em; }
+.serial-comparison-modal strong { color: #f2fbff; font-weight: 800; white-space: nowrap; }
+
+/* The screen and evidence hot spots remain unobstructed until clicked. */
+.maintenance-inspection-stage .inspection-hotspot { border-color: rgba(111, 208, 234, .29); }
+.maintenance-inspection-stage .inspection-hotspot span { font-size: clamp(11px, .86vw, 15px); }
+.inspection-room-navigation {
+  top: 1.5%;
+  left: 1.6%;
+  right: 1.6%;
+  z-index: 39;
+}
+.inspection-room-navigation button {
+  min-width: auto;
+  min-height: 43px;
+  padding: 9px 14px;
+  font-size: clamp(12px, .91vw, 15px);
+  line-height: 1.2;
+  max-width: 29%;
+  white-space: normal;
+}
+
+/* Use the complete storage art; only a short location tag and exit remain visible. */
+.storage-object-stage--unobstructed {
+  left: 10%;
+  top: 11%;
+  width: 80%;
+  height: 74%;
+}
+.storage-object-stage--unobstructed .storage-object-button img {
+  max-width: 68%;
+  max-height: 78%;
+}
+.storage-object-stage--unobstructed .storage-object-button > span { bottom: 4%; min-height: 43px; min-width: 190px; font-size: clamp(13px, .94vw, 16px); }
+.storage-simple-exit {
+  position: absolute;
+  top: 2.5%;
+  left: 2.5%;
+  z-index: 38;
+  min-height: 43px;
+  min-width: 162px;
+  padding: 9px 16px;
+  font-size: clamp(13px, .96vw, 16px);
+}
+.storage-scene-label {
+  position: absolute;
+  top: 3.4%;
+  right: 2.5%;
+  z-index: 12;
+  color: #b0dfec;
+  background: rgba(3, 20, 31, .7);
+  padding: 6px 11px;
+  border: 1px solid rgba(85, 192, 221, .42);
+  font: 800 clamp(11px, .86vw, 14px)/1.18 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .05em;
+}
+.storage-serial-focus .storage-serial-review {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  position: relative;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: zoom-in;
+}
+.storage-serial-focus .storage-serial-review img {
+  display: block;
+  max-width: 68%;
+  max-height: 75%;
+  object-fit: contain;
+  filter: drop-shadow(0 25px 32px rgba(0, 0, 0, .6));
+}
+.storage-serial-focus .storage-serial-review > span {
+  position: absolute;
+  left: 50%;
+  bottom: 4%;
+  transform: translateX(-50%);
+  min-width: 240px;
+  max-width: 80%;
+  padding: 12px 23px;
+  background: var(--ui-button-cyan) center/100% 100% no-repeat;
+  color: #effdff;
+  font: 800 clamp(12px, .9vw, 15px)/1.22 ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.storage-serial-focus .storage-serial-review:is(:hover, :focus-visible) img { filter: drop-shadow(0 0 18px rgba(98, 226, 254, .32)); }
+
+/* Compact objectives. Any longer assistance is in a click-to-open centered dialog. */
+.objective-tracker--compact {
+  width: min(530px, 43%);
+  padding: 7px 11px;
+  top: .7%;
+}
+.objective-tracker--compact .objective-tracker__content { gap: 2px; }
+.objective-tracker--compact .objective-tracker__eyebrow { font-size: clamp(10px, .73vw, 12px); }
+.objective-tracker--compact .objective-tracker__title { font-size: clamp(13px, .98vw, 16px); line-height: 1.22; }
+.objective-tracker--compact .objective-tracker__toggle {
+  min-width: 80px;
+  min-height: 35px;
+  padding: 7px 10px;
+  font-size: clamp(12px, .84vw, 14px);
+}
+
+/* Persistent pending alert + consciously handled context switch. */
+.pending-incident-tab {
+  position: absolute;
+  z-index: 87;
+  right: 2.2%;
+  top: 9.5%;
+  display: grid;
+  gap: 5px;
+  min-width: 180px;
+  max-width: 26%;
+  padding: 12px 16px;
+  border: 2px solid #d99b46;
+  border-radius: 4px;
+  background: rgba(43, 28, 12, .96);
+  color: #ffdcaa;
+  cursor: pointer;
+  text-align: left;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .5);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+.pending-incident-tab strong { font-size: clamp(12px, .94vw, 16px); line-height: 1.2; }
+.pending-incident-tab span { color: #f2c68d; font-size: clamp(11px, .79vw, 13px); }
+.pending-incident-tab:is(:hover, :focus-visible) { outline: 2px solid #ffdeb1; outline-offset: 2px; }
+.incident-modal-backdrop { z-index: 125; background: rgba(9, 8, 6, .7); }
+.incident-dialog-card {
+  width: min(570px, 60%);
+  max-height: 79%;
+  overflow-y: auto;
+  padding: clamp(22px, 2.3vw, 32px);
+  border: 3px solid #dfa24f;
+  border-left-width: 6px;
+  border-radius: 5px;
+  background: linear-gradient(155deg, rgba(43, 27, 11, .98), rgba(18, 16, 13, .98));
+  box-shadow: 0 24px 85px rgba(0,0,0,.82), inset 0 0 32px rgba(222, 141, 33, .12);
+  color: #fff4e5;
+}
+.incident-dialog-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-bottom: 10px;
+  color: #ffcf94;
+  font: 800 clamp(12px, .85vw, 15px)/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.incident-dialog-card__header button {
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid #f8d1a0;
+  background: rgba(72, 50, 27, .85);
+  color: #fff0d9;
+  font: 800 clamp(12px, .86vw, 15px)/1.23 ui-monospace, SFMono-Regular, Menlo, monospace;
+  cursor: pointer;
+}
+.incident-dialog-card h2 {
+  margin: 0 0 13px;
+  font: 800 clamp(23px, 1.8vw, 30px)/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.incident-dialog-card p {
+  margin: 0 0 9px;
+  font: 500 clamp(14px, 1.04vw, 17px)/1.42 ui-monospace, SFMono-Regular, Menlo, monospace;
+  overflow-wrap: anywhere;
+}
+.incident-dialog-card__context { color: #dbbf99; }
+.incident-dialog-card__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 19px;
+}
+.incident-dialog-card__actions button {
+  min-width: 0;
+  min-height: 47px;
+  padding: 9px 12px;
+  font: 800 clamp(14px, 1.05vw, 17px)/1.25 ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: normal;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.incident-dialog-card__actions .primary { background: #12677c; color: #fff; border: 2px solid #94e7ff; }
+.incident-dialog-card__actions .secondary { background: #4a3723; color: #fff3db; border: 1px solid #eec18a; }
+.incident-dialog-card__actions button:disabled { opacity: .65; cursor: default; }
+
+/* Other copy: prioritize fitting within the original graphic, not tiny type. */
+.hub-thread-card .console-choice {
+  padding: 9px 10px;
+  min-height: 44px;
+  line-height: 1.15;
+  font-size: clamp(13px, .95vw, 16px);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.hub-thread-card strong { overflow-wrap: anywhere; }
+.hub-screen-body > .muted { margin-bottom: 5px; }
+.mission-briefing { max-width: 465px; gap: 9px; }
+.mission-briefing__assignment { color: #c6e1e9; }
+
+@media (max-width: 1100px) {
+  .evidence-modal { width: min(560px, 80%); padding: 16px 20px; }
+  .incident-dialog-card { width: min(570px, 79%); padding: 18px 22px; }
+  .objective-tracker--compact { width: min(430px, 47%); padding: 5px 8px; }
+  .objective-tracker--compact .objective-tracker__title { font-size: 12px; }
+  .storage-object-stage--unobstructed { left: 6%; width: 88%; }
+  .storage-scene-label { top: 11%; font-size: 11px; }
+  .inspection-room-navigation button { max-width: 30%; font-size: 11px; }
+}
+@media (max-height: 640px) {
+  .evidence-modal-backdrop,.incident-modal-backdrop { padding: 10px; }
+  .evidence-modal,.incident-dialog-card { max-height: 86%; }
+}
+
+
+/* Final cleanup: highlight the evidence dot/label, not a large permanent rectangle. */
+.maintenance-inspection-stage .inspection-hotspot:not(:hover):not(:focus-visible):not(.is-selected) {
+  background: transparent;
+  border-color: transparent;
+}
+@media (max-width: 1100px) {
+  .hub-screen-interface { top: 11%; height: 49%; }
+}

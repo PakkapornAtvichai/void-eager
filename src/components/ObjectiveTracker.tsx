@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import type { Objective } from '../game/objectives'
+import { EvidenceModal } from './EvidenceModal'
 
 type Props = { objective: Objective }
 
-/** Optional wayfinding aid; it never advances state or picks an answer for the player. */
+/** Minimal wayfinding chip. More detail is always optional. */
 export function ObjectiveTracker({ objective }: Props) {
   const [showHint, setShowHint] = useState(false)
 
@@ -12,36 +13,37 @@ export function ObjectiveTracker({ objective }: Props) {
   }, [objective.id])
 
   return (
-    <aside
-      className={`objective-tracker ${showHint ? 'objective-tracker--expanded' : ''}`}
-      data-testid="current-objective"
-      data-objective-id={objective.id}
-      aria-label="Current investigation objective"
-    >
-      <div className="objective-tracker__row">
-        <div className="objective-tracker__content">
-          <span className="objective-tracker__eyebrow">NEXT OBJECTIVE // {objective.category}</span>
-          <strong className="objective-tracker__title" data-testid="objective-title">
-            {objective.title}
-          </strong>
+    <>
+      <aside
+        className="objective-tracker objective-tracker--compact"
+        data-testid="current-objective"
+        data-objective-id={objective.id}
+        aria-label="Current investigation objective"
+      >
+        <div className="objective-tracker__row">
+          <div className="objective-tracker__content">
+            <span className="objective-tracker__eyebrow">NEXT // {objective.category}</span>
+            <strong className="objective-tracker__title" data-testid="objective-title">{objective.title}</strong>
+          </div>
+          <button
+            type="button"
+            className="objective-tracker__toggle"
+            data-testid="objective-hint-toggle"
+            aria-expanded={showHint}
+            onClick={() => setShowHint((current) => !current)}
+          >
+            {showHint ? 'CLOSE HINT' : 'HINT ?'}
+          </button>
         </div>
-        <button
-          type="button"
-          className="objective-tracker__toggle"
-          data-testid="objective-hint-toggle"
-          aria-expanded={showHint}
-          aria-controls="objective-hint"
-          onClick={() => setShowHint((current) => !current)}
-        >
-          {showHint ? 'CLOSE HINT' : 'NEED A HINT?'}
-        </button>
-      </div>
+      </aside>
+
       {showHint && (
-        <div className="objective-tracker__hint" id="objective-hint" data-testid="objective-hint">
-          <span>WHERE / WHY</span>
-          <p>{objective.hint}</p>
-        </div>
+        <EvidenceModal title="Where to look next" kicker="OPTIONAL GUIDANCE" onClose={() => setShowHint(false)} testId="objective-hint-dialog">
+          <div data-testid="objective-hint" id="objective-hint">
+            <p>{objective.hint}</p>
+          </div>
+        </EvidenceModal>
       )}
-    </aside>
+    </>
   )
 }

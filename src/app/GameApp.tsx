@@ -2,7 +2,7 @@ import { useCallback, useEffect, useReducer, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { DeductionScene } from '../components/DeductionScene'
 import { HubScene } from '../components/HubScene'
-import { IncomingInterruption } from '../components/IncomingInterruption'
+import { IncomingInterruption, PendingIncidentTab } from '../components/IncomingInterruption'
 import { MaintenanceScene } from '../components/MaintenanceScene'
 import { MaintenanceInspectionScene } from '../components/MaintenanceInspectionScene'
 import type { MaintenanceInspectionArea } from '../components/MaintenanceInspectionScene'
@@ -26,6 +26,7 @@ export function GameApp() {
   const [maintenanceInspection, setMaintenanceInspection] = useState<MaintenanceInspectionArea | null>(null)
   const [briefingDismissed, setBriefingDismissed] = useState(false)
   const [locationTransition, setLocationTransition] = useState<string | null>(null)
+  const [incidentExpanded, setIncidentExpanded] = useState(false)
 
   const recordOpened = state.evidenceFound.includes('MAI_COUPLER_REPLACEMENT_RECORD')
   const storageInspected = state.evidenceFound.includes('STO_NEW_COUPLER')
@@ -52,9 +53,10 @@ export function GameApp() {
     })
   }, [])
 
-  const startInterruption = useCallback(() => {
-    dispatch({ type: 'START_INTERRUPTION' })
-  }, [])
+  // An unresolved alert persists when the player leaves the report.
+  useEffect(() => {
+    setIncidentExpanded(state.interruptionStatus === 'warning')
+  }, [state.interruptionStatus])
   useEffect(() => {
     if (!recordOpened) return
     if (state.scene !== 'maintenance' || !workstationFocused) return
@@ -93,6 +95,16 @@ export function GameApp() {
   const followStorageLead = useCallback(() => {
     navigateTo('STORAGE // B-04', { type: 'GO_TO_STORAGE' })
   }, [navigateTo])
+
+  const handleIncident = useCallback(() => {
+    setIncidentExpanded(false)
+    if (state.scene === 'maintenance' && !workstationFocused) {
+      // Opening the ship-system console from another room view is a player action, not a teleport.
+      navigateTo('MAINTENANCE // INCIDENT CONSOLE', { type: 'START_INTERRUPTION' })
+      return
+    }
+    dispatch({ type: 'START_INTERRUPTION' })
+  }, [state.scene, workstationFocused, navigateTo])
 
   const currentLocation = (() => {
     if (state.scene === 'maintenance') {
@@ -224,6 +236,7 @@ export function GameApp() {
           setWorkstationFocused(false)
           setMaintenanceInspection(null)
           setLocationTransition(null)
+          setIncidentExpanded(false)
           window.scrollTo({ top: 0, behavior: 'auto' })
           dispatch({ type: 'RESET' })
         }}
@@ -287,12 +300,17 @@ export function GameApp() {
           </div>
         )}
 
-        {state.interruptionStatus === 'warning' && state.scene === 'maintenance' && workstationFocused && (
-          <IncomingInterruption
-            pinned={Boolean(state.quickPin)}
-            onPin={() => dispatch({ type: 'PIN_CURRENT_CONTEXT', scrollOffset: maintenanceScroll })}
-            onHandle={startInterruption}
-          />
+        {state.interruptionStatus === 'warning' && state.scene === 'maintenance' && (
+          incidentExpanded ? (
+            <IncomingInterruption
+              pinned={Boolean(state.quickPin)}
+              onPin={() => dispatch({ type: 'PIN_CURRENT_CONTEXT', scrollOffset: maintenanceScroll })}
+              onHandle={handleIncident}
+              onMinimize={() => setIncidentExpanded(false)}
+            />
+          ) : (
+            <PendingIncidentTab onOpen={() => setIncidentExpanded(true)} />
+          )
         )}
       </div>
     </main>
