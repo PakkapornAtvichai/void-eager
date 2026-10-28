@@ -255,3 +255,7 @@ Direct player feedback: the game worked but a first-time player did not know wha
 ## Loop 1 scene-first interface and persistent alert — 2026-10-28
 
 The Workbench/Junction and Storage evidence panels no longer permanently cover Yoko artwork. Inspection now uses centered click-to-open modals with explicit Close/Escape. C-17 can be minimized to a pending tab that persists when leaving the Workstation; it clears only on Handle Alert. Optional hints also use a dialog instead of expanding the top banner. Static UI copy and Hub button labels were shortened, without changing the single Coupler case or adding the deferred opening conversation. See `docs/23-LOOP1-SCENE-FIRST-INTERACTION.md` for test results and details.
+
+## Quick Pin overlay regression corrected — 2026-10-28
+
+Player screenshot reproduced a persistent RESUME REPORT popup from Hub over Storage's centered serial evidence dialog. The root cause was an uncontrolled details node surviving scene transitions and an overly broad canResumePin. Quick Pin details are now available only at the Incident Hub; other scenes display only its saved/empty status. Removing the redundant Workbench/Junction Workstation shortcut and the Observation only inspection footer further reduces clutter. Exact 4-viewport reproduction, Pin resume and non-Pin full playthrough passed with 0 JS page errors. Details in docs/23-LOOP1-SCENE-FIRST-INTERACTION.md.

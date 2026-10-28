@@ -137,8 +137,8 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
     return {
       id: `optional-${view.maintenanceInspection}`,
       category: 'OPTIONAL',
-      title: 'Explore or open Workstation',
-      hint: 'Workbench and Junction offer optional observations. They do not replace the formal work order. Use OPEN WORKSTATION / RECORD when ready.',
+      title: 'Inspect details or return',
+      hint: 'Use BACK // MAINTENANCE to return to the room, then click the central Workstation when ready.',
     }
   }
 

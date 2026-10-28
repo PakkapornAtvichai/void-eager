@@ -138,10 +138,6 @@ export function GameApp() {
           <MaintenanceInspectionScene
             area={maintenanceInspection}
             onBack={() => setMaintenanceInspection(null)}
-            onWorkstation={() => {
-              setMaintenanceInspection(null)
-              setWorkstationFocused(true)
-            }}
           />
         ) : (
           <MaintenanceScene
@@ -243,11 +239,12 @@ export function GameApp() {
       />
     )
   })()
+  // The saved cue is actionable from the Incident Hub, not an overlay that follows
+  // the player into Storage, Power, or an evidence inspection.
   const canResumePin =
     Boolean(state.quickPin) &&
     state.secondaryTaskComplete &&
-    state.scene !== 'secondary' &&
-    state.scene !== 'reflection'
+    state.scene === 'hub'
 
   return (
     <main className="game-root">

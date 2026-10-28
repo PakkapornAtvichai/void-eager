@@ -8,7 +8,6 @@ export type MaintenanceInspectionArea = 'workbench' | 'junction'
 type Props = {
   area: MaintenanceInspectionArea
   onBack: () => void
-  onWorkstation: () => void
 }
 
 type InspectionTarget = {
@@ -20,14 +19,12 @@ type InspectionTarget = {
 
 const INSPECTIONS: Record<MaintenanceInspectionArea, {
   title: string
-  description: string
   image: string
   imageAlt: string
   targets: InspectionTarget[]
 }> = {
   workbench: {
     title: 'Maintenance Workbench',
-    description: 'Inspect Glint\'s service notes and part sketches.',
     image: MAINTENANCE_ASSETS.focusedWorkbench,
     imageAlt: 'Close view of the maintenance workbench with a handwritten checklist and sketches of coupler parts',
     targets: [
@@ -47,7 +44,6 @@ const INSPECTIONS: Record<MaintenanceInspectionArea, {
   },
   junction: {
     title: 'Junction Access',
-    description: 'Inspect the local status display and closed panel.',
     image: MAINTENANCE_ASSETS.focusedJunction,
     imageAlt: 'Close view of the maintenance junction with a small blue system display and a closed electrical service panel',
     targets: [
@@ -74,7 +70,7 @@ const boundsStyle = (bounds: InspectionTarget['bounds']): CSSProperties => ({
   height: `${(bounds.height / 1080) * 100}%`,
 })
 
-export function MaintenanceInspectionScene({ area, onBack, onWorkstation }: Props) {
+export function MaintenanceInspectionScene({ area, onBack }: Props) {
   const inspection = INSPECTIONS[area]
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const selected = inspection.targets.find((target) => target.id === selectedId)
@@ -103,9 +99,6 @@ export function MaintenanceInspectionScene({ area, onBack, onWorkstation }: Prop
           <button className="navigation-button" type="button" data-testid="inspection-back-to-room" onClick={onBack}>
             ← BACK // MAINTENANCE
           </button>
-          <button className="navigation-button" type="button" data-testid="inspection-to-workstation" onClick={onWorkstation}>
-            OPEN WORKSTATION // RECORD
-          </button>
         </nav>
 
         {selected && (
@@ -118,7 +111,6 @@ export function MaintenanceInspectionScene({ area, onBack, onWorkstation }: Prop
             <div data-testid="inspection-result" className="inspection-observation-result">
               <p>{selected.observation}</p>
             </div>
-            <small>Observation only. The formal Coupler record is at the Workstation.</small>
           </EvidenceModal>
         )}
       </div>

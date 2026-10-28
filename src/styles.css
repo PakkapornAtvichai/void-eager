@@ -3959,3 +3959,39 @@ body {
 @media (max-width: 1100px) {
   .hub-screen-interface { top: 11%; height: 49%; }
 }
+
+
+/* Loop 1 context-recovery correction: Quick Pin becomes a compact, non-expanding
+   status outside Incident Hub. The floating report cue cannot follow Storage
+   navigation or cover centered evidence dialogs. */
+.game-hud .hud-pin-static {
+  display: grid;
+  align-content: center;
+}
+.game-hud .hud-pin-static .hud-pin-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  min-width: 0;
+}
+.game-hud .hud-pin-static .hud-pin-summary > span {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+.game-hud .hud-pin-static .hud-pin-summary small {
+  color: #a9cbd5;
+  font: 500 clamp(11px, .84vw, 13px)/1.25 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.game-hud .hud-pin-static .hud-pin-summary strong {
+  color: #f2fbff;
+  font: 800 clamp(13px, .95vw, 16px)/1.15 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.game-hud .hud-pin-static .hud-pin-summary .hud-kicker { margin-bottom: 0; }
+
+/* Inspected rooms now have a single deliberate way out: Back to Maintenance.
+   Return to the main room before selecting Workstation. */
+.maintenance-inspection-stage .inspection-room-navigation { justify-content: flex-start; }
+.maintenance-inspection-stage .inspection-room-navigation button { max-width: 38%; }

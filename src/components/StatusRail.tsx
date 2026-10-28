@@ -95,16 +95,15 @@ export function StatusRail({
       )}
 
       {!reflection && (
-        <details className="hud-pin" data-testid="quick-pin-entry">
-          <summary>
-            <span>
-              <span className="hud-kicker">QUICK PIN</span>
-              <small>{state.quickPin ? 'Saved context' : 'Empty'}</small>
-            </span>
-            <strong>{state.quickPin ? '01' : '00'}</strong>
-          </summary>
-
-          {state.quickPin ? (
+        canResumePin && state.quickPin ? (
+          <details className="hud-pin" data-testid="quick-pin-entry">
+            <summary aria-label="Open saved Quick Pin context">
+              <span>
+                <span className="hud-kicker">QUICK PIN</span>
+                <small>Saved context</small>
+              </span>
+              <strong>01</strong>
+            </summary>
             <div className="hud-pin-panel">
               <strong>{state.quickPin.thread}</strong>
               <span>{state.quickPin.location}</span>
@@ -113,16 +112,27 @@ export function StatusRail({
                 type="button"
                 className="hud-action"
                 data-testid="resume-pin"
-                disabled={!canResumePin}
                 onClick={onResumePin}
               >
-                {canResumePin ? 'RESUME REPORT' : 'NOT AVAILABLE'}
+                RESUME REPORT
               </button>
             </div>
-          ) : (
-            <div className="hud-pin-panel hud-pin-empty">No saved context</div>
-          )}
-        </details>
+          </details>
+        ) : (
+          <section
+            className="hud-pin hud-pin-static"
+            data-testid="quick-pin-entry"
+            aria-label="Quick Pin status"
+          >
+            <div className="hud-pin-summary">
+              <span>
+                <span className="hud-kicker">QUICK PIN</span>
+                <small>{state.quickPin ? 'Saved context' : 'Empty'}</small>
+              </span>
+              <strong>{state.quickPin ? '01' : '00'}</strong>
+            </div>
+          </section>
+        )
       )}
 
       <section className="hud-evidence" aria-label="Evidence count">

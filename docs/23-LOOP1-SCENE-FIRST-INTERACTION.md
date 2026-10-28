@@ -61,3 +61,21 @@ First-time-player screenshots showed that Workbench/Junction descriptions and th
 ## Still deferred
 
 A very short character/comms opening and post-event context can be drafted later. It should not be implemented until the player confirms the current interaction pattern is comfortable.
+
+## Post-playtest Quick Pin leak + inspection navigation correction — 2026-10-28
+
+The player found that a saved Quick Pin details panel remained expanded when navigating from the Incident Hub into Storage. Because the HUD component persisted across scene changes, the left-floating RESUME REPORT panel covered the crate and even centered evidence dialogs. The previous canResumePin condition also incorrectly included Storage.
+
+**Fix**
+- Removed the redundant OPEN WORKSTATION // RECORD shortcut from Workbench/Junction focused inspection. BACK // MAINTENANCE is the only inspection-level navigation; the main room still has its Workstation hotspot.
+- Removed the explanatory Observation only footer from inspection evidence dialogs.
+- Quick Pin's report details + RESUME REPORT are now available only while the player is in the Incident Hub after completing the alert.
+- In Storage, Workbench/Junction, Power and Case Review, Quick Pin remains a noninteractive status showing Saved context / 01 (or Empty / 00) without an expandable panel.
+- Switching away from the Hub changes its details element into a static display, so even if the player expanded it just before traveling, the popup is unmounted automatically. Returning to the Hub starts collapsed.
+- The actual saved cue, resumption action and reflection measurement remain intact. No evidence flags, destinations, scripts or case scope were added.
+
+**Validation**
+- New end-to-end browser reproduction of the exact bug: expand Quick Pin at Hub, travel to Storage B-04, open crate/Coupler/serial detail modal; zero visible Quick Pin panels or Resume buttons over Storage at 1024x576, 1280x720, 1464x815 and 1920x1080, 0 page errors, completing the loop to Reflection.
+- Dedicated Quick Pin test: expand at Hub, click RESUME REPORT, Workstation opens and the popup closes, 0 page errors.
+- Non-Pin regression: optional Power, Storage serial, theory and Reflection remain playable, 0 page errors.
+- npm run build and git diff --check pass.
