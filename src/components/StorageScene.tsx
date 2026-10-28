@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { COUPLER, STORAGE_COUPLER } from '../content/coupler'
 import { YOKO_PACK_ASSETS } from '../content/yokoPackAssets'
+import { ObjectiveTracker } from './ObjectiveTracker'
+import { storageObjective } from '../game/objectives'
 
 type Props = {
   inspected: boolean
@@ -33,6 +35,7 @@ export function StorageScene({
 
   return (
     <section className="storage-stage storage-stage--yoko" data-testid="storage-scene" aria-labelledby="storage-title">
+      <ObjectiveTracker objective={storageObjective(phase)} />
       <div className="storage-environment" data-testid="storage-environment" aria-hidden="true">
         <div className="storage-beam storage-beam--left" />
         <div className="storage-beam storage-beam--right" />

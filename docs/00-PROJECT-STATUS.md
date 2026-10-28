@@ -245,3 +245,8 @@ Validation:
 A player screenshot exposed tiny buttons and overlapping text in Storage/Quick Pin. Screen-by-screen fixes now cover Maintenance, Workstation, Coolant, Incident Hub, Power Log, Storage, Case Review, Reflection and the persistent bottom HUD. Storage's serial comparison is presented as two short readable rows, and Quick Pin no longer covers it. The original Yoko frames remain; Power and Case Review use dark reading mattes inside them so decorative rails do not cut through text.
 
 Build and multi-resolution browser QA are documented in `docs/21-LOOP1-UI-READABILITY.md`. Scope remains the single Coupler Loop; no state-machine, clue, mystery, character or scene expansion was required. Tiny desktop viewports below 1280x720 may still use internal panel scrollbars.
+
+
+## Loop 1 contextual objective guidance — 2026-10-28
+
+Direct player feedback: the game worked but a first-time player did not know what to look for or what to do after the interruption. Implemented a persistent NEXT OBJECTIVE with optional NEED A HINT?; both reflect existing game and Storage inspection phases. The Incident Hub now indicates how to resume, where the green Replacement Serial lead is, when to record a theory and how to end the session. All paths remain player-chosen and Quick Pin remains optional. The engine state machine, evidence counts and mystery outcome are unchanged. Details: `docs/22-LOOP1-WAYFINDING.md`.

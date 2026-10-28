@@ -3521,3 +3521,107 @@ body {
 
 /* Fractional-pixel safeguard for the Hub monitor at 1464px window width. */
 .hub-screen-interface { height: 37.5%; }
+
+
+/* Loop 1 wayfinding: one current goal and an optional contextual hint.
+   The banner gives direction without locking paths, adding evidence, or revealing a verdict. */
+.objective-tracker {
+  position: absolute;
+  z-index: 43;
+  top: .85%;
+  left: 50%;
+  width: min(49%, 670px);
+  max-width: calc(100% - 24px);
+  transform: translateX(-50%);
+  padding: 8px 11px;
+  border: 1px solid rgba(110, 206, 230, .73);
+  border-left: 3px solid #8ee2f5;
+  border-radius: 3px;
+  background: rgba(3, 18, 28, .965);
+  box-shadow: 0 11px 32px rgba(0, 0, 0, .68);
+  color: #edfaff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  pointer-events: none;
+}
+.objective-tracker__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  pointer-events: auto;
+}
+.objective-tracker__content { display: grid; gap: 3px; min-width: 0; }
+.objective-tracker__eyebrow {
+  color: #97d9ec;
+  font-size: clamp(10px, .73vw, 12px);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: .08em;
+}
+.objective-tracker__title {
+  color: #f1fcff;
+  font-size: clamp(13px, .96vw, 16px);
+  font-weight: 800;
+  line-height: 1.24;
+  overflow-wrap: anywhere;
+}
+.objective-tracker__toggle {
+  flex: 0 0 auto;
+  min-height: 33px;
+  max-width: 135px;
+  padding: 6px 10px;
+  border: 1px solid rgba(129, 218, 243, .75);
+  border-radius: 2px;
+  background: rgba(30, 82, 105, .72);
+  color: #e3f8ff;
+  font: 800 clamp(11px, .79vw, 13px)/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  cursor: pointer;
+  white-space: normal;
+}
+.objective-tracker__toggle:is(:hover, :focus-visible) {
+  outline: 2px solid #b9efff;
+  outline-offset: 2px;
+  background: rgba(39, 109, 137, .94);
+}
+.objective-tracker__hint {
+  margin-top: 9px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(120, 202, 228, .39);
+  background: rgba(4, 25, 37, .96);
+  pointer-events: auto;
+}
+.objective-tracker__hint span {
+  display: block;
+  margin-bottom: 5px;
+  color: #8fdded;
+  font-size: clamp(11px, .8vw, 13px);
+  font-weight: 800;
+  letter-spacing: .07em;
+}
+.objective-tracker__hint p {
+  margin: 0;
+  color: #d0e8f2;
+  font-size: clamp(12px, .9vw, 15px);
+  line-height: 1.42;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1100px) {
+  .objective-tracker {
+    top: .55%;
+    width: min(56%, 580px);
+    padding: 5px 9px;
+  }
+  .objective-tracker__title { font-size: 12px; }
+  .objective-tracker__eyebrow { font-size: 9px; }
+  .objective-tracker__toggle { min-height: 29px; padding: 4px 8px; font-size: 10px; }
+}
+@media (max-height: 650px) {
+  .objective-tracker { top: .4%; }
+}
+
+
+/* On very small landscape windows, protect the top guidance from the coolant monitor. */
+@media (max-width: 1100px) {
+  .secondary-monitor-interface { top: 9%; height: 70%; }
+}

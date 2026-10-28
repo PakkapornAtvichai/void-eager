@@ -46,9 +46,23 @@ export function HubScene({
 
         <div className="hub-screen-body">
           <p className="eyebrow">INVESTIGATION HOME</p>
-          <h2 id="hub-title">Choose where to work next</h2>
+          <h2 id="hub-title">
+            {theorySaved
+              ? 'Theory saved — close or revisit the case'
+              : serialChecked
+                ? 'Ready to record a working theory'
+                : storageLeadUnlocked
+                  ? 'New lead: Storage B-04'
+                  : 'Resume the Coupler investigation'}
+          </h2>
           <p className="muted">
-            Continue the Coupler case, inspect the optional Power timeline, or follow Storage leads from the HUD.
+            {theorySaved
+              ? 'End the session below, or revisit the investigation threads.'
+              : serialChecked
+                ? 'Choose Open Case Review below. Power remains optional.'
+                : storageLeadUnlocked
+                  ? 'Select REPLACEMENT SERIAL under LEADS in the bottom HUD. Power remains optional.'
+                  : 'Return to Workstation to trace the serial from the work order. The Power timeline is optional.'}
           </p>
 
           <div className="hub-thread-grid">

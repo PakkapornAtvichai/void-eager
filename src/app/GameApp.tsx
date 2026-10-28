@@ -12,6 +12,8 @@ import { PowerScene } from '../components/PowerScene'
 import { ReflectionScene } from '../components/ReflectionScene'
 import { SecondaryScene } from '../components/SecondaryScene'
 import { StatusRail } from '../components/StatusRail'
+import { ObjectiveTracker } from '../components/ObjectiveTracker'
+import { currentObjective } from '../game/objectives'
 import { StorageScene } from '../components/StorageScene'
 import { gameReducer, initialGameState } from '../game/state'
 import type { GameAction } from '../game/state'
@@ -31,6 +33,17 @@ export function GameApp() {
   const spikeFound = state.evidenceFound.includes('ENG_POWER_SPIKE_LOG')
   const protectionFound = state.evidenceFound.includes('ENG_PROTECTION_ACTIVE_LOG')
   const storageLeadUnlocked = state.knowledgeFlags.includes('K_STORAGE_LEAD_UNLOCKED')
+
+  // Guidance describes existing interactions; it does not gate investigation or reveal a verdict.
+  const objective = currentObjective(state, {
+    workstationFocused,
+    maintenanceInspection,
+    recordOpened,
+    storageLeadUnlocked,
+    serialChecked,
+    spikeFound,
+    protectionFound,
+  })
 
   useEffect(() => {
     Object.values(YOKO_PACK_ASSETS).forEach((src) => {
@@ -247,6 +260,8 @@ export function GameApp() {
         </div>
 
         {scene}
+
+        {state.scene !== 'storage' && <ObjectiveTracker objective={objective} />}
 
         <StatusRail
           state={state}
