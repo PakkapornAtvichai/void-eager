@@ -48,7 +48,7 @@ export function HubScene({
           <p className="eyebrow">INVESTIGATION HOME</p>
           <h2 id="hub-title">Choose where to work next</h2>
           <p className="muted">
-            Return here between tasks. Your investigation does not end until you close the session.
+            You traveled here from Maintenance. Continue the Coupler case or inspect the optional Power timeline. Follow Storage leads from the bottom rail.
           </p>
 
           <div className="hub-thread-grid">

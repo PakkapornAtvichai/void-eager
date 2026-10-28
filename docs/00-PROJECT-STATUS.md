@@ -201,3 +201,23 @@ User blind-play feedback exposed a navigation/meaning problem rather than a simp
 Automated first-time path validated 11 states from interruption through deliberate Reflection, including the previously soft-locking `Workstation -> NAV ROOM -> Maintenance -> Incident Hub` route.
 
 Remaining important visual gap: final Storage environment/background.
+
+
+## Loop 1 continuity/clarity pass — 2026-10-28
+
+Scope remains the existing Coupler vertical slice. No new rooms, suspects, puzzles, or evidence were added.
+
+Changes:
+- Maintenance opens with an optional in-world incident briefing explaining the Coupler question and player role.
+- The Workstation remains the only active Maintenance hotspot in this prototype; the briefing says so explicitly.
+- The Workstation always offers a room exit. The scripted interruption is timed only while its report is in focus, not while standing elsewhere in Maintenance.
+- Coolant alert copy states why shipwide triage was assigned to the Incident Systems Officer.
+- Coolant response completes at the physical Workstation; traveling to the Hub now acknowledges a deliberate player navigation.
+- Player-directed switches between Hub, Maintenance, Engineering Power, and Storage use the same short location transition.
+- The Hub now labels the Coupler as the main case and Power as optional context; text in Hub and Coolant was made more readable.
+- Saving a working theory still leaves the player in Case Review until they deliberately return to the Hub.
+
+Validation:
+- npm run build: passes (local Node 22.11.0 produces a Vite engine-version warning).
+- Automated browser path through briefing, focus/back, interruption, coolant, Hub, Power, Storage, theory, and reflection: 12/12 steps passed with 0 page errors.
+- This is a scripted browser validation, not a replacement for human first-time-player testing.

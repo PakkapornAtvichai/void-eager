@@ -9,8 +9,8 @@ export function IncomingInterruption({ pinned, onPin, onHandle }: Props) {
     <aside className="incoming-interruption" data-testid="incoming-interruption" aria-live="assertive">
       <div>
         <p className="eyebrow">INCOMING INCIDENT // C-17</p>
-        <strong>Coolant telemetry requires attention.</strong>
-        <span>Pin your current investigation if you want a retrieval cue when you return.</span>
+        <strong>Shipwide coolant telemetry requires triage.</strong>
+        <span>Alert C-17 was routed to the Incident Systems Officer. Your Coupler report remains open. Pin it if a resumption cue would help.</span>
       </div>
       <div className="button-row">
         <button className="secondary" data-testid="pin-current-context" onClick={onPin} disabled={pinned}>

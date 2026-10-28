@@ -11,12 +11,14 @@ import { SecondaryScene } from '../components/SecondaryScene'
 import { StatusRail } from '../components/StatusRail'
 import { StorageScene } from '../components/StorageScene'
 import { gameReducer, initialGameState } from '../game/state'
+import type { GameAction } from '../game/state'
 import { YOKO_PACK_ASSETS } from '../content/yokoPackAssets'
 
 export function GameApp() {
   const [state, dispatch] = useReducer(gameReducer, initialGameState)
   const [maintenanceScroll, setMaintenanceScroll] = useState(0)
   const [workstationFocused, setWorkstationFocused] = useState(false)
+  const [briefingDismissed, setBriefingDismissed] = useState(false)
   const [locationTransition, setLocationTransition] = useState<string | null>(null)
 
   const recordOpened = state.evidenceFound.includes('MAI_COUPLER_REPLACEMENT_RECORD')
@@ -38,7 +40,7 @@ export function GameApp() {
   }, [])
   useEffect(() => {
     if (!recordOpened) return
-    if (state.scene !== 'maintenance') return
+    if (state.scene !== 'maintenance' || !workstationFocused) return
     if (state.interruptionStatus !== 'idle') return
     if (state.secondaryTaskComplete) return
 
@@ -47,7 +49,7 @@ export function GameApp() {
     }, 12000)
 
     return () => window.clearTimeout(timer)
-  }, [recordOpened, state.scene, state.interruptionStatus, state.secondaryTaskComplete])
+  }, [recordOpened, workstationFocused, state.scene, state.interruptionStatus, state.secondaryTaskComplete])
 
   useEffect(() => {
     if (state.scene === 'maintenance' && recordOpened && (state.resumedFromPin || state.firstThreadAfterInterruption !== null)) {
@@ -56,14 +58,20 @@ export function GameApp() {
     if (state.scene !== 'maintenance') setWorkstationFocused(false)
   }, [recordOpened, state.scene, state.resumedFromPin, state.firstThreadAfterInterruption])
 
-  const followStorageLead = useCallback(() => {
+  // Only player-directed navigation gets a location transition.
+  // The system interruption continues to take over the current workstation in place.
+  const navigateTo = useCallback((destination: string, action: GameAction) => {
     if (locationTransition) return
-    setLocationTransition('STORAGE B-04')
+    setLocationTransition(destination)
     window.setTimeout(() => {
-      dispatch({ type: 'GO_TO_STORAGE' })
+      dispatch(action)
       setLocationTransition(null)
     }, 360)
   }, [locationTransition])
+
+  const followStorageLead = useCallback(() => {
+    navigateTo('STORAGE // B-04', { type: 'GO_TO_STORAGE' })
+  }, [navigateTo])
 
   const currentLocation = (() => {
     if (state.scene === 'maintenance') {
@@ -93,9 +101,14 @@ export function GameApp() {
           />
         ) : (
           <MaintenanceScene
-            onWorkstation={() => setWorkstationFocused(true)}
+            briefingVisible={!briefingDismissed && !state.secondaryTaskComplete}
+            onDismissBriefing={() => setBriefingDismissed(true)}
+            onWorkstation={() => {
+              setBriefingDismissed(true)
+              setWorkstationFocused(true)
+            }}
             hubAvailable={state.secondaryTaskComplete}
-            onHub={() => dispatch({ type: 'BACK_TO_HUB' })}
+            onHub={() => navigateTo('INCIDENT HUB', { type: 'BACK_TO_HUB' })}
           />
         )
       )
@@ -106,7 +119,7 @@ export function GameApp() {
           complete={state.secondaryTaskComplete}
           response={state.secondaryResponse}
           onComplete={(response) => dispatch({ type: 'COMPLETE_SECONDARY_TASK', response })}
-          onReturn={() => dispatch({ type: 'RETURN_TO_HUB' })}
+          onReturn={() => navigateTo('INCIDENT HUB', { type: 'RETURN_TO_HUB' })}
         />
       )
     }
@@ -118,8 +131,8 @@ export function GameApp() {
           serialChecked={serialChecked}
           powerReviewed={protectionFound}
           theorySaved={Boolean(state.theory)}
-          onCoupler={() => dispatch({ type: 'OPEN_THREAD', thread: 'coupler' })}
-          onPower={() => dispatch({ type: 'OPEN_THREAD', thread: 'power' })}
+          onCoupler={() => navigateTo('MAINTENANCE // WORKSTATION', { type: 'OPEN_THREAD', thread: 'coupler' })}
+          onPower={() => navigateTo('ENGINEERING // POWER LOG', { type: 'OPEN_THREAD', thread: 'power' })}
           onCaseReview={() => dispatch({ type: 'OPEN_DEDUCTION' })}
           onEndSession={() => dispatch({ type: 'OPEN_REFLECTION' })}
         />
@@ -133,7 +146,7 @@ export function GameApp() {
           serialChecked={serialChecked}
           onInspect={() => dispatch({ type: 'INSPECT_STORAGE_COUPLER' })}
           onCheckSerial={() => dispatch({ type: 'CHECK_STORAGE_SERIAL' })}
-          onBack={() => dispatch({ type: 'BACK_TO_HUB' })}
+          onBack={() => navigateTo('INCIDENT HUB', { type: 'BACK_TO_HUB' })}
         />
       )
     }
@@ -144,7 +157,7 @@ export function GameApp() {
           protectionFound={protectionFound}
           onInspectSpike={() => dispatch({ type: 'INSPECT_POWER_SPIKE' })}
           onInspectProtection={() => dispatch({ type: 'INSPECT_POWER_PROTECTION' })}
-          onBack={() => dispatch({ type: 'BACK_TO_HUB' })}
+          onBack={() => navigateTo('INCIDENT HUB', { type: 'BACK_TO_HUB' })}
         />
       )
     }
@@ -170,6 +183,8 @@ export function GameApp() {
         secondaryResponse={state.secondaryResponse}
         onRestart={() => {
           setMaintenanceScroll(0)
+          setBriefingDismissed(false)
+          setWorkstationFocused(false)
           setLocationTransition(null)
           window.scrollTo({ top: 0, behavior: 'auto' })
           dispatch({ type: 'RESET' })
@@ -220,7 +235,7 @@ export function GameApp() {
           }
           canResumePin={canResumePin}
           onFollowStorageLead={followStorageLead}
-          onResumePin={() => dispatch({ type: 'RESUME_PIN' })}
+          onResumePin={() => navigateTo('MAINTENANCE // SAVED CONTEXT', { type: 'RESUME_PIN' })}
         />
 
         {locationTransition && (
@@ -230,7 +245,7 @@ export function GameApp() {
           </div>
         )}
 
-        {state.interruptionStatus === 'warning' && state.scene === 'maintenance' && (
+        {state.interruptionStatus === 'warning' && state.scene === 'maintenance' && workstationFocused && (
           <IncomingInterruption
             pinned={Boolean(state.quickPin)}
             onPin={() => dispatch({ type: 'PIN_CURRENT_CONTEXT', scrollOffset: maintenanceScroll })}

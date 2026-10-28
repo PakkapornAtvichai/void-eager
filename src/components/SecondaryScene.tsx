@@ -35,7 +35,7 @@ export function SecondaryScene({ complete, response, onComplete, onReturn }: Pro
         <div className="secondary-monitor-body">
           <p className="eyebrow">COOLANT TELEMETRY</p>
           <h2 id="secondary-title">Classify incoming sensor alert</h2>
-          <p className="muted">Review the telemetry and choose an operational response.</p>
+          <p className="muted">Shipwide monitoring sent this alert to your workstation. Classify it before returning to your Coupler investigation.</p>
 
           <div className="telemetry-grid" aria-label="Coolant telemetry">
             <div><span>SENSOR A</span><strong>72.1 C</strong></div>
@@ -96,9 +96,9 @@ export function SecondaryScene({ complete, response, onComplete, onReturn }: Pro
             <div className="task-complete console-complete">
               <strong>RESPONSE LOGGED</strong>
               <span>Recorded action: {response ?? 'Unspecified'}</span>
-              <p>The incident task is complete. Return to the Incident Hub to decide what to resume next.</p>
+              <p>Alert C-17 is logged. You are still at the Maintenance workstation; travel to the Incident Hub to choose which investigation thread to resume.</p>
               <button className="navigation-button" data-testid="return-investigation" onClick={onReturn}>
-                Return to Incident Hub
+                Travel to Incident Hub
               </button>
             </div>
           )}

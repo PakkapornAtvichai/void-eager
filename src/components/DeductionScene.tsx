@@ -100,7 +100,7 @@ export function DeductionScene({ theory, theoryEvidence, onSave, onBack }: Props
         {theory && (
           <div className="theory-saved" data-testid="theory-saved">
             <strong>Theory saved.</strong>
-            <span>Return to the Incident Hub to keep investigating or end the session.</span>
+            <span>The theory is saved. Use Return to Incident Hub to keep investigating or deliberately end the session.</span>
           </div>
         )}
       </div>

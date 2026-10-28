@@ -87,16 +87,14 @@ export function WorkstationFocusScene({
           </div>
         </div>
 
-        {(!opened || postInterruption) && (
-          <button
-            type="button"
-            className="workstation-back navigation-button"
-            data-testid="back-to-maintenance"
-            onClick={onBack}
-          >
-            ← NAV // ROOM
-          </button>
-        )}
+        <button
+          type="button"
+          className="workstation-back navigation-button"
+          data-testid="back-to-maintenance"
+          onClick={onBack}
+        >
+          ← NAV // ROOM
+        </button>
 
         <div className="workstation-report-slot">
           <div className="console-title console-title--primary">
@@ -146,6 +144,7 @@ export function WorkstationFocusScene({
                 <p>ISSUED SERIAL . {order.replacementSerial}</p>
                 <p>SOURCE ........ STORAGE B-04</p>
                 <p>INSTALL VERIFY. NOT ATTACHED</p>
+                <p className="workstation-inquiry">INVESTIGATOR'S QUESTION // The record claims completion, but where is the installation proof?</p>
               </section>
             </article>
           )}
