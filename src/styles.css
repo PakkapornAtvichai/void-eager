@@ -2905,3 +2905,158 @@ body {
   font-size: clamp(.62rem, .68vw, .83rem);
   line-height: 1.25;
 }
+
+
+/* Maintenance Loop 1: optional, reversible inspection of existing Workbench/Junction artwork. */
+.inspection-hotspot {
+  position: absolute;
+  z-index: 8;
+  padding: 0;
+  border: 1px solid rgba(113, 206, 231, .15);
+  border-radius: 7px;
+  background: rgba(13, 78, 100, .035);
+  color: #f3fbff;
+  cursor: zoom-in;
+  transition: border-color .16s ease, background .16s ease;
+}
+.inspection-hotspot::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(8px, .82vw, 14px);
+  height: clamp(8px, .82vw, 14px);
+  transform: translate(-50%, -50%);
+  border: 2px solid #aaeaff;
+  border-radius: 50%;
+  background: rgba(2, 27, 40, .75);
+  box-shadow: 0 0 0 4px rgba(27, 137, 169, .16), 0 0 12px rgba(114, 212, 241, .7);
+}
+.inspection-hotspot span {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 12px);
+  transform: translateX(-50%);
+  padding: 5px 9px;
+  border: 1px solid rgba(120, 218, 241, .55);
+  border-radius: 4px;
+  background: rgba(2, 15, 24, .88);
+  color: #ecf9fe;
+  font: 700 clamp(10px, .74vw, 14px)/1.15 ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.inspection-hotspot:is(:hover, :focus-visible, .is-selected) {
+  border-color: rgba(140, 235, 255, .85);
+  background: rgba(36, 161, 215, .1);
+}
+.inspection-hotspot:focus-visible { outline: 3px solid #d8f9ff; outline-offset: 2px; }
+.inspection-room-navigation {
+  position: absolute;
+  z-index: 22;
+  left: 1.5%;
+  right: 1.5%;
+  top: 2%;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  pointer-events: none;
+}
+.inspection-room-navigation button {
+  pointer-events: auto;
+  min-width: 205px;
+  padding: 12px 19px;
+  min-height: 42px;
+  font-size: clamp(11px, .79vw, 15px);
+  text-align: center;
+}
+.inspection-observation-panel {
+  position: absolute;
+  z-index: 16;
+  left: 3%;
+  bottom: 12.5%;
+  width: 43%;
+  max-height: 36%;
+  display: grid;
+  gap: 8px;
+  overflow: auto;
+  padding: 17px 20px;
+  border: 1px solid rgba(103, 204, 230, .7);
+  border-left: 4px solid rgba(105, 204, 230, 1);
+  background: linear-gradient(155deg, rgba(3, 17, 27, .96), rgba(5, 22, 33, .96));
+  box-shadow: 0 15px 55px rgba(0, 0, 0, .62);
+  color: #e6f4fa;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.inspection-panel-kicker {
+  color: #8ed7eb;
+  font-size: clamp(10px, .67vw, 13px);
+  font-weight: 800;
+  letter-spacing: .09em;
+}
+.inspection-observation-panel h2 {
+  margin: 0;
+  font-size: clamp(15px, 1.14vw, 22px);
+  line-height: 1.16;
+}
+.inspection-observation-panel p {
+  margin: 0;
+  font-size: clamp(11px, .78vw, 15px);
+  line-height: 1.42;
+  color: #c4dbe4;
+}
+.inspection-observation-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.inspection-observation-options button {
+  padding: 7px 11px;
+  min-height: 30px;
+  border: 1px solid rgba(95, 187, 214, .55);
+  border-radius: 3px;
+  background: rgba(11, 64, 81, .65);
+  color: #e4f8ff;
+  cursor: pointer;
+  font: 700 clamp(10px, .72vw, 14px)/1.12 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.inspection-observation-options button:is(:hover, :focus-visible, .is-selected) {
+  background: rgba(30, 119, 147, .86);
+  border-color: #a3eeff;
+}
+.inspection-observation-result {
+  min-height: 54px;
+  border-left: 2px solid rgba(146, 208, 226, .55);
+  padding: 3px 0 3px 10px;
+}
+.inspection-observation-result strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #a8edff;
+  font-size: clamp(11px, .8vw, 15px);
+}
+.inspection-observation-panel small {
+  color: #a0b9c3;
+  font-size: clamp(10px, .68vw, 13px);
+  line-height: 1.28;
+}
+@media (max-width: 900px) {
+  .inspection-observation-panel { width: 55%; max-height: 43%; padding: 9px 11px; gap: 5px; }
+  .inspection-room-navigation button { min-width: auto; min-height: 26px; padding: 6px 9px; }
+  .inspection-hotspot span { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+  .inspection-observation-options button { min-height: 25px; padding: 5px 8px; }
+}
+
+
+/* Three available Maintenance destinations should be visible before hovering. */
+.world-hotspot:not(:disabled) .world-hotspot__label {
+  opacity: .93;
+  color: #f0fcff;
+  font-size: clamp(10px, .74vw, 14px);
+  letter-spacing: .01em;
+}
+.world-hotspot:not(:disabled):hover .world-hotspot__label,
+.world-hotspot:not(:disabled):focus-visible .world-hotspot__label {
+  opacity: 1;
+  border-color: #b8f0ff;
+}

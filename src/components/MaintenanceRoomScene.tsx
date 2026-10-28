@@ -1,15 +1,17 @@
 import { HOTSPOT_BOUNDS, MAINTENANCE_ASSETS } from '../content/maintenanceAssets'
 import { WorldAssetHotspot } from './WorldAssetHotspot'
+import type { MaintenanceInspectionArea } from './MaintenanceInspectionScene'
 
 type Props = {
   onWorkstation: () => void
+  onInspect: (area: MaintenanceInspectionArea) => void
   briefingVisible: boolean
   onDismissBriefing: () => void
   hubAvailable: boolean
   onHub: () => void
 }
 
-export function MaintenanceRoomScene({ onWorkstation, briefingVisible, onDismissBriefing, hubAvailable, onHub }: Props) {
+export function MaintenanceRoomScene({ onWorkstation, onInspect, briefingVisible, onDismissBriefing, hubAvailable, onHub }: Props) {
   return (
     <section className="maintenance-stage" data-testid="maintenance-room" aria-label="Maintenance room">
       <div className="maintenance-canvas">
@@ -23,20 +25,22 @@ export function MaintenanceRoomScene({ onWorkstation, briefingVisible, onDismiss
         <img className="maintenance-layer" src={MAINTENANCE_ASSETS.clickJunction} alt="" aria-hidden="true" />
 
         <WorldAssetHotspot
-          label="Open Glint's workstation"
+          label="Open Workstation"
           bounds={HOTSPOT_BOUNDS.workstation}
           testId="workstation-hotspot"
           onActivate={onWorkstation}
         />
         <WorldAssetHotspot
-          label="Workbench — not part of this prototype loop"
+          label="Inspect Workbench"
           bounds={HOTSPOT_BOUNDS.workbench}
-          disabled
+          testId="workbench-hotspot"
+          onActivate={() => onInspect('workbench')}
         />
         <WorldAssetHotspot
-          label="Junction panel — not part of this prototype loop"
+          label="Inspect Junction"
           bounds={HOTSPOT_BOUNDS.junction}
-          disabled
+          testId="junction-hotspot"
+          onActivate={() => onInspect('junction')}
         />
 
         {briefingVisible && (
@@ -53,7 +57,7 @@ export function MaintenanceRoomScene({ onWorkstation, briefingVisible, onDismiss
                 EXPLORE ROOM
               </button>
             </div>
-            <small>Prototype scope: only the workstation is interactive in this room.</small>
+            <small>Workbench and Junction offer optional visual inspection. The Workstation contains the formal Coupler record.</small>
           </aside>
         )}
 

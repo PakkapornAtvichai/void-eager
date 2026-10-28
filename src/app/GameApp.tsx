@@ -4,6 +4,9 @@ import { DeductionScene } from '../components/DeductionScene'
 import { HubScene } from '../components/HubScene'
 import { IncomingInterruption } from '../components/IncomingInterruption'
 import { MaintenanceScene } from '../components/MaintenanceScene'
+import { MaintenanceInspectionScene } from '../components/MaintenanceInspectionScene'
+import type { MaintenanceInspectionArea } from '../components/MaintenanceInspectionScene'
+import { MAINTENANCE_ASSETS } from '../content/maintenanceAssets'
 import { WorkstationFocusScene } from '../components/WorkstationFocusScene'
 import { PowerScene } from '../components/PowerScene'
 import { ReflectionScene } from '../components/ReflectionScene'
@@ -18,6 +21,7 @@ export function GameApp() {
   const [state, dispatch] = useReducer(gameReducer, initialGameState)
   const [maintenanceScroll, setMaintenanceScroll] = useState(0)
   const [workstationFocused, setWorkstationFocused] = useState(false)
+  const [maintenanceInspection, setMaintenanceInspection] = useState<MaintenanceInspectionArea | null>(null)
   const [briefingDismissed, setBriefingDismissed] = useState(false)
   const [locationTransition, setLocationTransition] = useState<string | null>(null)
 
@@ -54,8 +58,12 @@ export function GameApp() {
   useEffect(() => {
     if (state.scene === 'maintenance' && recordOpened && (state.resumedFromPin || state.firstThreadAfterInterruption !== null)) {
       setWorkstationFocused(true)
+      setMaintenanceInspection(null)
     }
-    if (state.scene !== 'maintenance') setWorkstationFocused(false)
+    if (state.scene !== 'maintenance') {
+      setWorkstationFocused(false)
+      setMaintenanceInspection(null)
+    }
   }, [recordOpened, state.scene, state.resumedFromPin, state.firstThreadAfterInterruption])
 
   // Only player-directed navigation gets a location transition.
@@ -75,7 +83,9 @@ export function GameApp() {
 
   const currentLocation = (() => {
     if (state.scene === 'maintenance') {
-      return workstationFocused ? 'MAINTENANCE // WORKSTATION' : 'MAINTENANCE'
+      if (workstationFocused) return 'MAINTENANCE // WORKSTATION'
+      if (maintenanceInspection) return 'MAINTENANCE // ' + maintenanceInspection.toUpperCase()
+      return 'MAINTENANCE'
     }
     if (state.scene === 'secondary') return 'INCIDENT SYSTEM // C-17'
     if (state.scene === 'hub') return 'INCIDENT HUB'
@@ -99,13 +109,27 @@ export function GameApp() {
             onUnlockStorageLead={() => dispatch({ type: 'UNLOCK_STORAGE_LEAD' })}
             onBack={() => setWorkstationFocused(false)}
           />
+        ) : maintenanceInspection ? (
+          <MaintenanceInspectionScene
+            area={maintenanceInspection}
+            onBack={() => setMaintenanceInspection(null)}
+            onWorkstation={() => {
+              setMaintenanceInspection(null)
+              setWorkstationFocused(true)
+            }}
+          />
         ) : (
           <MaintenanceScene
             briefingVisible={!briefingDismissed && !state.secondaryTaskComplete}
             onDismissBriefing={() => setBriefingDismissed(true)}
             onWorkstation={() => {
               setBriefingDismissed(true)
+              setMaintenanceInspection(null)
               setWorkstationFocused(true)
+            }}
+            onInspect={(area) => {
+              setBriefingDismissed(true)
+              setMaintenanceInspection(area)
             }}
             hubAvailable={state.secondaryTaskComplete}
             onHub={() => navigateTo('INCIDENT HUB', { type: 'BACK_TO_HUB' })}
@@ -185,6 +209,7 @@ export function GameApp() {
           setMaintenanceScroll(0)
           setBriefingDismissed(false)
           setWorkstationFocused(false)
+          setMaintenanceInspection(null)
           setLocationTransition(null)
           window.scrollTo({ top: 0, behavior: 'auto' })
           dispatch({ type: 'RESET' })
@@ -217,6 +242,8 @@ export function GameApp() {
           <img src={YOKO_PACK_ASSETS.storageCrateOpen} alt="" />
           <img src={YOKO_PACK_ASSETS.storageCouplerInspection} alt="" />
           <img src={YOKO_PACK_ASSETS.storageSerialDetail} alt="" />
+          <img src={MAINTENANCE_ASSETS.focusedWorkbench} alt="" />
+          <img src={MAINTENANCE_ASSETS.focusedJunction} alt="" />
         </div>
 
         {scene}

@@ -221,3 +221,20 @@ Validation:
 - npm run build: passes (local Node 22.11.0 produces a Vite engine-version warning).
 - Automated browser path through briefing, focus/back, interruption, coolant, Hub, Power, Storage, theory, and reflection: 12/12 steps passed with 0 page errors.
 - This is a scripted browser validation, not a replacement for human first-time-player testing.
+
+
+## Maintenance hotspot usability fix — 2026-10-28
+
+Player feedback: the Maintenance artwork suggested several usable objects, but only Glint's Workstation responded. Workbench and Junction were explicitly disabled in code, despite having prepared close-up artwork.
+
+Resolution within the existing Coupler vertical slice:
+- All three room hotspots (Workbench, Workstation, Junction) now accept clicks and have persistent labels.
+- Workbench and Junction open their existing Yoko focused views with two optional inspectable visual details each, a clear back-to-room action, and a direct return to the Workstation.
+- Workbench observations concern the handwritten service checklist and a spare-part sketch; Junction observations concern a local display and enclosed service panel.
+- These are contextual observations only; they do not create Evidence or Knowledge Flags, reveal the verdict, or add another puzzle, location, or mystery thread.
+- The Workstation remains the formal Coupler work-order entry point and the only trigger for the existing timed interruption.
+- The core investigation/interruption/recovery/Storage/theory/reflection path is unchanged.
+
+Validation:
+- Browser test at 1920x1080: all 3 hotspots enabled, both Workbench details, both Junction details, reversible navigation, intact interruption-to-reflection flow, 0 page errors.
+- Browser test at 1479x821 (matching player screenshot scale): Workbench and Junction usable and observations readable, 0 page errors.

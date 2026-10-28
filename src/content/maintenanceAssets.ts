@@ -10,6 +10,8 @@ export const MAINTENANCE_ASSETS = {
   clickWorkstation: asset('Click_Workstation.png'),
   clickJunction: asset('Click_Junction.png'),
   focusedWorkstation: asset('Focused_Workstation.png'),
+  focusedWorkbench: asset('Focused_Workbench.png'),
+  focusedJunction: asset('Focused_Junction.png'),
   workstationNavigation: asset('Panel_Workstation_Navigation _ source _ subsystem menu.png'),
   workstationPrimary: asset('Panel_Workstation_Primary readable evidence panel.png'),
   workstationTechnical: asset('Panel_Workstation_Technical status _ mini timeline _ quick summary.png'),
