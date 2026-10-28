@@ -132,9 +132,15 @@ export function StorageScene({
 
           {phase === 'serial' && (
             <div className="comparison-card" data-testid="serial-comparison">
-              <span>Observed on coupler: {STORAGE_COUPLER.serial}</span>
-              <span>Replacement serial in work order: {COUPLER.workOrder.replacementSerial}</span>
-              <small>Return to the Incident Hub when you are ready to decide what to do next.</small>
+              <div className="serial-comparison-row">
+                <span>COUPLER PLATE</span>
+                <strong>{STORAGE_COUPLER.serial}</strong>
+              </div>
+              <div className="serial-comparison-row">
+                <span>WORK ORDER</span>
+                <strong>{COUPLER.workOrder.replacementSerial}</strong>
+              </div>
+              <small>Compare the two serials, then return to the Incident Hub.</small>
             </div>
           )}
 

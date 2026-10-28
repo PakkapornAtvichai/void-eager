@@ -3060,3 +3060,464 @@ body {
   opacity: 1;
   border-color: #b8f0ff;
 }
+
+
+/* ============================================================
+   LOOP 1 READABILITY / FIT PASS — 2026-10-28
+   Accessible text, predictable popovers and scalable content.
+   No gameplay state or evidence changes.
+   ============================================================ */
+
+/* Clear bottom HUD at real laptop resolutions (not just native art size). */
+.status-rail.game-hud {
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.5fr) minmax(0, 1.62fr) minmax(0, .97fr) minmax(0, .62fr);
+  min-height: 86px;
+}
+.game-hud .hud-location,
+.game-hud .hud-block,
+.game-hud .hud-pin,
+.game-hud .hud-evidence {
+  padding: 10px 12px;
+  align-content: center;
+}
+.game-hud .hud-kicker { font-size: clamp(12px, .86vw, 15px); line-height: 1.15; }
+.game-hud .hud-location strong {
+  font-size: clamp(12px, .89vw, 15px);
+  line-height: 1.32;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
+.game-hud .hud-thread {
+  font-size: clamp(12px, .98vw, 15px);
+  line-height: 1.3;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  overflow: visible;
+}
+.game-hud .hud-empty {
+  color: #a4c4d0;
+  font-size: clamp(12px, .92vw, 14px);
+  line-height: 1.25;
+}
+.game-hud .hud-section-heading strong,
+.game-hud .hud-pin summary strong,
+.game-hud .hud-evidence strong {
+  font-size: clamp(13px, .95vw, 16px);
+}
+.game-hud .hud-lead span,
+.game-hud .hud-lead-status span {
+  font-size: clamp(11px, .9vw, 14px);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.game-hud .hud-lead small,
+.game-hud .hud-lead-status small,
+.game-hud .hud-pin summary small {
+  font-size: clamp(11px, .84vw, 13px);
+  line-height: 1.25;
+}
+.game-hud .hud-lead em { font-size: 11px; }
+.game-hud .hud-lead { gap: 4px; padding: 7px 9px; }
+.game-hud .hud-lead-status { gap: 4px; padding: 8px 10px; }
+.game-hud .hud-pin summary { min-height: 44px; }
+.game-hud .hud-evidence { justify-items: start; }
+.game-hud .hud-evidence .hud-kicker { color: #a7d9e7; font-size: clamp(11px, .83vw, 13px); }
+
+/* Pin is anchored on the left of its HUD cell, not on top of Storage evidence. */
+.game-hud .hud-pin-panel {
+  position: absolute;
+  left: auto;
+  right: calc(100% + 11vw);
+  bottom: calc(100% + 14px);
+  top: auto;
+  width: clamp(330px, 32vw, 455px);
+  padding: 16px 18px;
+  max-height: min(56vh, 450px);
+  overflow: auto;
+  font: 500 clamp(13px, .92vw, 15px)/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.game-hud .hud-pin-panel strong {
+  color: #eaf9ff;
+  font-size: clamp(14px, 1vw, 16px);
+  line-height: 1.32;
+  overflow-wrap: anywhere;
+}
+.game-hud .hud-pin-panel span,
+.game-hud .hud-pin-panel p { color: #c3d9e3; overflow-wrap: anywhere; }
+.game-hud .hud-pin-panel p { margin: 8px 0 12px; }
+.game-hud .hud-action {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 20px;
+  font: 800 clamp(14px, .98vw, 16px)/1.25 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .035em;
+  text-align: center;
+  white-space: normal;
+}
+
+/* Storage: preserve visual frame, make its actual live content fit and read well. */
+.storage-inspection-panel {
+  top: 12.5%;
+  right: 2.25%;
+  width: 35.5%;
+  max-height: 73%;
+  padding: 27px 29px 31px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.storage-inspection-panel > .stage-console-header {
+  font-size: clamp(11px, .85vw, 14px);
+  line-height: 1.25;
+  flex-wrap: wrap;
+}
+.storage-inspection-panel > .stage-console-body { padding: 12px 5px 5px; }
+.storage-inspection-panel .stage-console-body > .eyebrow { font-size: clamp(12px, .88vw, 15px); line-height: 1.25; }
+.storage-inspection-panel .stage-console-body h2 { font-size: clamp(22px, 1.85vw, 29px); line-height: 1.18; margin-bottom: 10px; }
+.storage-inspection-panel .muted { font-size: clamp(13px, .98vw, 16px); line-height: 1.4; }
+.storage-inspection-panel .part-card,
+.storage-inspection-panel .evidence-note,
+.storage-inspection-panel .comparison-card {
+  min-width: 0;
+  margin: 9px 0;
+  padding: 12px 14px;
+  gap: 7px;
+  font-size: clamp(13px, .98vw, 16px);
+  line-height: 1.42;
+  overflow-wrap: anywhere;
+}
+.storage-inspection-panel .evidence-note strong { font-size: clamp(14px, 1.05vw, 17px); }
+.storage-inspection-panel .comparison-card { gap: 0; }
+.serial-comparison-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+}
+.serial-comparison-row + .serial-comparison-row { border-top: 1px solid rgba(103, 190, 219, .23); }
+.storage-inspection-panel .serial-comparison-row > span {
+  min-width: 0;
+  color: #9ccfe0;
+  font-size: clamp(12px, .87vw, 14px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+.storage-inspection-panel .comparison-card .serial-comparison-row > strong {
+  display: block;
+  color: #f3fcff;
+  font-size: clamp(13px, 1vw, 16px);
+  line-height: 1.3;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.storage-inspection-panel .comparison-card > small {
+  margin-top: 9px;
+  color: #b3cfdc;
+  font-size: clamp(12px, .87vw, 14px);
+  line-height: 1.35;
+}
+.storage-inspection-panel .storage-actions { margin-top: 13px; }
+.storage-inspection-panel .storage-actions .navigation-button {
+  min-width: min(100%, 238px);
+  min-height: 46px;
+  padding: 10px 18px;
+  font-size: clamp(13px, .95vw, 16px);
+}
+.storage-object-button > span,
+.storage-serial-focus > span {
+  max-width: 94%;
+  min-height: 41px;
+  padding: 12px 20px;
+  font-size: clamp(12px, .92vw, 15px);
+  line-height: 1.18;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Workstation: readable scrollable report makes the resumption cue useful. */
+.workstation-report {
+  font-size: clamp(12px, .93vw, 14px);
+  line-height: 1.42;
+  overflow-wrap: anywhere;
+}
+.workstation-report header strong { font-size: 1.08em; }
+.workstation-report h3 { font-size: .98em; }
+.console-title { font-size: clamp(11px, .84vw, 14px); }
+.console-menu { font-size: clamp(10px, .8vw, 13px); }
+.tech-readout { font-size: clamp(10px, .74vw, 13px); }
+.tech-readout dd { overflow-wrap: anywhere; }
+.console-command span { font-size: clamp(13px, 1vw, 16px); }
+.console-command small { font-size: clamp(11px, .84vw, 14px); }
+.console-subcommand {
+  min-height: 36px;
+  padding: 9px 14px;
+  font-size: clamp(12px, .88vw, 14px);
+  line-height: 1.2;
+  white-space: normal;
+}
+
+/* The physical Hub monitor must have room for readable text and choices. */
+.hub-screen-interface {
+  left: 29%;
+  top: 20.6%;
+  width: 42%;
+  height: 37%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 10px 12px 12px;
+}
+.hub-screen-header {
+  font-size: clamp(11px, .83vw, 14px);
+  line-height: 1.2;
+  flex-wrap: wrap;
+}
+.hub-screen-body .eyebrow { font-size: clamp(11px, .8vw, 13px); }
+.hub-screen-body h2 { font-size: clamp(15px, 1.15vw, 19px); line-height: 1.2; }
+.hub-screen-body > .muted { font-size: clamp(12px, .86vw, 14px); line-height: 1.32; }
+.hub-thread-card { gap: 5px; padding: 8px; }
+.hub-thread-card > span,
+.hub-thread-card > small,
+.hub-case-actions > div > span,
+.hub-case-actions > div > small {
+  font-size: clamp(11px, .79vw, 13px);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.hub-thread-card > strong { font-size: clamp(12px, .92vw, 15px); line-height: 1.3; }
+.hub-thread-card .console-choice,
+.hub-case-actions .console-choice {
+  min-height: 40px;
+  padding: 8px 12px;
+  font-size: clamp(12px, .88vw, 15px);
+  line-height: 1.22;
+  white-space: normal;
+}
+.hub-case-actions {
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 8px;
+  padding: 8px 10px;
+}
+.hub-case-actions .console-choice { width: min(210px, 100%); }
+
+/* Coolant triage: text and buttons fit within the workstation monitor. */
+.secondary-monitor-interface {
+  left: 22%;
+  top: 12.8%;
+  width: 56%;
+  height: 49%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 13px 17px 15px;
+}
+.secondary-monitor-header { font-size: clamp(11px, .87vw, 14px); line-height: 1.23; flex-wrap: wrap; }
+.secondary-monitor-body .eyebrow { font-size: clamp(11px, .82vw, 13px); }
+.secondary-monitor-body h2 { font-size: clamp(17px, 1.29vw, 22px); line-height: 1.2; }
+.secondary-monitor-body > .muted { font-size: clamp(12px, .88vw, 14px); line-height: 1.32; }
+.secondary-monitor-body .telemetry-grid { gap: 8px; margin: 9px 0 8px; }
+.secondary-monitor-body .telemetry-grid > div { padding: 8px 10px; }
+.secondary-monitor-body .telemetry-grid span,
+.secondary-monitor-body .diagnostic-line span { font-size: clamp(11px, .79vw, 13px); line-height: 1.22; }
+.secondary-monitor-body .telemetry-grid strong,
+.secondary-monitor-body .diagnostic-line strong { font-size: clamp(12px, .9vw, 15px); line-height: 1.2; }
+.secondary-monitor-body .diagnostic-line { margin-bottom: 7px; padding: 7px 10px; }
+.secondary-monitor-body .console-classification { padding: 7px 10px 9px; }
+.secondary-monitor-body .console-classification legend { font-size: clamp(12px, .88vw, 14px); }
+.secondary-monitor-body .console-classification label {
+  min-height: 31px;
+  padding: 5px 8px;
+  font-size: clamp(12px, .89vw, 14px);
+  line-height: 1.25;
+}
+.secondary-monitor-body .console-classification .primary,
+.secondary-monitor-body .console-complete .navigation-button {
+  min-height: 41px;
+  padding: 9px 16px;
+  font-size: clamp(13px, .97vw, 16px);
+  line-height: 1.25;
+}
+.secondary-monitor-body .console-complete strong,
+.secondary-monitor-body .console-complete span,
+.secondary-monitor-body .console-complete p {
+  font-size: clamp(12px, .9vw, 15px);
+  line-height: 1.34;
+}
+
+/* Other Loop 1 screens: comfortable controls and wrapping. */
+.power-console-panel .primary,
+.power-console-panel .secondary,
+.power-console-panel .navigation-button,
+.case-review-panel .primary,
+.case-review-panel .navigation-button,
+.reflection-review-panel .navigation-button {
+  min-height: 44px;
+  padding: 10px 18px;
+  font-size: clamp(13px, .97vw, 16px);
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.case-review-panel,
+.reflection-review-panel { overflow-x: hidden; overflow-y: auto; }
+.case-review-panel .classification label,
+.case-review-panel .evidence-picker label,
+.reflection-review-panel .reflection-summary,
+.reflection-review-panel .reflection-prompts {
+  font-size: clamp(13px, 1vw, 16px);
+  line-height: 1.45;
+}
+.case-review-panel .evidence-picker,
+.reflection-review-panel .reflection-summary,
+.reflection-review-panel .reflection-prompts { width: min(100%, 760px); }
+.power-console-panel .thread-question,
+.power-console-panel .power-log-panel,
+.power-console-panel .evidence-note { overflow-wrap: anywhere; }
+
+/* Mobile/lower-width fallback (still a landscape prototype). */
+@media (max-width: 1100px) {
+  .status-rail.game-hud { grid-template-columns: .95fr 1.4fr 1.55fr .92fr .58fr; }
+  .game-hud .hud-location,
+  .game-hud .hud-block,
+  .game-hud .hud-pin,
+  .game-hud .hud-evidence { padding: 8px; }
+  .game-hud .hud-pin-panel { right: calc(100% + 9vw); width: min(370px, 41vw); }
+  .storage-inspection-panel { right: 1%; width: 40%; padding: 20px 23px 25px; }
+  .secondary-monitor-interface { left: 19.5%; width: 61%; }
+  .hub-screen-interface { left: 27%; width: 46%; height: 40%; }
+}
+
+
+/* Readability final layout corrections after screenshot review. */
+.game-hud .hud-pin { position: static; }
+.game-hud .hud-pin-panel {
+  left: 0;
+  right: auto;
+  bottom: calc(100% + 14px);
+  width: min(350px, 24vw);
+}
+/* Avoid a tiny back label that cannot be read on the room art. */
+.workstation-back.navigation-button {
+  min-width: 170px;
+  min-height: 44px;
+  padding: 11px 16px;
+  font-size: clamp(13px, .97vw, 16px);
+  line-height: 1.2;
+}
+.hub-screen-header { margin-bottom: 3px; }
+.hub-screen-body > .muted { margin-bottom: 4px; }
+.hub-thread-card { gap: 4px; padding: 6px; }
+.hub-case-actions { margin-top: 4px; padding: 6px 8px; }
+.secondary-monitor-interface {
+  top: 10.9%;
+  height: 55%;
+}
+.secondary-monitor-body .console-classification label {
+  min-height: 29px;
+  padding: 4px 7px;
+}
+.secondary-monitor-body .console-classification { padding: 5px 9px 7px; }
+@media (max-width: 1400px) {
+  .secondary-monitor-interface { top: 8%; height: 61%; }
+}
+@media (max-width: 1100px) {
+  .game-hud .hud-pin-panel { width: min(320px, 29vw); }
+}
+
+
+/* Final fit pass: keep CTAs above folds at 720p while allowing scroll at smaller sizes. */
+.game-hud .hud-pin-panel { width: min(330px, 22vw); }
+.secondary-monitor-body .console-classification .primary:disabled {
+  opacity: .8;
+  filter: saturate(.55);
+  color: #f2faff !important;
+}
+.hub-screen-interface,
+.secondary-monitor-interface,
+.storage-inspection-panel,
+.stage-console-panel,
+.workstation-report {
+  scrollbar-width: thin;
+  scrollbar-color: #78cce6 rgba(4, 20, 29, .78);
+}
+
+@media (max-height: 900px) {
+  .case-review-panel {
+    min-height: auto !important;
+    max-height: 78% !important;
+    padding: clamp(36px, 4.2vw, 55px) clamp(44px, 5vw, 70px) clamp(36px, 4.2vw, 55px) !important;
+  }
+  .case-review-panel .classification,
+  .case-review-panel .evidence-picker {
+    margin: 9px 0;
+    padding: 11px 14px;
+    gap: 8px;
+  }
+  .case-review-panel .theory-saved { margin: 9px 0; padding: 12px 14px; }
+  .reflection-review-panel { max-height: 78%; padding: clamp(20px, 2.3vw, 30px); }
+  .reflection-review-panel .reflection-summary,
+  .reflection-review-panel .reflection-prompts {
+    margin: 10px 0;
+    padding: 12px 14px;
+    gap: 7px;
+  }
+  .power-console-panel .power-signal { height: 58px; }
+  .power-console-panel .power-timeline { margin: 12px 0 8px; }
+}
+
+@media (min-width: 1101px) and (max-width: 1400px) {
+  .hub-screen-interface { top: 18.6%; height: 41%; }
+}
+
+@media (max-width: 1100px) {
+  .game-hud .hud-pin-panel {
+    width: min(280px, 26vw);
+    bottom: calc(100% + 23px);
+  }
+  .hub-screen-interface { top: 12%; height: 55%; }
+  .secondary-monitor-interface { top: 5%; height: 74%; }
+  .storage-inspection-panel { top: 9%; max-height: 74%; }
+}
+
+
+/* Keep the Yoko cyan hardware frame, but isolate actual readable text from its glowing rails. */
+.power-console-panel,
+.case-review-panel { isolation: isolate; }
+.power-console-panel::before,
+.case-review-panel::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 7% 5% 8%;
+  height: auto;
+  background:
+    linear-gradient(180deg, rgba(3, 16, 25, .965), rgba(2, 13, 21, .975));
+  border: 1px solid rgba(104, 202, 232, .38);
+  box-shadow: inset 0 0 34px rgba(24, 114, 147, .12);
+  pointer-events: none;
+}
+.power-console-panel > .stage-console-header,
+.power-console-panel > .stage-console-body,
+.case-review-panel > * {
+  position: relative;
+  z-index: 2;
+}
+.case-review-panel .primary:disabled {
+  opacity: .8;
+  filter: saturate(.55);
+  color: #f2faff !important;
+}
+
+
+/* Short button labels make the Hub affordances legible without consuming extra rows. */
+.hub-thread-card .console-choice,
+.hub-case-actions .console-choice {
+  font-size: clamp(13px, 1vw, 16px);
+  min-height: 42px;
+  padding: 8px 10px;
+}
+
+/* Fractional-pixel safeguard for the Hub monitor at 1464px window width. */
+.hub-screen-interface { height: 37.5%; }

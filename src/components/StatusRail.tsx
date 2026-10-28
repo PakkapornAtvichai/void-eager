@@ -116,7 +116,7 @@ export function StatusRail({
                 disabled={!canResumePin}
                 onClick={onResumePin}
               >
-                {canResumePin ? 'RESUME' : 'LOCKED'}
+                {canResumePin ? 'RESUME REPORT' : 'NOT AVAILABLE'}
               </button>
             </div>
           ) : (

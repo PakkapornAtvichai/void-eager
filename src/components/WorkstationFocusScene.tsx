@@ -98,7 +98,7 @@ export function WorkstationFocusScene({
 
         <div className="workstation-report-slot">
           <div className="console-title console-title--primary">
-            <span>MAINTENANCE RECORD</span>
+            <span>{opened ? 'MAINTENANCE RECORD // SCROLL TO READ ALL' : 'MAINTENANCE RECORD'}</span>
             <b>WO//{order.id}</b>
           </div>
 

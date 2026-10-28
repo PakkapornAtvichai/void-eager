@@ -48,7 +48,7 @@ export function HubScene({
           <p className="eyebrow">INVESTIGATION HOME</p>
           <h2 id="hub-title">Choose where to work next</h2>
           <p className="muted">
-            You traveled here from Maintenance. Continue the Coupler case or inspect the optional Power timeline. Follow Storage leads from the bottom rail.
+            Continue the Coupler case, inspect the optional Power timeline, or follow Storage leads from the HUD.
           </p>
 
           <div className="hub-thread-grid">
@@ -63,7 +63,7 @@ export function HubScene({
                     : 'STATUS // WORKSTATION RECORD OPEN'}
               </small>
               <button className="console-choice" data-testid="open-coupler-thread" onClick={onCoupler}>
-                Return to Coupler / Workstation
+                Return to Workstation
               </button>
             </article>
 
@@ -76,7 +76,7 @@ export function HubScene({
                   : 'OPTIONAL // RECONSTRUCT INCIDENT TIMELINE'}
               </small>
               <button className="console-choice" data-testid="open-power-thread" onClick={onPower}>
-                {powerReviewed ? 'Review Power Timeline Again' : 'Inspect Power Timeline'}
+                {powerReviewed ? 'Review Power Timeline' : 'Inspect Power Timeline'}
               </button>
             </article>
           </div>
@@ -101,7 +101,7 @@ export function HubScene({
 
             {theorySaved && (
               <button className="console-choice hub-end-session" data-testid="hub-end-session" onClick={onEndSession}>
-                End Investigation Session
+                End Session
               </button>
             )}
           </div>

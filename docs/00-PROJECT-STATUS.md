@@ -238,3 +238,10 @@ Resolution within the existing Coupler vertical slice:
 Validation:
 - Browser test at 1920x1080: all 3 hotspots enabled, both Workbench details, both Junction details, reversible navigation, intact interruption-to-reflection flow, 0 page errors.
 - Browser test at 1479x821 (matching player screenshot scale): Workbench and Junction usable and observations readable, 0 page errors.
+
+
+## UI readability and overflow correction — 2026-10-28
+
+A player screenshot exposed tiny buttons and overlapping text in Storage/Quick Pin. Screen-by-screen fixes now cover Maintenance, Workstation, Coolant, Incident Hub, Power Log, Storage, Case Review, Reflection and the persistent bottom HUD. Storage's serial comparison is presented as two short readable rows, and Quick Pin no longer covers it. The original Yoko frames remain; Power and Case Review use dark reading mattes inside them so decorative rails do not cut through text.
+
+Build and multi-resolution browser QA are documented in `docs/21-LOOP1-UI-READABILITY.md`. Scope remains the single Coupler Loop; no state-machine, clue, mystery, character or scene expansion was required. Tiny desktop viewports below 1280x720 may still use internal panel scrollbars.
