@@ -1,4 +1,4 @@
-import type { GameState } from './types'
+import type { GameState, InvestigationIntention, WorkOrderFieldId } from './types'
 
 export type Objective = {
   id: string
@@ -9,6 +9,8 @@ export type Objective = {
 
 export type ObjectiveView = {
   workstationFocused: boolean
+  observedFields: WorkOrderFieldId[]
+  activeIntention: InvestigationIntention | null
   maintenanceInspection: 'workbench' | 'junction' | null
   recordOpened: boolean
   storageLeadUnlocked: boolean
@@ -116,8 +118,8 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
       category: 'CASE',
       title: 'Resume the Coupler case',
       hint: state.quickPin
-        ? 'You can use your saved Quick Pin to resume the report, or select BACK TO WORKSTATION. Look for TRACE SERIAL -> STORAGE beneath the report.'
-        : 'Select BACK TO WORKSTATION. Scroll to the report\'s Parts Reference, then use TRACE SERIAL -> STORAGE beneath the report.',
+        ? 'You may review your saved Quick Pin, or choose Workstation or Storage yourself.'
+        : 'Choose Workstation or Storage. Power is optional.',
     }
   }
 
@@ -171,7 +173,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
       id: 'back-to-workstation',
       category: 'CASE',
       title: 'Continue examining the Coupler report',
-      hint: 'Open Workstation again. The Parts Reference section records a serial that can be traced after the alert.',
+      hint: 'You can return to the Workstation, visit Storage from the Hub, or explore other equipment.',
     }
   }
 
@@ -180,16 +182,25 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
       id: 'open-work-order',
       category: 'CASE',
       title: 'Open the Work Order',
-      hint: 'Select ACCESS RECORD. Your question is whether the replacement was actually installed, not just marked complete.',
+      hint: 'Select ACCESS RECORD to open WO-4471. You can choose which part to inspect.',
     }
   }
 
-  if (!state.secondaryTaskComplete) {
+  if (!view.observedFields.length) {
     return {
-      id: 'inspect-replacement',
+      id: 'inspect-workorder-field',
       category: 'CASE',
-      title: 'Look for installation proof',
-      hint: 'Scroll through sections 02 and 03. What confirms that the listed serial was installed, rather than just entered in the work order?',
+      title: 'Inspect a Work Order section',
+      hint: 'Select section 01, 02 or 03. You can inspect the fields in any order.',
+    }
+  }
+
+  if (!view.activeIntention) {
+    return {
+      id: 'choose-working-focus',
+      category: 'CASE',
+      title: 'Choose what to check next',
+      hint: 'Inspect the report fields, then select an investigation focus below them. You can change it later.',
     }
   }
 
@@ -197,25 +208,16 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
     return {
       id: 'review-evidence',
       category: 'CASE',
-      title: 'Take your findings back to the Incident Hub',
-      hint: 'Use NAV / ROOM to exit the workstation, then the Incident Hub exit in Maintenance.',
-    }
-  }
-
-  if (!view.storageLeadUnlocked) {
-    return {
-      id: 'trace-serial',
-      category: 'CASE',
-      title: 'Trace the serial',
-      hint: 'Find section 03 / PARTS REFERENCE. Select TRACE SERIAL -> STORAGE just below the report to add a navigable lead.',
+      title: 'Review your evidence',
+      hint: 'You can revisit sources or use the Incident Hub to continue the case.',
     }
   }
 
   return {
-    id: 'follow-storage',
+    id: 'continue-chosen-focus',
     category: 'CASE',
-    title: 'Follow Storage B-04 lead',
-    hint: 'Select the green REPLACEMENT SERIAL lead in the bottom HUD to travel to Storage. The Power timeline remains optional.',
+    title: 'Continue your investigation',
+    hint: 'Follow the focus you selected. The parts source can be traced from the report or visited directly via the Incident Hub.',
   }
 }
 

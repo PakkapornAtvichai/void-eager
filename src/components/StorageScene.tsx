@@ -8,6 +8,7 @@ import { storageObjective } from '../game/objectives'
 type Props = {
   inspected: boolean
   serialChecked: boolean
+  workOrderSerialObserved: boolean
   onInspect: () => void
   onCheckSerial: () => void
   onBack: () => void
@@ -15,7 +16,7 @@ type Props = {
 
 type Detail = 'crate' | 'coupler' | 'serial'
 
-export function StorageScene({ inspected, serialChecked, onInspect, onCheckSerial, onBack }: Props) {
+export function StorageScene({ inspected, serialChecked, workOrderSerialObserved, onInspect, onCheckSerial, onBack }: Props) {
   const [crateOpen, setCrateOpen] = useState(inspected || serialChecked)
   const [detail, setDetail] = useState<Detail | null>(null)
 
@@ -130,9 +131,9 @@ export function StorageScene({ inspected, serialChecked, onInspect, onCheckSeria
           </div>
           <div className="serial-comparison-modal" data-testid="serial-comparison">
             <div><span>COUPLER PLATE</span><strong>{STORAGE_COUPLER.serial}</strong></div>
-            <div><span>WORK ORDER</span><strong>{COUPLER.workOrder.replacementSerial}</strong></div>
+            <div><span>WORK ORDER</span><strong>{workOrderSerialObserved ? COUPLER.workOrder.replacementSerial : 'NOT YET INSPECTED'}</strong></div>
           </div>
-          <p>Compare these numbers. What do they suggest about the completed work order?</p>
+          <p>{workOrderSerialObserved ? 'These are two different sources. Decide what to compare during your investigation.' : 'The Work Order is a separate source. Inspect it to compare this part with the recorded claim.'}</p>
         </EvidenceModal>
       )}
     </section>

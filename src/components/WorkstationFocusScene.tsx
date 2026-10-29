@@ -1,36 +1,67 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { COUPLER } from '../content/coupler'
 import { MAINTENANCE_ASSETS } from '../content/maintenanceAssets'
+import type { InvestigationIntention, WorkOrderFieldId } from '../game/types'
+import { EvidenceModal } from './EvidenceModal'
 
 type Props = {
   opened: boolean
-  postInterruption: boolean
   restoreScrollOffset: number | null
   onScrollChange: (offset: number) => void
+  observedFields: WorkOrderFieldId[]
+  activeIntention: InvestigationIntention | null
   storageLeadUnlocked: boolean
   onOpen: () => void
+  onObserveField: (field: WorkOrderFieldId) => void
+  onSetIntention: (intention: InvestigationIntention) => void
   onUnlockStorageLead: () => void
   onBack: () => void
 }
 
+const fieldNames: Record<WorkOrderFieldId, string> = {
+  service: '01 // SERVICE RECORD',
+  completion: '02 // RECORDED COMPLETION',
+  parts: '03 // PARTS REFERENCE',
+}
+const intentionLabels: Record<InvestigationIntention, string> = {
+  'check-completion': 'Check the completion record',
+  'trace-part': 'Trace the issued part',
+  'check-verification': 'Look for installation verification',
+}
+
 export function WorkstationFocusScene({
   opened,
-  postInterruption,
   restoreScrollOffset,
   onScrollChange,
+  observedFields,
+  activeIntention,
   storageLeadUnlocked,
   onOpen,
+  onObserveField,
+  onSetIntention,
   onUnlockStorageLead,
   onBack,
 }: Props) {
   const order = COUPLER.workOrder
   const reportRef = useRef<HTMLElement>(null)
+  const [selectedField, setSelectedField] = useState<WorkOrderFieldId | null>(null)
+  const inspectedParts = observedFields.includes('parts')
 
   useEffect(() => {
     if (!opened || restoreScrollOffset === null || !reportRef.current) return
     reportRef.current.scrollTop = restoreScrollOffset
   }, [opened, restoreScrollOffset])
+
+  const inspect = (field: WorkOrderFieldId) => {
+    onObserveField(field)
+    setSelectedField(field)
+  }
+
+  const availableIntentions: InvestigationIntention[] = [
+    ...(observedFields.includes('completion') ? ['check-completion' as const] : []),
+    ...(inspectedParts ? ['trace-part' as const, 'check-verification' as const] : []),
+  ]
 
   return (
     <section
@@ -55,10 +86,7 @@ export function WorkstationFocusScene({
         <img className="maintenance-layer" src={MAINTENANCE_ASSETS.workstationTechnical} alt="" aria-hidden="true" />
 
         <div className="console-screen console-screen--nav" aria-hidden="true">
-          <div className="console-title">
-            <span>MNT.SYS</span>
-            <b>ONLINE</b>
-          </div>
+          <div className="console-title"><span>MNT.SYS</span><b>ONLINE</b></div>
           <div className="console-menu">
             <span className="active">WORK ORDERS</span>
             <span>DIAGNOSTICS</span>
@@ -73,18 +101,13 @@ export function WorkstationFocusScene({
         </div>
 
         <div className="console-screen console-screen--technical" aria-hidden="true">
-          <div className="console-title">
-            <span>GSC-04</span>
-            <b>LINK</b>
-          </div>
+          <div className="console-title"><span>GSC-04</span><b>LINK</b></div>
           <dl className="tech-readout">
             <div><dt>ORDER</dt><dd>{order.id}</dd></div>
             <div><dt>TECH</dt><dd>{order.technician}</dd></div>
-            <div><dt>SERIAL</dt><dd>{order.replacementSerial}</dd></div>
+            <div><dt>PART</dt><dd>{inspectedParts ? order.replacementSerial : 'SEE WO-4471'}</dd></div>
           </dl>
-          <div className="signal-grid">
-            <span /><span /><span /><span /><span /><span />
-          </div>
+          <div className="signal-grid"><span /><span /><span /><span /><span /><span /></div>
         </div>
 
         <button
@@ -98,7 +121,7 @@ export function WorkstationFocusScene({
 
         <div className="workstation-report-slot">
           <div className="console-title console-title--primary">
-            <span>{opened ? 'MAINTENANCE RECORD // SCROLL TO READ ALL' : 'MAINTENANCE RECORD'}</span>
+            <span>{opened ? 'WORK ORDER // SELECT A SECTION' : 'MAINTENANCE RECORD'}</span>
             <b>WO//{order.id}</b>
           </div>
 
@@ -115,7 +138,7 @@ export function WorkstationFocusScene({
           ) : (
             <article
               ref={reportRef}
-              className="workstation-report"
+              className="workstation-report workorder-interactive-report"
               data-testid="workstation-report"
               onScroll={(event) => onScrollChange(event.currentTarget.scrollTop)}
             >
@@ -124,32 +147,47 @@ export function WorkstationFocusScene({
                 <strong>{order.component}</strong>
               </header>
 
-              <section>
-                <h3>01 // SERVICE RECORD</h3>
-                <p>
-                  Routine stabilizer maintenance was logged twelve days before the cascade event.
-                  The work order records the coupler replacement as complete.
-                </p>
-              </section>
+              {(Object.keys(fieldNames) as WorkOrderFieldId[]).map((field) => (
+                <button
+                  key={field}
+                  type="button"
+                  className={`workorder-field-button ${observedFields.includes(field) ? 'is-observed' : ''}`}
+                  data-testid={`inspect-wo-${field}`}
+                  onClick={() => inspect(field)}
+                >
+                  <span>{fieldNames[field]}</span>
+                  <small>{observedFields.includes(field) ? 'REVIEW FIELD' : 'INSPECT FIELD'}</small>
+                </button>
+              ))}
 
-              <section>
-                <h3>02 // RECORDED COMPLETION</h3>
-                <p>STATUS ........ {order.status}</p>
-                <p>TECHNICIAN .... {order.technician}</p>
-                <p>REPL. SERIAL .. {order.replacementSerial}</p>
-              </section>
-
-              <section>
-                <h3>03 // PARTS REFERENCE</h3>
-                <p>ISSUED SERIAL . {order.replacementSerial}</p>
-                <p>SOURCE ........ STORAGE B-04</p>
-                <p>INSTALL VERIFY. NOT ATTACHED</p>
-                <p className="workstation-inquiry">INVESTIGATOR'S QUESTION // The record claims completion, but where is the installation proof?</p>
-              </section>
+              {availableIntentions.length > 0 && (
+                <div className="workorder-intentions" data-testid="workorder-intentions">
+                  <strong>WHAT WILL YOU CHECK NEXT?</strong>
+                  <div className="workorder-intention-choices">
+                    {availableIntentions.map((intention) => (
+                      <button
+                        key={intention}
+                        type="button"
+                        className={activeIntention === intention ? 'is-selected' : ''}
+                        data-testid={`choose-intention-${intention}`}
+                        aria-pressed={activeIntention === intention}
+                        onClick={() => onSetIntention(intention)}
+                      >
+                        {intentionLabels[intention]}
+                      </button>
+                    ))}
+                  </div>
+                  {activeIntention && (
+                    <p className="workorder-active-intention" data-testid="active-investigation-focus">
+                      CURRENT FOCUS // {intentionLabels[activeIntention]}
+                    </p>
+                  )}
+                </div>
+              )}
             </article>
           )}
 
-          {opened && postInterruption && (
+          {opened && inspectedParts && (
             <button
               type="button"
               className={`console-subcommand ${storageLeadUnlocked ? 'is-complete' : 'is-new-action'}`}
@@ -157,11 +195,38 @@ export function WorkstationFocusScene({
               onClick={onUnlockStorageLead}
               disabled={storageLeadUnlocked}
             >
-              {storageLeadUnlocked ? 'LEAD ADDED // STORAGE B-04' : 'TRACE SERIAL → STORAGE'}
+              {storageLeadUnlocked ? 'LEAD SAVED // STORAGE B-04' : 'TRACE PART SOURCE // B-04'}
             </button>
           )}
         </div>
       </div>
+
+      {selectedField && (
+        <EvidenceModal
+          title={fieldNames[selectedField]}
+          kicker={`WO-${order.id} // SOURCE RECORD`}
+          testId="workorder-field-dialog"
+          onClose={() => setSelectedField(null)}
+        >
+          {selectedField === 'service' && (
+            <p>Routine stabilizer maintenance was logged twelve days before the cascade.</p>
+          )}
+          {selectedField === 'completion' && (
+            <div className="workorder-fact-list">
+              <p>STATUS: {order.status}</p>
+              <p>TECHNICIAN: {order.technician}</p>
+              <p>REPLACEMENT SERIAL: {order.replacementSerial}</p>
+            </div>
+          )}
+          {selectedField === 'parts' && (
+            <div className="workorder-fact-list">
+              <p>ISSUED SERIAL: {order.replacementSerial}</p>
+              <p>SOURCE: STORAGE B-04</p>
+              <p>INSTALL VERIFY: NOT ATTACHED</p>
+            </div>
+          )}
+        </EvidenceModal>
+      )}
     </section>
   )
 }

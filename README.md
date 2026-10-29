@@ -4,7 +4,7 @@ Void-eager is a browser-based mystery prototype about interruption, task switchi
 
 ## Current Loop 1 design contract (29 October 2026)
 
-**Design-only, not yet implemented in gameplay code.** The next implementation must follow the one-loop scope and acceptance tests in:
+**Implementation status (30 October 2026): P0-A is implemented and tested. P0-B, P0-C and P0-D remain unfinished.** The next code pass is P0-B (C-17, player-selected Quick Pin, context recovery). See [P0-A implementation and tests](docs/25-LOOP1-P0A-IMPLEMENTATION.md). The complete one-loop gameplay direction is in:
 
 - **[Loop 1 Gameplay Design — Thai](docs/24-LOOP1-FINAL-GAMEPLAY-DESIGN-TH.md)** (read this first)
 - **[Loop 1 Final Gameplay Design / Implementation Contract](docs/24-LOOP1-FINAL-GAMEPLAY-DESIGN.md)** (full event rules, state and branch tests)

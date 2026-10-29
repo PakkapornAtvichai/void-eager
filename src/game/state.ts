@@ -1,11 +1,13 @@
 import { COUPLER, STORAGE_COUPLER } from '../content/coupler'
 import { POWER_SPIKE } from '../content/power'
-import type { GameState, ThreadId } from './types'
+import type { GameState, InvestigationIntention, ThreadId, WorkOrderFieldId } from './types'
 
 export const initialGameState: GameState = {
   scene: 'maintenance',
   currentThread: 'coupler',
   evidenceFound: [],
+  observedWorkOrderFields: [],
+  activeIntention: null,
   knowledgeFlags: [],
   quickPin: null,
   interruptionStatus: 'idle',
@@ -17,7 +19,7 @@ export const initialGameState: GameState = {
   resumedFromPin: false,
 }
 
-const addOnce = (items: string[], value: string) =>
+const addOnce = <T extends string>(items: T[], value: T): T[] =>
   items.includes(value) ? items : [...items, value]
 
 const resumedThread = (state: GameState, thread: ThreadId) =>
@@ -26,6 +28,8 @@ const resumedThread = (state: GameState, thread: ThreadId) =>
     : state.firstThreadAfterInterruption
 export type GameAction =
   | { type: 'OPEN_WORK_ORDER' }
+  | { type: 'OBSERVE_WORK_ORDER_FIELD'; field: WorkOrderFieldId }
+  | { type: 'SET_WORKING_INTENTION'; intention: InvestigationIntention }
   | { type: 'TRIGGER_INTERRUPTION' }
   | { type: 'PIN_CURRENT_CONTEXT'; scrollOffset: number }
   | { type: 'START_INTERRUPTION' }
@@ -53,6 +57,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         evidenceFound: addOnce(state.evidenceFound, COUPLER.evidenceId),
         knowledgeFlags: addOnce(state.knowledgeFlags, COUPLER.knowledgeFlag),
       }
+    case 'OBSERVE_WORK_ORDER_FIELD':
+      if (!state.evidenceFound.includes(COUPLER.evidenceId)) return state
+      return {
+        ...state,
+        observedWorkOrderFields: addOnce(state.observedWorkOrderFields, action.field),
+      }
+    case 'SET_WORKING_INTENTION': {
+      // Work Order intentions must be based on a field the player actually inspected.
+      const allowed = action.intention === 'check-completion'
+        ? state.observedWorkOrderFields.includes('completion')
+        : state.observedWorkOrderFields.includes('parts')
+      return allowed ? { ...state, activeIntention: action.intention } : state
+    }
     case 'TRIGGER_INTERRUPTION':
       return state.interruptionStatus === 'idle'
         ? { ...state, interruptionStatus: 'warning' }
@@ -105,6 +122,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         resumedFromPin: true,
       }
     case 'UNLOCK_STORAGE_LEAD':
+      // A traced source is a navigation shortcut, not a door or a C-17 reward.
+      if (!state.observedWorkOrderFields.includes('parts')) return state
       return {
         ...state,
         knowledgeFlags: addOnce(state.knowledgeFlags, 'K_STORAGE_LEAD_UNLOCKED'),

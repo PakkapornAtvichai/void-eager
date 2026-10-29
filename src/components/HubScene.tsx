@@ -4,10 +4,12 @@ import { YOKO_PACK_ASSETS } from '../content/yokoPackAssets'
 
 type Props = {
   storageLeadUnlocked: boolean
+  recordOpened: boolean
   serialChecked: boolean
   powerReviewed: boolean
   theorySaved: boolean
   onCoupler: () => void
+  onStorage: () => void
   onPower: () => void
   onCaseReview: () => void
   onEndSession: () => void
@@ -15,10 +17,12 @@ type Props = {
 
 export function HubScene({
   storageLeadUnlocked,
+  recordOpened,
   serialChecked,
   powerReviewed,
   theorySaved,
   onCoupler,
+  onStorage,
   onPower,
   onCaseReview,
   onEndSession,
@@ -62,7 +66,7 @@ export function HubScene({
                 ? 'Record a working theory in Case Review.'
                 : storageLeadUnlocked
                   ? 'Follow the Storage B-04 lead in the bottom HUD.'
-                  : 'Return to Workstation. Power Log is optional.'}
+                  : 'Choose Workstation or Storage. Power is optional.'}
           </p>
 
           <div className="hub-thread-grid">
@@ -74,11 +78,16 @@ export function HubScene({
                   ? 'SERIAL LOGGED'
                   : storageLeadUnlocked
                     ? 'STORAGE LEAD READY'
-                    : 'WORK ORDER OPEN'}
+                    : recordOpened ? 'WORK ORDER OPEN' : 'WORK ORDER NOT YET OPEN'}
               </small>
-              <button className="console-choice" data-testid="open-coupler-thread" onClick={onCoupler}>
-                BACK TO WORKSTATION
-              </button>
+              <div className="hub-coupler-navigation">
+                <button className="console-choice" data-testid="open-coupler-thread" onClick={onCoupler}>
+                  WORKSTATION
+                </button>
+                <button className="console-choice" data-testid="hub-visit-storage" onClick={onStorage}>
+                  STORAGE B-04
+                </button>
+              </div>
             </article>
 
             <article className="hub-thread-card">

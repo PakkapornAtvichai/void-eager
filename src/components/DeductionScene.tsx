@@ -5,6 +5,7 @@ type Answer = 'replaced' | 'not-replaced'
 type Props = {
   theory: Answer | null
   theoryEvidence: string[]
+  observedEvidence: string[]
   onSave: (answer: Answer, evidence: string[]) => void
   onBack: () => void
 }
@@ -15,7 +16,7 @@ const evidenceOptions = [
   ['STO_NEW_COUPLER_SERIAL', 'Its serial matches the replacement serial on the work order.'],
 ] as const
 
-export function DeductionScene({ theory, theoryEvidence, onSave, onBack }: Props) {
+export function DeductionScene({ theory, theoryEvidence, observedEvidence, onSave, onBack }: Props) {
   const [answer, setAnswer] = useState<Answer | null>(theory)
   const [selected, setSelected] = useState<string[]>(theoryEvidence)
   const [needsEvidence, setNeedsEvidence] = useState(false)
@@ -70,7 +71,7 @@ export function DeductionScene({ theory, theoryEvidence, onSave, onBack }: Props
 
         <fieldset className="evidence-picker">
           <legend>Evidence considered</legend>
-          {evidenceOptions.map(([id, label]) => (
+          {evidenceOptions.filter(([id]) => observedEvidence.includes(id)).map(([id, label]) => (
             <label key={id}>
               <input
                 type="checkbox"

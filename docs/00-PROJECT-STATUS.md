@@ -272,3 +272,11 @@ The **next implementation contract** is:
 Design is scoped to the existing Coupler Loop 1, existing rooms and art, one C-17 interruption, one chosen-intention Quick Pin, manual Work Order/Storage evidence comparison, working theory and neutral interactive Reflection. Do **not** add opening NPC dialogue or expand to the archived six-room mystery.
 
 Implementation order: P0-A Workstation/ungated Storage; P0-B C-17/Pin/recovery; P0-C manual comparison/theory; P0-D Reflection/regression/human usability. Existing game build is not yet expected to behave according to this new design. Keep CURRENT vs TARGET distinctions explicit.
+
+## Loop 1 P0-A investigation foundation — 30 October 2026
+
+**Implemented and browser-tested** against docs/24 design, with clear P0-B/C/D boundaries. Workstation now allows independent clickable inspection of WO-4471's three existing fields and player-selected working intention, which persists after navigating. Trace Part Source B-04 is available after reading the source field **without completing C-17**, and following the lead requires a separate player click. Incident Hub has explicit Workstation and Storage routes even before the interruption. Storage-first no longer reveals an uninspected Work Order serial, and Case Review citations are filtered to seen sources. Pending C-17 remains visible across locations as a minimal compatibility safeguard.
+
+Production build passed; browser acceptance passed at 1024x576, 1280x720, 1464x815 and 1920x1080. Existing full Loop 1 still reaches Reflection with and without Pin (0 page errors). Regression scripts are in tests/p0a_navigation_smoke.py and tests/p0a_loop_regression.py. Full implementation notes: docs/25-LOOP1-P0A-IMPLEMENTATION.md.
+
+**Still not implemented:** P0-B replaces the old 12-second C-17 timer, prewritten Quick Pin and forced Hub return; P0-C adds manual source comparisons/theory revision; P0-D makes Reflection interactive. No new art, rooms or dialogue.

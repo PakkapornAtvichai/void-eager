@@ -40,6 +40,8 @@ export function GameApp() {
     workstationFocused,
     maintenanceInspection,
     recordOpened,
+    observedFields: state.observedWorkOrderFields,
+    activeIntention: state.activeIntention,
     storageLeadUnlocked,
     serialChecked,
     spikeFound,
@@ -98,9 +100,8 @@ export function GameApp() {
 
   const handleIncident = useCallback(() => {
     setIncidentExpanded(false)
-    if (state.scene === 'maintenance' && !workstationFocused) {
-      // Opening the ship-system console from another room view is a player action, not a teleport.
-      navigateTo('MAINTENANCE // INCIDENT CONSOLE', { type: 'START_INTERRUPTION' })
+    if (state.scene !== 'maintenance' || !workstationFocused) {
+      navigateTo('INCIDENT SYSTEM // C-17', { type: 'START_INTERRUPTION' })
       return
     }
     dispatch({ type: 'START_INTERRUPTION' })
@@ -126,10 +127,13 @@ export function GameApp() {
         workstationFocused ? (
           <WorkstationFocusScene
             opened={recordOpened}
-            postInterruption={state.secondaryTaskComplete}
             restoreScrollOffset={state.resumedFromPin && state.quickPin ? state.quickPin.scrollOffset : null}
             onScrollChange={setMaintenanceScroll}
             storageLeadUnlocked={storageLeadUnlocked}
+            observedFields={state.observedWorkOrderFields}
+            activeIntention={state.activeIntention}
+            onObserveField={(field) => dispatch({ type: 'OBSERVE_WORK_ORDER_FIELD', field })}
+            onSetIntention={(intention) => dispatch({ type: 'SET_WORKING_INTENTION', intention })}
             onOpen={() => dispatch({ type: 'OPEN_WORK_ORDER' })}
             onUnlockStorageLead={() => dispatch({ type: 'UNLOCK_STORAGE_LEAD' })}
             onBack={() => setWorkstationFocused(false)}
@@ -152,7 +156,7 @@ export function GameApp() {
               setBriefingDismissed(true)
               setMaintenanceInspection(area)
             }}
-            hubAvailable={state.secondaryTaskComplete}
+            hubAvailable={true}
             onHub={() => navigateTo('INCIDENT HUB', { type: 'BACK_TO_HUB' })}
           />
         )
@@ -173,10 +177,15 @@ export function GameApp() {
       return (
         <HubScene
           storageLeadUnlocked={storageLeadUnlocked}
+          recordOpened={recordOpened}
           serialChecked={serialChecked}
           powerReviewed={protectionFound}
           theorySaved={Boolean(state.theory)}
-          onCoupler={() => navigateTo('MAINTENANCE // WORKSTATION', { type: 'OPEN_THREAD', thread: 'coupler' })}
+          onCoupler={() => {
+            setWorkstationFocused(true)
+            navigateTo('MAINTENANCE // WORKSTATION', { type: 'OPEN_THREAD', thread: 'coupler' })
+          }}
+          onStorage={() => navigateTo('STORAGE // B-04', { type: 'GO_TO_STORAGE' })}
           onPower={() => navigateTo('ENGINEERING // POWER LOG', { type: 'OPEN_THREAD', thread: 'power' })}
           onCaseReview={() => dispatch({ type: 'OPEN_DEDUCTION' })}
           onEndSession={() => dispatch({ type: 'OPEN_REFLECTION' })}
@@ -189,6 +198,7 @@ export function GameApp() {
         <StorageScene
           inspected={storageInspected}
           serialChecked={serialChecked}
+          workOrderSerialObserved={state.observedWorkOrderFields.includes('parts') || state.observedWorkOrderFields.includes('completion')}
           onInspect={() => dispatch({ type: 'INSPECT_STORAGE_COUPLER' })}
           onCheckSerial={() => dispatch({ type: 'CHECK_STORAGE_SERIAL' })}
           onBack={() => navigateTo('INCIDENT HUB', { type: 'BACK_TO_HUB' })}
@@ -212,6 +222,7 @@ export function GameApp() {
         <DeductionScene
           theory={state.theory}
           theoryEvidence={state.theoryEvidence}
+          observedEvidence={state.evidenceFound}
           onSave={(answer, evidence) => dispatch({ type: 'SAVE_THEORY', answer, evidence })}
           onBack={() => dispatch({ type: 'BACK_TO_HUB' })}
         />
@@ -297,7 +308,7 @@ export function GameApp() {
           </div>
         )}
 
-        {state.interruptionStatus === 'warning' && state.scene === 'maintenance' && (
+        {state.interruptionStatus === 'warning' && state.scene !== 'secondary' && (
           incidentExpanded ? (
             <IncomingInterruption
               pinned={Boolean(state.quickPin)}
