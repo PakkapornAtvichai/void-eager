@@ -2,17 +2,26 @@
 
 Void-eager is a browser-based mystery prototype about interruption, task switching, and recovering a train of thought.
 
+## Current Loop 1 design contract (29 October 2026)
+
+**Design-only, not yet implemented in gameplay code.** The next implementation must follow the one-loop scope and acceptance tests in:
+
+- **[Loop 1 Gameplay Design — Thai](docs/24-LOOP1-FINAL-GAMEPLAY-DESIGN-TH.md)** (read this first)
+- **[Loop 1 Final Gameplay Design / Implementation Contract](docs/24-LOOP1-FINAL-GAMEPLAY-DESIGN.md)** (full event rules, state and branch tests)
+
+These documents supersede conflicting gameplay sequencing in older prototype notes. They do not authorize a return to the historical six-room mystery or new NPC conversations.
+
 ## Current production rule
 
 Build one complete gameplay loop first. New mystery pieces may reuse that loop; they must not expand the engine until the core loop is playable and tested.
 
 ## Prototype loop
 
-FOCUS -> INTERRUPTION -> SAVE CONTEXT -> SWITCH -> RETURN -> RECOVER -> DEDUCE
+FOCUS -> INTERRUPTION -> [OPTIONAL QUICK PIN] -> SWITCH -> RECOVER -> COMPARE -> DEDUCE -> REFLECT
 
 The first vertical slice is the Coupler puzzle: the player checks whether a stabilizer coupler was actually replaced, gets interrupted, optionally uses Quick Pin, handles a short secondary task, resumes the investigation, cross-checks evidence, and makes a deduction.
 
-## Three-day scope
+## Historical three-day scope (original planning baseline)
 
 - Day 1: core loop skeleton, research lock, placeholder UI
 - Day 2: complete Coupler vertical slice, Yoko asset integration
@@ -28,11 +37,11 @@ npm run dev
 npm run build
 ```
 
-## Implementation checkpoint
+## Historical implementation checkpoint (superseded)
 
 T01–T04 are implemented: app skeleton, explicit client-side game state, Maintenance work-order investigation, scripted interruption, and Quick Pin/non-pin switching.
 
-The secondary task screen is intentionally a placeholder. Continue with T05 only after reviewing this checkpoint.
+Historical note: this checkpoint was recorded before the secondary classification screen existed. It is not the current implementation instruction.
 
 T05–T06 are also complete: the interruption now contains a bounded classification task and returns to Maintenance with different resumption support depending on whether Quick Pin was used.
 
@@ -48,7 +57,7 @@ T07–T09 are implemented. The Coupler vertical slice now runs from Maintenance 
 
 Frontend test instructions live in `docs/15-FRONTEND-TEST-HANDOFF.md`.
 
-## Asynchronous Loop v2
+## Historical Asynchronous Loop v2 (superseded by current design contract)
 
 The current experimental build replaces the linear interruption flow with a research-informed asynchronous loop.
 

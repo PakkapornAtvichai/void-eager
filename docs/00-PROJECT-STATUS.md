@@ -259,3 +259,16 @@ The Workbench/Junction and Storage evidence panels no longer permanently cover Y
 ## Quick Pin overlay regression corrected — 2026-10-28
 
 Player screenshot reproduced a persistent RESUME REPORT popup from Hub over Storage's centered serial evidence dialog. The root cause was an uncontrolled details node surviving scene transitions and an overly broad canResumePin. Quick Pin details are now available only at the Incident Hub; other scenes display only its saved/empty status. Removing the redundant Workbench/Junction Workstation shortcut and the Observation only inspection footer further reduces clutter. Exact 4-viewport reproduction, Pin resume and non-Pin full playthrough passed with 0 JS page errors. Details in docs/23-LOOP1-SCENE-FIRST-INTERACTION.md.
+
+
+## Loop 1 final gameplay design lock — 29 October 2026
+
+**Documentation/design-only update; no gameplay source was changed.** The latest player review identified passive Work Order reading, a C-17 event keyed to a bare 12-second timer, a hard-coded/spoiling Quick Pin, a coolant-gated Storage Lead, an automatic conclusion in physical evidence, and non-interactive Reflection.
+
+The **next implementation contract** is:
+- Thai summary: docs/24-LOOP1-FINAL-GAMEPLAY-DESIGN-TH.md
+- Complete event/flag/branch/testing specification: docs/24-LOOP1-FINAL-GAMEPLAY-DESIGN.md
+
+Design is scoped to the existing Coupler Loop 1, existing rooms and art, one C-17 interruption, one chosen-intention Quick Pin, manual Work Order/Storage evidence comparison, working theory and neutral interactive Reflection. Do **not** add opening NPC dialogue or expand to the archived six-room mystery.
+
+Implementation order: P0-A Workstation/ungated Storage; P0-B C-17/Pin/recovery; P0-C manual comparison/theory; P0-D Reflection/regression/human usability. Existing game build is not yet expected to behave according to this new design. Keep CURRENT vs TARGET distinctions explicit.
