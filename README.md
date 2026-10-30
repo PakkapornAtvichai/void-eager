@@ -16,6 +16,7 @@ Void-eager is a browser-based mystery prototype about interruption, task switchi
 - **[Physical Hub Navigation & Case Board Correction](docs/31-PHYSICAL-NAVIGATION-AND-HUB-CASEBOARD.md)** (left/right corridors are actual room movement, Storage through Maintenance yellow door, Hub central screen is evidence/theory rather than teleport navigation)
 - **[Independent navigation & gameplay playtest audit](docs/32-NAVIGATION-PLAYTEST-UX-AUDIT.md)** (historical reproduction of UX-01 through UX-04, now addressed in the next report)
 - **[Post-playtest UX fixes: Genuine C-17 and visible Workstation focus](docs/33-UX-REAL-INTERRUPTION-AND-FOCUS-FIX.md)** (real interrupted investigation, actual task re-engagement before ending, fixed NEXT CHECK selector, accurate route/status labels)
+- **[Follow-up exploratory browser playtest](docs/34-POSTFIX-EXPLORATORY-PLAYTEST.md)** (three complete game routes passed; Storage OPEN CRATE CTA and Reflection Restart hidden behind HUD at 1024x576; recommended small-screen fixes)
 
 These documents supersede conflicting gameplay sequencing in older prototype notes. They do not authorize a return to the historical six-room mystery or new NPC conversations.
 
