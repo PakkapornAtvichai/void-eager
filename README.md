@@ -14,6 +14,7 @@ Void-eager is a browser-based mystery prototype about interruption, task switchi
 - **[P0-B Interruption & Context Recovery implementation](docs/29-P0B-INTERRUPTION-RECOVERY-IMPLEMENTED.md)** (meaningful C-17, player-chosen cue, deliberate return, guaranteed completed incident)
 - **[P0-C Evidence & Deduction implementation](docs/30-P0C-EVIDENCE-DEDUCTION-IMPLEMENTED.md)** (observed-only citations, explicit comparison, Storage-first, revisable theory, optional Power fact gating)
 - **[Physical Hub Navigation & Case Board Correction](docs/31-PHYSICAL-NAVIGATION-AND-HUB-CASEBOARD.md)** (left/right corridors are actual room movement, Storage through Maintenance yellow door, Hub central screen is evidence/theory rather than teleport navigation)
+- **[Independent navigation & gameplay playtest audit](docs/32-NAVIGATION-PLAYTEST-UX-AUDIT.md)** (tests pass, but the report reproduces one critical serious-game bypass, an offscreen Workstation focus selector, and misleading wayfinding)
 
 These documents supersede conflicting gameplay sequencing in older prototype notes. They do not authorize a return to the historical six-room mystery or new NPC conversations.
 
