@@ -1,5 +1,6 @@
 import { COUPLER, STORAGE_COUPLER } from '../content/coupler'
 import { POWER_SPIKE } from '../content/power'
+import { canCompareSourceSerials, hasCouplerObservation } from './evidence'
 import type {
   GameState, InvestigationIntention, QuickPin, ReturnPoint, ThreadId, WorkOrderFieldId,
 } from './types'
@@ -8,6 +9,9 @@ export const initialGameState: GameState = {
   scene: 'maintenance',
   currentThread: 'coupler',
   evidenceFound: [],
+  workOrderOpened: false,
+  storageCrateOpen: false,
+  comparedEvidenceIds: [],
   observedWorkOrderFields: [],
   activeIntention: null,
   knowledgeFlags: [],
@@ -33,6 +37,8 @@ const resumedThread = (state: GameState, thread: ThreadId | null) =>
 
 export type GameAction =
   | { type: 'OPEN_WORK_ORDER' }
+  | { type: 'OPEN_STORAGE_CRATE' }
+  | { type: 'SAVE_COMPARISON' }
   | { type: 'OBSERVE_WORK_ORDER_FIELD'; field: WorkOrderFieldId }
   | { type: 'SET_WORKING_INTENTION'; intention: InvestigationIntention }
   | { type: 'TRIGGER_INTERRUPTION' }
@@ -61,16 +67,43 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'OPEN_WORK_ORDER':
       return {
         ...state,
+        workOrderOpened: true,
         currentThread: COUPLER.threadId,
-        evidenceFound: addOnce(state.evidenceFound, COUPLER.evidenceId),
-        knowledgeFlags: addOnce(state.knowledgeFlags, COUPLER.knowledgeFlag),
       }
-    case 'OBSERVE_WORK_ORDER_FIELD':
-      if (!state.evidenceFound.includes(COUPLER.evidenceId)) return state
+    case 'OBSERVE_WORK_ORDER_FIELD': {
+      if (!state.workOrderOpened) return state
+      const sourceId = action.field === 'service'
+        ? 'MAI_WO_SERVICE'
+        : action.field === 'completion'
+          ? COUPLER.evidenceId
+          : 'MAI_INSTALL_VERIFY_FIELD'
       return {
         ...state,
+        evidenceFound: addOnce(state.evidenceFound, sourceId),
         observedWorkOrderFields: addOnce(state.observedWorkOrderFields, action.field),
+        knowledgeFlags: addOnce(state.knowledgeFlags, COUPLER.knowledgeFlag),
       }
+    }
+    case 'OPEN_STORAGE_CRATE':
+      return state.storageCrateOpen ? state : { ...state, storageCrateOpen: true }
+    case 'SAVE_COMPARISON': {
+      // Comparison records a deliberate source pairing, never a verdict.
+      if (!canCompareSourceSerials(state)) return state
+      const recordSource = state.observedWorkOrderFields.includes('parts')
+        ? 'MAI_INSTALL_VERIFY_FIELD'
+        : COUPLER.evidenceId
+      const ids = [
+        recordSource,
+        STORAGE_COUPLER.serialEvidenceId,
+        ...(state.evidenceFound.includes(STORAGE_COUPLER.evidenceId) ? [STORAGE_COUPLER.evidenceId] : []),
+      ]
+      return {
+        ...state,
+        comparedEvidenceIds: ids.reduce(
+          (items, id) => addOnce(items, id), [...state.comparedEvidenceIds],
+        ),
+      }
+    }
     case 'SET_WORKING_INTENTION': {
       const allowed = action.intention === 'check-completion'
         ? state.observedWorkOrderFields.includes('completion')
@@ -136,6 +169,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         resumedFromPin: false,
       }
     case 'INSPECT_STORAGE_COUPLER':
+      if (!state.storageCrateOpen) return state
       return {
         ...state,
         interruptionArmed: true, // Storage-first engagement qualifies; crate opening alone does not.
@@ -143,8 +177,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         knowledgeFlags: addOnce(state.knowledgeFlags, STORAGE_COUPLER.knowledgeFlag),
       }
     case 'CHECK_STORAGE_SERIAL':
+      if (!state.storageCrateOpen) return state
       return {
         ...state,
+        interruptionArmed: true,
         evidenceFound: addOnce(state.evidenceFound, STORAGE_COUPLER.serialEvidenceId),
         knowledgeFlags: addOnce(state.knowledgeFlags, STORAGE_COUPLER.serialFlag),
       }
@@ -163,9 +199,17 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'BACK_TO_HUB':
       return { ...state, scene: 'hub', currentThread: null, resumedFromPin: false }
     case 'OPEN_DEDUCTION':
-      return { ...state, scene: 'deduction' }
-    case 'SAVE_THEORY':
-      return { ...state, theory: action.answer, theoryEvidence: action.evidence }
+      return hasCouplerObservation(state) ? { ...state, scene: 'deduction' } : state
+    case 'SAVE_THEORY': {
+      // Validate against actually inspected source IDs even if a stale UI tries to submit.
+      if (!hasCouplerObservation(state) || action.evidence.length === 0 ||
+        !action.evidence.every((id) => state.evidenceFound.includes(id))) return state
+      return {
+        ...state,
+        theory: action.answer,
+        theoryEvidence: [...new Set(action.evidence)],
+      }
+    }
     case 'OPEN_REFLECTION':
       // Main serious-game loop MUST include a completed real interruption.
       if (!state.theory || !state.secondaryTaskComplete) return state

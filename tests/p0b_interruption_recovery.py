@@ -42,7 +42,7 @@ def end_from_storage(page):
  page.get_by_test_id("hub-scene").wait_for()
  page.get_by_test_id("hub-open-case-review").click()
  page.get_by_label("The recorded replacement did not actually happen.").check()
- page.get_by_label("The replacement coupler is still physically present in Storage.").check()
+ page.get_by_label("Storage B-04: the replacement Coupler was observed unused.").check()
  page.get_by_test_id("save-theory").click()
  page.get_by_test_id("case-review-back-hub").click()
  page.get_by_test_id("hub-scene").wait_for()

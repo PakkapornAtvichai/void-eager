@@ -6,36 +6,52 @@ import { EvidenceModal } from './EvidenceModal'
 import { storageObjective } from '../game/objectives'
 
 type Props = {
+  crateOpen: boolean
   inspected: boolean
   serialChecked: boolean
-  workOrderSerialObserved: boolean
+  completionObserved: boolean
+  partsObserved: boolean
+  compared: boolean
+  onOpenCrate: () => void
   onInspect: () => void
   onCheckSerial: () => void
+  onSaveComparison: () => void
+  onRecheckWorkOrder: () => void
   onModalChange: (open: boolean) => void
   onBack: () => void
 }
 
-type Detail = 'crate' | 'coupler' | 'serial'
+type Detail = 'crate' | 'coupler' | 'serial' | 'comparison'
 
-export function StorageScene({ inspected, serialChecked, workOrderSerialObserved, onInspect, onCheckSerial, onModalChange, onBack }: Props) {
-  const [crateOpen, setCrateOpen] = useState(inspected || serialChecked)
+export function StorageScene({
+  crateOpen,
+  inspected,
+  serialChecked,
+  completionObserved,
+  partsObserved,
+  compared,
+  onOpenCrate,
+  onInspect,
+  onCheckSerial,
+  onSaveComparison,
+  onRecheckWorkOrder,
+  onModalChange,
+  onBack,
+}: Props) {
   const [detail, setDetail] = useState<Detail | null>(null)
-  const [hintOpen, setStorageHintOpen] = useState(false)
+  const [hintOpen, setHintOpen] = useState(false)
+  const workOrderSerialObserved = completionObserved || partsObserved
+  const canCompare = serialChecked && workOrderSerialObserved
+  const phase = !crateOpen ? 'closed' : serialChecked ? 'serial' : inspected ? 'coupler' : 'open'
 
   useEffect(() => {
     onModalChange(detail !== null || hintOpen)
     return () => onModalChange(false)
   }, [detail, hintOpen, onModalChange])
 
-  useEffect(() => {
-    if (inspected || serialChecked) setCrateOpen(true)
-  }, [inspected, serialChecked])
-
-  const phase = serialChecked ? 'serial' : inspected ? 'coupler' : crateOpen ? 'open' : 'closed'
-
   return (
     <section className="storage-stage storage-stage--yoko" data-testid="storage-scene" aria-label="Storage B-04">
-      <ObjectiveTracker objective={storageObjective(phase)} onModalChange={setStorageHintOpen} />
+      <ObjectiveTracker objective={storageObjective(phase, canCompare)} onModalChange={setHintOpen} />
 
       <div className="storage-environment" data-testid="storage-environment" aria-hidden="true">
         <div className="storage-beam storage-beam--left" />
@@ -52,95 +68,140 @@ export function StorageScene({ inspected, serialChecked, workOrderSerialObserved
       </div>
 
       <div className="storage-object-stage storage-object-stage--unobstructed" data-testid="storage-coupler-visual">
-        {phase === 'closed' && (
+        {!crateOpen ? (
           <button
             type="button"
             className="storage-object-button"
             data-testid="storage-open-crate"
             onClick={() => {
-              setCrateOpen(true)
+              onOpenCrate()
               setDetail('crate')
             }}
           >
-            <img src={YOKO_PACK_ASSETS.storageCrateClosed} alt="Closed replacement-coupler crate" />
+            <img src={YOKO_PACK_ASSETS.storageCrateClosed} alt="Closed crate labelled as containing a replacement Coupler" />
             <span>OPEN CRATE</span>
           </button>
-        )}
-        {phase === 'open' && (
-          <button
-            type="button"
-            className="storage-object-button"
-            data-testid="inspect-storage-coupler"
-            onClick={() => {
-              onInspect()
-              setDetail('coupler')
-            }}
-          >
-            <img src={YOKO_PACK_ASSETS.storageCrateOpen} alt="Replacement Coupler inside the opened crate" />
-            <span>INSPECT COUPLER</span>
-          </button>
-        )}
-        {phase === 'coupler' && (
-          <button
-            type="button"
-            className="storage-object-button storage-object-button--coupler"
-            data-testid="check-storage-serial"
-            onClick={() => {
-              onCheckSerial()
-              setDetail('serial')
-            }}
-          >
-            <img src={YOKO_PACK_ASSETS.storageCouplerInspection} alt="Close-up of replacement Guidance Stabilizer Coupler" />
-            <span>FIND SERIAL</span>
-          </button>
-        )}
-        {phase === 'serial' && (
-          <div className="storage-serial-focus" data-testid="storage-serial-visual">
-            <button
-              type="button"
-              className="storage-serial-review"
-              data-testid="storage-review-serial"
-              onClick={() => setDetail('serial')}
-              aria-label="Review the serial comparison"
-            >
-              <img src={YOKO_PACK_ASSETS.storageSerialDetail} alt={`Serial plate showing ${STORAGE_COUPLER.serial}`} />
-              <span>REVIEW SERIAL // {STORAGE_COUPLER.serial}</span>
-            </button>
-          </div>
+        ) : (
+          <>
+            <div className="storage-object-button storage-object-button--display" aria-hidden="true">
+              <img
+                src={serialChecked
+                  ? YOKO_PACK_ASSETS.storageSerialDetail
+                  : inspected
+                    ? YOKO_PACK_ASSETS.storageCouplerInspection
+                    : YOKO_PACK_ASSETS.storageCrateOpen}
+                alt=""
+              />
+            </div>
+            <div className="storage-inspection-actions" aria-label="Inspect the replacement unit">
+              <button
+                type="button"
+                data-testid="inspect-storage-coupler"
+                onClick={() => {
+                  onInspect()
+                  setDetail('coupler')
+                }}
+              >
+                {inspected ? 'REVIEW CONDITION' : 'INSPECT CONDITION'}
+              </button>
+              <button
+                type="button"
+                data-testid={serialChecked ? 'storage-review-serial' : 'check-storage-serial'}
+                onClick={() => {
+                  onCheckSerial()
+                  setDetail('serial')
+                }}
+              >
+                {serialChecked ? 'REVIEW SERIAL' : 'READ SERIAL'}
+              </button>
+              {canCompare && (
+                <button
+                  type="button"
+                  className={compared ? 'is-compared' : ''}
+                  data-testid="storage-compare-sources"
+                  onClick={() => setDetail('comparison')}
+                >
+                  {compared ? 'REVIEW COMPARISON' : 'COMPARE SOURCES'}
+                </button>
+              )}
+            </div>
+          </>
         )}
       </div>
 
       <button type="button" className="storage-simple-exit navigation-button" data-testid="storage-back-hub" onClick={onBack}>
         ← INCIDENT HUB
       </button>
-      <div className="storage-scene-label" aria-hidden="true">STORAGE B-04 // PARTS DEPOT</div>
 
       {detail === 'crate' && (
-        <EvidenceModal title="Crate opened" kicker="STORAGE B-04" onClose={() => setDetail(null)} testId="storage-detail-dialog">
-          <p>A replacement Coupler is inside this crate.</p>
-          <p>Inspect the component to check its condition.</p>
+        <EvidenceModal title="Crate opened" kicker="STORAGE B-04 // PHYSICAL SOURCE" onClose={() => setDetail(null)} testId="storage-detail-dialog">
+          <p>A crate labelled for a replacement Coupler is open in Storage B-04.</p>
+          <p>You can inspect its condition and read its individual serial plate in either order.</p>
         </EvidenceModal>
       )}
       {detail === 'coupler' && (
-        <EvidenceModal title="Replacement Coupler" kicker="PHYSICAL INSPECTION" onClose={() => setDetail(null)} testId="storage-detail-dialog">
+        <EvidenceModal title="Replacement Coupler condition" kicker="STORAGE B-04 // PHYSICAL INSPECTION" onClose={() => setDetail(null)} testId="storage-detail-dialog">
           <div data-testid="storage-evidence" className="evidence-modal__finding">
-            <strong>Observation recorded</strong>
-            <p>The replacement Coupler is unused and still in Storage.</p>
+            <strong>Physical observation recorded</strong>
+            <p>UNIT CONDITION: UNUSED</p>
+            <p>OBSERVED LOCATION: STORAGE B-04</p>
           </div>
-          <p>Check its serial plate to identify this specific part.</p>
+          <p>This is an observation of the unit, not a conclusion about what happened in Maintenance.</p>
         </EvidenceModal>
       )}
       {detail === 'serial' && (
-        <EvidenceModal title="Serial Plate" kicker="STORAGE B-04 // PHYSICAL EVIDENCE" onClose={() => setDetail(null)} testId="storage-detail-dialog">
-          <div className="evidence-modal__finding" data-testid="storage-evidence">
-            <strong>Observation recorded</strong>
-            <p>The replacement Coupler is still in Storage.</p>
+        <EvidenceModal title="Unit serial plate" kicker="STORAGE B-04 // IDENTIFYING MARKING" onClose={() => setDetail(null)} testId="storage-detail-dialog">
+          <div data-testid="storage-evidence" className="evidence-modal__finding">
+            <strong>Physical observation recorded</strong>
+            <p>UNIT SERIAL: {STORAGE_COUPLER.serial}</p>
+            <p>SOURCE: STORAGE B-04 PLATE</p>
           </div>
-          <div className="serial-comparison-modal" data-testid="serial-comparison">
-            <div><span>COUPLER PLATE</span><strong>{STORAGE_COUPLER.serial}</strong></div>
-            <div><span>WORK ORDER</span><strong>{workOrderSerialObserved ? COUPLER.workOrder.replacementSerial : 'NOT YET INSPECTED'}</strong></div>
+          <p>The serial identifies this particular unit, not an entire batch.</p>
+          {!workOrderSerialObserved && <small>Work Order serial has not yet been inspected. You can revisit the Workstation.</small>}
+        </EvidenceModal>
+      )}
+      {detail === 'comparison' && canCompare && (
+        <EvidenceModal title="Compare two sources" kicker="CASE FILE // SOURCE CROSS-CHECK" onClose={() => setDetail(null)} testId="storage-comparison-dialog">
+          <div className="source-comparison-grid" data-testid="serial-comparison">
+            <section>
+              <span>MAINTENANCE // WO-4471</span>
+              <strong>RECORDED SERIAL</strong>
+              <p>{COUPLER.workOrder.replacementSerial}</p>
+              <small>{completionObserved ? 'Completion field: COUPLER REPLACED' : 'Completion field: not inspected'}</small>
+              {partsObserved && <small>Parts field: installation verification not attached</small>}
+            </section>
+            <section>
+              <span>STORAGE // B-04</span>
+              <strong>PHYSICAL UNIT SERIAL</strong>
+              <p>{STORAGE_COUPLER.serial}</p>
+              <small>{inspected ? 'Condition observed: UNUSED' : 'Condition not yet inspected'}</small>
+            </section>
           </div>
-          <p>{workOrderSerialObserved ? 'These are two different sources. Decide what to compare during your investigation.' : 'The Work Order is a separate source. Inspect it to compare this part with the recorded claim.'}</p>
+          <p>What does this comparison make you question?</p>
+          <small>The recorded and physical serials identify the same individual unit. This does not automatically select a theory.</small>
+          <div className="source-comparison-actions">
+            <button
+              type="button"
+              className="primary"
+              data-testid="save-comparison"
+              disabled={compared}
+              onClick={onSaveComparison}
+            >
+              {compared ? 'COMPARISON SAVED' : 'SAVE COMPARISON TO CASE'}
+            </button>
+            <button
+              type="button"
+              className="navigation-button"
+              data-testid="storage-recheck-workorder"
+              onClick={() => {
+                setDetail(null)
+                onRecheckWorkOrder()
+              }}
+            >
+              RECHECK WORK ORDER
+            </button>
+          </div>
+          {compared && <p role="status" data-testid="comparison-saved">Source pairing saved. You may continue investigating or file a working theory.</p>}
         </EvidenceModal>
       )}
     </section>

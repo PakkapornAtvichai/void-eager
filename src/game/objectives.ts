@@ -1,4 +1,5 @@
 import type { GameState, InvestigationIntention, WorkOrderFieldId } from './types'
+import { hasCouplerObservation } from './evidence'
 
 export type Objective = {
   id: string
@@ -53,7 +54,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
           id: 'theory-saved',
           category: 'REVIEW',
           title: 'Return to the Hub',
-          hint: 'Your working theory has been saved. Use Return to Incident Hub. End Session is available there; further exploration is optional.',
+          hint: 'Your working theory is saved. You can revise it here, return to the Hub, or investigate more. End Session also requires C-17 to be handled.',
         }
       : {
           id: 'file-theory',
@@ -102,12 +103,12 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
         hint: 'The working theory is saved. The shipwide alert still needs your response before the session can end.',
       }
     }
-    if (view.serialChecked) {
+    if (hasCouplerObservation(state)) {
       return {
         id: 'hub-theory',
         category: 'CASE',
-        title: 'Record your theory',
-        hint: 'You have the work order and the observed serial from Storage. Use CASE REVIEW beneath the two thread choices.',
+        title: 'Review your observed evidence',
+        hint: 'The Case Review accepts a provisional theory based on sources you actually inspected. More exploration is optional.',
       }
     }
     if (view.storageLeadUnlocked) {
@@ -226,7 +227,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
   }
 }
 
-export function storageObjective(phase: StoragePhase): Objective {
+export function storageObjective(phase: StoragePhase, canCompare = false): Objective {
   if (phase === 'closed') {
     return {
       id: 'storage-open',
@@ -239,22 +240,27 @@ export function storageObjective(phase: StoragePhase): Objective {
     return {
       id: 'storage-inspect',
       category: 'CASE',
-      title: 'Inspect the Coupler',
-      hint: 'Select INSPECT COUPLER on the opened crate. Note its condition before looking for identifying markings.',
+      title: 'Inspect condition or serial',
+      hint: 'The crate is open. You can examine the unused-condition evidence or read the serial plate in either order.',
     }
   }
   if (phase === 'coupler') {
     return {
       id: 'storage-plate',
       category: 'CASE',
-      title: 'Find the serial plate',
-      hint: 'Select FIND SERIAL on the component. You will be able to compare its serial with the work order.',
+      title: 'Read or review the unit serial',
+      hint: 'You may read the serial plate, revisit the condition, or return to the Workstation for another source.',
     }
   }
-  return {
+  return canCompare ? {
     id: 'storage-compare',
     category: 'CASE',
-    title: 'Compare the serials',
-    hint: 'Select REVIEW SERIAL to reopen the comparison. Then use INCIDENT HUB to file a theory.',
+    title: 'Compare the observed sources',
+    hint: 'Select COMPARE SOURCES to place your inspected Work Order serial alongside the physical unit serial, or revisit the condition.',
+  } : {
+    id: 'storage-serial-observed',
+    category: 'CASE',
+    title: 'Review other available sources',
+    hint: 'The physical serial is recorded. You can inspect the condition now, or visit the Workstation to read a recorded serial.',
   }
 }

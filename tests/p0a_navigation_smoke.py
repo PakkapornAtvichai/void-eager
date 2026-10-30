@@ -62,7 +62,7 @@ with sync_playwright() as p:
    page.get_by_test_id("inspect-storage-coupler").click()
    close(page)
    page.get_by_test_id("check-storage-serial").click()
-   assert "GSC-8842-A" in scene(page,"serial-comparison").inner_text()
+   assert "UNIT SERIAL: GSC-8842-A" in scene(page,"storage-evidence").inner_text()
    close(page)
    page.get_by_test_id("storage-back-hub").click()
    scene(page,"hub-scene")
@@ -98,9 +98,11 @@ with sync_playwright() as p:
   page.get_by_test_id("inspect-storage-coupler").click()
   close(page)
   page.get_by_test_id("check-storage-serial").click()
-  comparison=scene(page,"serial-comparison").inner_text()
-  assert "NOT YET INSPECTED" in comparison,comparison
-  assert comparison.count("GSC-8842-A")==1,comparison
+  physical_serial=scene(page,"storage-evidence").inner_text()
+  assert "UNIT SERIAL: GSC-8842-A" in physical_serial,physical_serial
+  assert "COUPLER REPLACED" not in page.get_by_test_id("storage-detail-dialog").inner_text()
+  assert page.get_by_test_id("serial-comparison").count()==0
+  assert page.get_by_test_id("storage-compare-sources").count()==0
   page.screenshot(path=str(OUT/"VOID-EAGER-P0A-storage-first-no-spoiler.png"))
   close(page)
   page.get_by_test_id("storage-back-hub").click()
@@ -109,7 +111,7 @@ with sync_playwright() as p:
   page.get_by_test_id("hub-open-case-review").click()
   scene(page,"deduction-scene")
   assert "Maintenance work order says" not in page.get_by_test_id("deduction-scene").inner_text()
-  assert "replacement coupler is still" in page.get_by_test_id("deduction-scene").inner_text()
+  assert "replacement Coupler was observed unused" in page.get_by_test_id("deduction-scene").inner_text()
   page.get_by_test_id("case-review-back-hub").click()
   scene(page,"hub-scene")
   page.get_by_test_id("open-coupler-thread").click()

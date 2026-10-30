@@ -37,6 +37,9 @@ export type GameState = {
   scene: Scene
   currentThread: ThreadId | null
   evidenceFound: string[]
+  workOrderOpened: boolean
+  storageCrateOpen: boolean
+  comparedEvidenceIds: string[]
   observedWorkOrderFields: WorkOrderFieldId[]
   activeIntention: InvestigationIntention | null
   knowledgeFlags: string[]

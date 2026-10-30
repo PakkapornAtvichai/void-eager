@@ -16,6 +16,7 @@ import { StatusRail } from '../components/StatusRail'
 import { ObjectiveTracker } from '../components/ObjectiveTracker'
 import { CaseBriefDialog } from '../components/CaseBriefDialog'
 import { currentObjective } from '../game/objectives'
+import { hasCouplerObservation } from '../game/evidence'
 import { StorageScene } from '../components/StorageScene'
 import { gameReducer, initialGameState } from '../game/state'
 import type { GameAction } from '../game/state'
@@ -88,7 +89,8 @@ export function GameApp() {
   const [returnScrollOffset, setReturnScrollOffset] = useState<number | null>(null)
   const elapsedActiveMs = useRef(0)
 
-  const recordOpened = state.evidenceFound.includes('MAI_COUPLER_REPLACEMENT_RECORD')
+  const recordOpened = state.workOrderOpened
+  const caseEvidenceAvailable = hasCouplerObservation(state)
   const storageInspected = state.evidenceFound.includes('STO_NEW_COUPLER')
   const serialChecked = state.evidenceFound.includes('STO_NEW_COUPLER_SERIAL')
   const spikeFound = state.evidenceFound.includes('ENG_POWER_SPIKE_LOG')
@@ -316,6 +318,8 @@ export function GameApp() {
           serialChecked={serialChecked}
           powerReviewed={protectionFound}
           theorySaved={Boolean(state.theory)}
+          caseEvidenceAvailable={caseEvidenceAvailable}
+          comparisonSaved={state.comparedEvidenceIds.length > 0}
           alertComplete={state.secondaryTaskComplete}
           alertPending={state.interruptionStatus === 'warning'}
           onOpenAlert={onOpenPendingAlert}
@@ -335,11 +339,20 @@ export function GameApp() {
     if (state.scene === 'storage') {
       return (
         <StorageScene
+          crateOpen={state.storageCrateOpen}
           inspected={storageInspected}
           serialChecked={serialChecked}
-          workOrderSerialObserved={state.observedWorkOrderFields.includes('parts') || state.observedWorkOrderFields.includes('completion')}
+          completionObserved={state.observedWorkOrderFields.includes('completion')}
+          partsObserved={state.observedWorkOrderFields.includes('parts')}
+          compared={state.comparedEvidenceIds.length > 0}
+          onOpenCrate={() => dispatch({ type: 'OPEN_STORAGE_CRATE' })}
           onInspect={() => dispatch({ type: 'INSPECT_STORAGE_COUPLER' })}
           onCheckSerial={() => dispatch({ type: 'CHECK_STORAGE_SERIAL' })}
+          onSaveComparison={() => dispatch({ type: 'SAVE_COMPARISON' })}
+          onRecheckWorkOrder={() => {
+            setWorkstationFocused(true)
+            navigateTo('MAINTENANCE // WORKSTATION', { type: 'OPEN_THREAD', thread: 'coupler' })
+          }}
           onModalChange={setStorageDetailOpen}
           onBack={() => navigateTo('INCIDENT HUB', { type: 'BACK_TO_HUB' })}
         />
@@ -363,6 +376,7 @@ export function GameApp() {
           theory={state.theory}
           theoryEvidence={state.theoryEvidence}
           observedEvidence={state.evidenceFound}
+          comparedEvidenceIds={state.comparedEvidenceIds}
           onSave={(answer, evidence) => dispatch({ type: 'SAVE_THEORY', answer, evidence })}
           onBack={() => dispatch({ type: 'BACK_TO_HUB' })}
         />

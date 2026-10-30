@@ -8,13 +8,7 @@ type Props = {
   onBack: () => void
 }
 
-export function PowerScene({
-  spikeFound,
-  protectionFound,
-  onInspectSpike,
-  onInspectProtection,
-  onBack,
-}: Props) {
+export function PowerScene({ spikeFound, protectionFound, onInspectSpike, onInspectProtection, onBack }: Props) {
   return (
     <section className="stage-console-scene power-system-scene" data-testid="power-scene" aria-labelledby="power-title">
       <div className="engineering-grid-backdrop" aria-hidden="true" />
@@ -30,10 +24,10 @@ export function PowerScene({
 
           <div className="power-timeline" aria-label="Power anomaly timeline">
             <div className={spikeFound ? 'timeline-node is-active' : 'timeline-node'}>
-              <span>21:11</span><i /><strong>POWER SPIKE</strong>
+              <span>21:11</span><i /><strong>{spikeFound ? 'POWER SPIKE' : 'UNREAD ENTRY'}</strong>
             </div>
             <div className={protectionFound ? 'timeline-node is-confirmed' : 'timeline-node'}>
-              <span>21:12</span><i /><strong>PROTECTION ACTIVE</strong>
+              <span>21:12</span><i /><strong>{protectionFound ? 'PROTECTION ACTIVE' : 'UNREAD ENTRY'}</strong>
             </div>
           </div>
 
@@ -41,26 +35,26 @@ export function PowerScene({
             <span /><span /><span /><span /><span /><span /><span /><span /><span /><span />
           </div>
 
-          <div className="system-panel power-log-panel">
-            <span>{POWER_SPIKE.log.spike}</span>
-            <span>{POWER_SPIKE.log.protection}</span>
-            <strong>{POWER_SPIKE.log.status}</strong>
+          <div className="system-panel power-log-panel" data-testid="power-log-source">
+            <span>{spikeFound ? POWER_SPIKE.log.spike : '21:11 // OPEN ENTRY TO READ'}</span>
+            <span>{protectionFound ? POWER_SPIKE.log.protection : '21:12 // NOT YET INSPECTED'}</span>
+            {protectionFound && <strong data-testid="power-contained-status">{POWER_SPIKE.log.status}</strong>}
           </div>
 
           {!spikeFound && (
             <button className="primary" data-testid="inspect-power-spike" onClick={onInspectSpike}>
-              Log the 21:11 spike
+              Inspect the 21:11 log
             </button>
           )}
           {spikeFound && !protectionFound && (
             <button className="secondary" data-testid="inspect-power-protection" onClick={onInspectProtection}>
-              Check what happened at 21:12
+              Inspect the 21:12 protection entry
             </button>
           )}
           {protectionFound && (
             <div className="evidence-note">
               <strong>Evidence logged</strong>
-              <span>The protection layer reports the 21:11 anomaly as contained one minute later.</span>
+              <span>The log records the protection layer active one minute after the spike. This is an optional source, not a Coupler verdict.</span>
             </div>
           )}
 

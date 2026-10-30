@@ -8,6 +8,8 @@ type Props = {
   serialChecked: boolean
   powerReviewed: boolean
   theorySaved: boolean
+  caseEvidenceAvailable: boolean
+  comparisonSaved: boolean
   alertComplete: boolean
   alertPending: boolean
   onOpenAlert: () => void
@@ -24,6 +26,8 @@ export function HubScene({
   serialChecked,
   powerReviewed,
   theorySaved,
+  caseEvidenceAvailable,
+  comparisonSaved,
   alertComplete,
   alertPending,
   onOpenAlert,
@@ -58,18 +62,18 @@ export function HubScene({
           <p className="eyebrow">INCIDENT REVIEW</p>
           <h2 id="hub-title">
             {theorySaved
-              ? 'Theory saved'
-              : serialChecked
-                ? 'Review the Coupler evidence'
+              ? 'Working theory saved'
+              : caseEvidenceAvailable
+                ? 'Review observed evidence'
                 : storageLeadUnlocked
                   ? 'Storage lead available'
                   : 'Continue the Coupler case'}
           </h2>
           <p className="muted">
             {theorySaved
-              ? (alertComplete ? 'End Session is available below.' : 'C-17 requires a response before this session ends.')
-              : serialChecked
-                ? 'Record a working theory in Case Review.'
+              ? (alertComplete ? 'You may revise your theory or end the session.' : 'You may revise your theory. C-17 still needs a response.')
+              : caseEvidenceAvailable
+                ? 'A provisional theory can be saved now or after investigating further.'
                 : storageLeadUnlocked
                   ? 'Follow the Storage B-04 lead in the bottom HUD.'
                   : 'Choose Workstation or Storage. Power is optional.'}
@@ -114,31 +118,35 @@ export function HubScene({
             <div>
               <span>CASE REVIEW</span>
               <small>
-                {!serialChecked
-                  ? 'Compare the part in Storage first.'
+                {!caseEvidenceAvailable
+                  ? 'Inspect any Coupler source to start a provisional theory.'
                   : theorySaved
-                    ? (alertComplete ? 'Finish or continue investigating.' : 'Complete C-17 to finish; other routes remain open.')
-                    : 'You can now record your conclusion.'}
+                    ? (alertComplete ? 'Revise your theory or finish the session.' : 'Revise your theory; C-17 remains outstanding.')
+                    : comparisonSaved
+                      ? 'A source comparison is saved. Record a working theory if ready.'
+                      : 'Choose what you currently believe; you can revise it later.'}
               </small>
             </div>
 
-            {serialChecked && !theorySaved && (
-              <button className="console-choice" data-testid="hub-open-case-review" onClick={onCaseReview}>
-                CASE REVIEW
-              </button>
-            )}
+            <div className="hub-case-buttons">
+              {caseEvidenceAvailable && (
+                <button className="console-choice" data-testid="hub-open-case-review" onClick={onCaseReview}>
+                  {theorySaved ? 'REVISE THEORY' : 'CASE REVIEW'}
+                </button>
+              )}
 
-            {theorySaved && !alertComplete && (
-              <button className="console-choice hub-pending-alert" data-testid="hub-open-c17" onClick={onOpenAlert}>
-                {alertPending ? 'OPEN C-17 ALERT' : 'REVIEW SHIP ALERT C-17'}
-              </button>
-            )}
+              {theorySaved && !alertComplete && (
+                <button className="console-choice hub-pending-alert" data-testid="hub-open-c17" onClick={onOpenAlert}>
+                  {alertPending ? 'OPEN C-17 ALERT' : 'REVIEW SHIP ALERT C-17'}
+                </button>
+              )}
 
-            {theorySaved && alertComplete && (
-              <button className="console-choice hub-end-session" data-testid="hub-end-session" onClick={onEndSession}>
-                End Session
-              </button>
-            )}
+              {theorySaved && alertComplete && (
+                <button className="console-choice hub-end-session" data-testid="hub-end-session" onClick={onEndSession}>
+                  End Session
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
