@@ -2,15 +2,20 @@ import { useEffect, useState } from 'react'
 import type { Objective } from '../game/objectives'
 import { EvidenceModal } from './EvidenceModal'
 
-type Props = { objective: Objective; onOpenBriefing?: () => void }
+type Props = { objective: Objective; onOpenBriefing?: () => void; onModalChange?: (open: boolean) => void }
 
 /** Minimal wayfinding chip. More detail is always optional. */
-export function ObjectiveTracker({ objective, onOpenBriefing }: Props) {
+export function ObjectiveTracker({ objective, onOpenBriefing, onModalChange }: Props) {
   const [showHint, setShowHint] = useState(false)
 
   useEffect(() => {
     setShowHint(false)
   }, [objective.id])
+
+  useEffect(() => {
+    onModalChange?.(showHint)
+    return () => onModalChange?.(false)
+  }, [showHint, onModalChange])
 
   return (
     <>

@@ -2,6 +2,7 @@ import type { ThreadId } from '../game/types'
 
 type Props = {
   usedQuickPin: boolean
+  interruptionCount: number
   evidenceCount: number
   firstThread: ThreadId | null
   theory: 'replaced' | 'not-replaced' | null
@@ -23,6 +24,7 @@ const theoryLabel = (theory: Props['theory']) => {
 }
 export function ReflectionScene({
   usedQuickPin,
+  interruptionCount,
   evidenceCount,
   firstThread,
   theory,
@@ -41,7 +43,7 @@ export function ReflectionScene({
       </p>
 
       <div className="reflection-summary">
-        <span>Interruptions encountered: 1</span>
+        <span>Interruptions encountered: {interruptionCount}</span>
         <span>Quick Pin used: {usedQuickPin ? 'Yes' : 'No'}</span>
         <span>First thread resumed: {threadLabel(firstThread)}</span>
         <span>Evidence logged: {evidenceCount}</span>

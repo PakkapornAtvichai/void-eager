@@ -12,11 +12,23 @@ export type Scene =
   | 'deduction'
   | 'reflection'
 
+export type InvestigationScene = Exclude<Scene, 'secondary' | 'reflection'>
+
+export type ReturnPoint = {
+  scene: InvestigationScene
+  thread: ThreadId | null
+  workstationFocused: boolean
+  maintenanceInspection: 'workbench' | 'junction' | null
+  scrollOffset: number
+}
+
 export type QuickPin = {
   threadId: ThreadId
   thread: string
   location: string
-  context: string
+  context: string // action explicitly selected by the player; no generated clue text
+  cueId: string
+  returnPoint: ReturnPoint
   scrollOffset: number
 }
 
@@ -29,6 +41,8 @@ export type GameState = {
   activeIntention: InvestigationIntention | null
   knowledgeFlags: string[]
   quickPin: QuickPin | null
+  quickPinReviewed: boolean
+  interruptionArmed: boolean
   interruptionStatus: InterruptionStatus
   secondaryTaskComplete: boolean
   secondaryResponse: string | null

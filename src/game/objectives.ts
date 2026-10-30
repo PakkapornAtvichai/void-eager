@@ -36,8 +36,8 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
       ? {
           id: 'alert-logged',
           category: 'ALERT',
-          title: 'Return to the Incident Hub',
-          hint: 'Your response is logged. Choose Travel to Incident Hub, then decide which investigation thread to resume.',
+          title: 'Choose where to return',
+          hint: 'Your response is logged. Choose Return to Previous Task or Incident Hub. Your case observations remain available.',
         }
       : {
           id: 'classify-alert',
@@ -90,11 +90,16 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
 
   if (state.scene === 'hub') {
     if (state.theory) {
-      return {
+      return state.secondaryTaskComplete ? {
         id: 'hub-finish',
         category: 'REVIEW',
         title: 'Finish or continue investigating',
-        hint: 'Your working theory is saved. Choose End Session in Case Review to reflect, or revisit either thread.',
+        hint: 'Your working theory is saved. You can end the session or revisit the case.',
+      } : {
+        id: 'hub-alert-outstanding',
+        category: 'ALERT',
+        title: 'Respond to outstanding C-17',
+        hint: 'The working theory is saved. The shipwide alert still needs your response before the session can end.',
       }
     }
     if (view.serialChecked) {
@@ -131,7 +136,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
       id: 'alert-warning',
       category: 'ALERT',
       title: 'Respond to Alert C-17',
-      hint: 'The Coupler report will remain available. You may pin your reading context before choosing HANDLE ALERT, but pinning is optional.',
+      hint: 'Your investigation remains available. You can choose a personal reminder before switching, or handle the alert without a Pin.',
     }
   }
 

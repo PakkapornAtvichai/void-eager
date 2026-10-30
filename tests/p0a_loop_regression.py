@@ -21,6 +21,8 @@ def main_route(page,pin):
  assert "C-17" in page.get_by_test_id("incoming-interruption").inner_text()
  if pin:
   page.get_by_test_id("pin-current-context").click()
+  page.get_by_test_id("pin-choices").wait_for()
+  page.get_by_test_id("save-selected-pin").click()
   assert "CONTEXT SAVED" in page.get_by_test_id("incoming-interruption").inner_text()
   page.get_by_test_id("handle-interruption-now").click()
  else:

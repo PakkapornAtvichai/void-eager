@@ -4173,3 +4173,104 @@ body {
   outline: 2px solid #c3f3ff;
   outline-offset: 2px;
 }
+
+/* P0-B: C-17 choice UI and predictable resumption actions. */
+.incident-dialog-card {
+  max-height: min(77%, 585px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.incident-pin-choices {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(239, 192, 116, .54);
+  background: rgba(50, 35, 20, .65);
+}
+.incident-pin-choices legend {
+  padding: 0 6px;
+  font: 800 clamp(12px, .85vw, 14px)/1.25 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #ffe5b7;
+}
+.incident-pin-choices label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  font: 650 clamp(12px, .9vw, 15px)/1.35 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #f4e6d5;
+  cursor: pointer;
+}
+.incident-pin-choices input {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  accent-color: #86d7f1;
+}
+.incident-pin-choices__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 6px;
+}
+.incident-pin-choices__actions button {
+  min-height: 40px;
+  padding: 7px 12px;
+  border: 1px solid #eac48f;
+  border-radius: 2px;
+  background: rgba(70, 52, 30, .91);
+  color: #fff0d6;
+  font: 800 clamp(12px, .83vw, 14px)/1.25 ui-monospace, SFMono-Regular, Menlo, monospace;
+  cursor: pointer;
+}
+.incident-pin-choices__actions button:disabled { opacity: .52; cursor: default; }
+.incident-pin-confirmation {
+  border-left: 3px solid #8fdfb3;
+  padding: 7px 10px;
+  background: rgba(16, 61, 45, .5);
+  color: #cff8df !important;
+  font-weight: 800;
+}
+.incident-dialog-card button:focus-visible,
+.incident-pin-choices input:focus-visible {
+  outline: 2px solid #dcf7ff;
+  outline-offset: 2px;
+}
+.incident-return-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 10px;
+}
+.incident-return-actions button {
+  min-height: 43px;
+  max-width: 100%;
+  padding: 8px 11px;
+  white-space: normal;
+  font: 800 clamp(12px, .82vw, 14px)/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+  overflow-wrap: anywhere;
+}
+.hub-case-actions .hub-pending-alert {
+  border-color: rgba(248, 191, 103, .76);
+  background: rgba(78, 48, 20, .82);
+  color: #ffdfad;
+}
+@media (max-height: 650px) {
+  .incident-dialog-card { max-height: 78%; padding: 12px 16px; gap: 7px; }
+  .incident-pin-choices { padding: 6px 9px; gap: 4px; }
+  .incident-pin-choices label { min-height: 31px; font-size: 12px; }
+  .incident-dialog-card__actions button { min-height: 40px; }
+}
+
+/* Neutral ship-system console backdrop when C-17 interrupts outside the Workstation.
+   It is a system interface, not an unexplained physical teleport to Maintenance. */
+.secondary-remote-background {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(5, 16, 26, .82), rgba(1, 8, 15, .93)),
+    repeating-linear-gradient(0deg, transparent 0 45px, rgba(42, 132, 151, .15) 46px, transparent 47px),
+    repeating-linear-gradient(90deg, transparent 0 70px, rgba(42, 132, 151, .14) 71px, transparent 72px),
+    radial-gradient(ellipse at 50% 43%, #154052, #030d16 78%);
+}

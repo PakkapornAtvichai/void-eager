@@ -6,11 +6,22 @@ type Classification = 'sensor-mismatch' | 'maintenance' | 'emergency'
 type Props = {
   complete: boolean
   response: string | null
+  originLabel: string
+  fromWorkstation: boolean
   onComplete: (response: Classification) => void
-  onReturn: () => void
+  onReturnPrevious: () => void
+  onReturnHub: () => void
 }
 
-export function SecondaryScene({ complete, response, onComplete, onReturn }: Props) {
+const responseCopy: Record<Classification, string> = {
+  'sensor-mismatch': 'Sensor mismatch logged. Continued monitoring requested.',
+  maintenance: 'Maintenance inspection requested. Alert response logged.',
+  emergency: 'Isolation request transmitted. Alert response logged.',
+}
+
+export function SecondaryScene({
+  complete, response, originLabel, fromWorkstation, onComplete, onReturnPrevious, onReturnHub,
+}: Props) {
   const [classification, setClassification] = useState<Classification | null>(null)
 
   return (
@@ -19,23 +30,28 @@ export function SecondaryScene({ complete, response, onComplete, onReturn }: Pro
       data-testid="secondary-scene"
       aria-labelledby="secondary-title"
     >
-      <img
-        className="secondary-workstation-background"
-        src={MAINTENANCE_ASSETS.focusedWorkstation}
-        alt="Glint's workstation while the incident system takes over the main display"
-      />
+      {fromWorkstation ? (
+        <img
+          className="secondary-workstation-background"
+          src={MAINTENANCE_ASSETS.focusedWorkstation}
+          alt=""
+          aria-hidden="true"
+        />
+      ) : (
+        <div className="secondary-remote-background" aria-hidden="true" />
+      )}
       <div className="secondary-workstation-dimmer" aria-hidden="true" />
 
       <div className="secondary-monitor-interface">
         <header className="secondary-monitor-header">
-          <span>INCIDENT SYSTEM // ALERT C-17</span>
-          <strong>ATTENTION REQUIRED</strong>
+          <span>SHIPWIDE SYSTEM // ALERT C-17</span>
+          <strong>REMOTE CONSOLE</strong>
         </header>
 
         <div className="secondary-monitor-body">
           <p className="eyebrow">COOLANT TELEMETRY</p>
           <h2 id="secondary-title">Classify incoming sensor alert</h2>
-          <p className="muted">Shipwide monitoring sent this alert to your workstation. Classify it before returning to your Coupler investigation.</p>
+          <p className="muted">Ship systems routed this task to your current terminal. Your previous task at {originLabel} remains available.</p>
 
           <div className="telemetry-grid" aria-label="Coolant telemetry">
             <div><span>SENSOR A</span><strong>72.1 C</strong></div>
@@ -95,11 +111,20 @@ export function SecondaryScene({ complete, response, onComplete, onReturn }: Pro
           ) : (
             <div className="task-complete console-complete">
               <strong>RESPONSE LOGGED</strong>
-              <span>Recorded action: {response ?? 'Unspecified'}</span>
-              <p>Alert C-17 is logged. You are still at the Maintenance workstation; travel to the Incident Hub to choose which investigation thread to resume.</p>
-              <button className="navigation-button" data-testid="return-investigation" onClick={onReturn}>
-                Travel to Incident Hub
-              </button>
+              <span data-testid="coolant-response-summary">
+                {response && response in responseCopy
+                  ? responseCopy[response as Classification]
+                  : 'Response recorded.'}
+              </span>
+              <p>Your investigation remains available. Choose where to go next.</p>
+              <div className="incident-return-actions">
+                <button className="primary" data-testid="return-previous-task" onClick={onReturnPrevious}>
+                  RETURN TO PREVIOUS TASK // {originLabel}
+                </button>
+                <button className="navigation-button" data-testid="return-investigation" onClick={onReturnHub}>
+                  INCIDENT HUB
+                </button>
+              </div>
             </div>
           )}
         </div>

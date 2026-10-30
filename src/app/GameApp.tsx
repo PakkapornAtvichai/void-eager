@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useReducer, useState } from 'react'
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { DeductionScene } from '../components/DeductionScene'
 import { HubScene } from '../components/HubScene'
 import { IncomingInterruption, PendingIncidentTab } from '../components/IncomingInterruption'
+import type { PinCueOption } from '../components/IncomingInterruption'
 import { MaintenanceScene } from '../components/MaintenanceScene'
 import { MaintenanceInspectionScene } from '../components/MaintenanceInspectionScene'
 import type { MaintenanceInspectionArea } from '../components/MaintenanceInspectionScene'
@@ -18,7 +19,58 @@ import { currentObjective } from '../game/objectives'
 import { StorageScene } from '../components/StorageScene'
 import { gameReducer, initialGameState } from '../game/state'
 import type { GameAction } from '../game/state'
+import type { GameState, ReturnPoint } from '../game/types'
+import { COUPLER } from '../content/coupler'
 import { YOKO_PACK_ASSETS } from '../content/yokoPackAssets'
+
+// The C-17 trigger is based on eligible time spent investigating, not time since
+// someone opened a report. It is not a visible countdown and never runs in a dialog.
+const INTERRUPT_AFTER_ACTIVE_MS = 7000
+
+const pointLabel = (point: ReturnPoint | null): string => {
+  if (!point) return 'Incident Hub'
+  if (point.scene === 'storage') return 'Storage B-04'
+  if (point.scene === 'maintenance' && point.workstationFocused) return 'Workstation'
+  if (point.scene === 'maintenance' && point.maintenanceInspection) return 'Maintenance / ' + point.maintenanceInspection
+  if (point.scene === 'maintenance') return 'Maintenance'
+  if (point.scene === 'power') return 'Power Log'
+  if (point.scene === 'deduction') return 'Case Review'
+  return 'Incident Hub'
+}
+
+const pinChoicesFor = (point: ReturnPoint, state: GameState): PinCueOption[] => {
+  if (point.scene === 'storage') {
+    return state.evidenceFound.includes('STO_NEW_COUPLER_SERIAL')
+      ? [
+          { id: 'review-physical-serial', label: 'Review the serial plate I inspected' },
+          { id: 'review-condition', label: 'Recheck the Coupler condition' },
+        ]
+      : [
+          { id: 'read-physical-serial', label: 'Read the Coupler serial plate next' },
+          { id: 'review-condition', label: 'Recheck the Coupler condition' },
+        ]
+  }
+  if (point.scene === 'maintenance' && point.workstationFocused) {
+    const choices: PinCueOption[] = []
+    if (state.observedWorkOrderFields.includes('completion')) {
+      choices.push({ id: 'check-completion', label: 'Check the recorded completion' })
+    }
+    if (state.observedWorkOrderFields.includes('parts')) {
+      choices.push(
+        { id: 'trace-part', label: 'Trace the issued part to Storage' },
+        { id: 'check-verification', label: 'Look for installation verification' },
+      )
+    }
+    // The player's chosen focus, if any, should be the first and default choice.
+    const selected = choices.findIndex((option) => option.id === state.activeIntention)
+    if (selected > 0) choices.unshift(...choices.splice(selected, 1))
+    return choices.length
+      ? choices
+      : [{ id: 'continue-workorder', label: 'Continue reviewing the Work Order' }]
+  }
+  if (point.scene === 'power') return [{ id: 'review-power', label: 'Continue checking the power timeline' }]
+  return [{ id: 'return-to-case', label: 'Return to the Coupler investigation' }]
+}
 
 export function GameApp() {
   const [state, dispatch] = useReducer(gameReducer, initialGameState)
@@ -28,6 +80,13 @@ export function GameApp() {
   const [briefingDismissed, setBriefingDismissed] = useState(false)
   const [locationTransition, setLocationTransition] = useState<string | null>(null)
   const [incidentExpanded, setIncidentExpanded] = useState(false)
+  const [workstationDetailOpen, setWorkstationDetailOpen] = useState(false)
+  const [storageDetailOpen, setStorageDetailOpen] = useState(false)
+  const [hintOpen, setHintOpen] = useState(false)
+  const [interruptedPoint, setInterruptedPoint] = useState<ReturnPoint | null>(null)
+  const [pinOptions, setPinOptions] = useState<PinCueOption[]>([])
+  const [returnScrollOffset, setReturnScrollOffset] = useState<number | null>(null)
+  const elapsedActiveMs = useRef(0)
 
   const recordOpened = state.evidenceFound.includes('MAI_COUPLER_REPLACEMENT_RECORD')
   const storageInspected = state.evidenceFound.includes('STO_NEW_COUPLER')
@@ -56,33 +115,64 @@ export function GameApp() {
     })
   }, [])
 
-  // An unresolved alert persists when the player leaves the report.
+  // An unresolved alert stays pending after the player chooses LATER.
   useEffect(() => {
     setIncidentExpanded(state.interruptionStatus === 'warning')
   }, [state.interruptionStatus])
-  useEffect(() => {
-    if (!recordOpened) return
-    if (state.scene !== 'maintenance' || !workstationFocused) return
-    if (state.interruptionStatus !== 'idle') return
-    if (state.secondaryTaskComplete) return
-
-    const timer = window.setTimeout(() => {
-      dispatch({ type: 'TRIGGER_INTERRUPTION' })
-    }, 12000)
-
-    return () => window.clearTimeout(timer)
-  }, [recordOpened, workstationFocused, state.scene, state.interruptionStatus, state.secondaryTaskComplete])
 
   useEffect(() => {
-    if (state.scene === 'maintenance' && recordOpened && (state.resumedFromPin || state.firstThreadAfterInterruption !== null)) {
-      setWorkstationFocused(true)
-      setMaintenanceInspection(null)
-    }
     if (state.scene !== 'maintenance') {
       setWorkstationFocused(false)
       setMaintenanceInspection(null)
     }
-  }, [recordOpened, state.scene, state.resumedFromPin, state.firstThreadAfterInterruption])
+  }, [state.scene])
+
+  const captureReturnPoint = useCallback((): ReturnPoint => ({
+    scene: state.scene === 'secondary' || state.scene === 'reflection' ? 'hub' : state.scene,
+    thread: state.currentThread,
+    workstationFocused: state.scene === 'maintenance' && workstationFocused,
+    maintenanceInspection: state.scene === 'maintenance' ? maintenanceInspection : null,
+    scrollOffset: maintenanceScroll,
+  }), [state.scene, state.currentThread, workstationFocused, maintenanceInspection, maintenanceScroll])
+
+  const triggerIncident = useCallback(() => {
+    if (state.interruptionStatus !== 'idle' || state.secondaryTaskComplete) return
+    const point = captureReturnPoint()
+    setInterruptedPoint(point)
+    setPinOptions(pinChoicesFor(point, state))
+    dispatch({ type: 'TRIGGER_INTERRUPTION' })
+  }, [state, captureReturnPoint])
+
+  const eligibleForC17 =
+    (state.scene === 'maintenance' && workstationFocused && recordOpened) ||
+    state.scene === 'storage'
+  const canTick =
+    state.interruptionArmed &&
+    state.interruptionStatus === 'idle' &&
+    !state.secondaryTaskComplete &&
+    eligibleForC17 &&
+    !workstationDetailOpen &&
+    !storageDetailOpen &&
+    !hintOpen &&
+    !locationTransition
+
+  useEffect(() => {
+    if (!canTick) return
+    const beganAt = Date.now()
+    const remaining = Math.max(0, INTERRUPT_AFTER_ACTIVE_MS - elapsedActiveMs.current)
+    const timer = window.setTimeout(() => {
+      elapsedActiveMs.current = INTERRUPT_AFTER_ACTIVE_MS
+      // Always wait for the current evidence/help dialog to close.
+      if (!document.querySelector('[role="dialog"]')) triggerIncident()
+    }, remaining)
+    return () => {
+      window.clearTimeout(timer)
+      elapsedActiveMs.current = Math.min(
+        INTERRUPT_AFTER_ACTIVE_MS,
+        elapsedActiveMs.current + Math.max(0, Date.now() - beganAt),
+      )
+    }
+  }, [canTick, triggerIncident])
 
   // Only player-directed navigation gets a location transition.
   // The system interruption continues to take over the current workstation in place.
@@ -101,12 +191,51 @@ export function GameApp() {
 
   const handleIncident = useCallback(() => {
     setIncidentExpanded(false)
-    if (state.scene !== 'maintenance' || !workstationFocused) {
-      navigateTo('INCIDENT SYSTEM // C-17', { type: 'START_INTERRUPTION' })
+    navigateTo('SHIPWIDE SYSTEM // C-17', { type: 'START_INTERRUPTION' })
+  }, [navigateTo])
+
+  const returnToPreviousTask = useCallback(() => {
+    if (!interruptedPoint) {
+      navigateTo('INCIDENT HUB', { type: 'RETURN_TO_HUB' })
       return
     }
-    dispatch({ type: 'START_INTERRUPTION' })
-  }, [state.scene, workstationFocused, navigateTo])
+    setWorkstationFocused(interruptedPoint.workstationFocused)
+    setMaintenanceInspection(interruptedPoint.maintenanceInspection)
+    setReturnScrollOffset(interruptedPoint.scrollOffset)
+    navigateTo(pointLabel(interruptedPoint), { type: 'RETURN_TO_PREVIOUS_TASK', point: interruptedPoint })
+  }, [interruptedPoint, navigateTo])
+
+  const resumeSavedPin = useCallback(() => {
+    const pin = state.quickPin
+    if (!pin) return
+    setWorkstationFocused(pin.returnPoint.workstationFocused)
+    setMaintenanceInspection(pin.returnPoint.maintenanceInspection)
+    setReturnScrollOffset(pin.scrollOffset)
+    navigateTo(pointLabel(pin.returnPoint), { type: 'RESUME_PIN' })
+  }, [state.quickPin, navigateTo])
+
+  const saveSelectedPin = useCallback((cueId: string) => {
+    const point = interruptedPoint
+    const chosen = pinOptions.find((option) => option.id === cueId)
+    if (!point || !chosen) return
+    dispatch({
+      type: 'PIN_CURRENT_CONTEXT',
+      pin: {
+        threadId: 'coupler',
+        thread: COUPLER.thread,
+        location: pointLabel(point),
+        cueId: chosen.id,
+        context: chosen.label,
+        returnPoint: point,
+        scrollOffset: point.scrollOffset,
+      },
+    })
+  }, [interruptedPoint, pinOptions])
+
+  const onOpenPendingAlert = useCallback(() => {
+    if (state.interruptionStatus === 'idle') triggerIncident()
+    else if (state.interruptionStatus === 'warning') setIncidentExpanded(true)
+  }, [state.interruptionStatus, triggerIncident])
 
   const currentLocation = (() => {
     if (state.scene === 'maintenance') {
@@ -128,7 +257,8 @@ export function GameApp() {
         workstationFocused ? (
           <WorkstationFocusScene
             opened={recordOpened}
-            restoreScrollOffset={state.resumedFromPin && state.quickPin ? state.quickPin.scrollOffset : null}
+            restoreScrollOffset={returnScrollOffset}
+            onModalChange={setWorkstationDetailOpen}
             onScrollChange={setMaintenanceScroll}
             storageLeadUnlocked={storageLeadUnlocked}
             observedFields={state.observedWorkOrderFields}
@@ -137,7 +267,10 @@ export function GameApp() {
             onSetIntention={(intention) => dispatch({ type: 'SET_WORKING_INTENTION', intention })}
             onOpen={() => dispatch({ type: 'OPEN_WORK_ORDER' })}
             onUnlockStorageLead={() => dispatch({ type: 'UNLOCK_STORAGE_LEAD' })}
-            onBack={() => setWorkstationFocused(false)}
+            onBack={() => {
+              setWorkstationFocused(false)
+              setReturnScrollOffset(null)
+            }}
           />
         ) : maintenanceInspection ? (
           <MaintenanceInspectionScene
@@ -166,8 +299,11 @@ export function GameApp() {
         <SecondaryScene
           complete={state.secondaryTaskComplete}
           response={state.secondaryResponse}
+          originLabel={pointLabel(interruptedPoint)}
+          fromWorkstation={Boolean(interruptedPoint?.scene === 'maintenance' && interruptedPoint.workstationFocused)}
           onComplete={(response) => dispatch({ type: 'COMPLETE_SECONDARY_TASK', response })}
-          onReturn={() => navigateTo('INCIDENT HUB', { type: 'RETURN_TO_HUB' })}
+          onReturnPrevious={returnToPreviousTask}
+          onReturnHub={() => navigateTo('INCIDENT HUB', { type: 'RETURN_TO_HUB' })}
         />
       )
     }
@@ -180,7 +316,11 @@ export function GameApp() {
           serialChecked={serialChecked}
           powerReviewed={protectionFound}
           theorySaved={Boolean(state.theory)}
+          alertComplete={state.secondaryTaskComplete}
+          alertPending={state.interruptionStatus === 'warning'}
+          onOpenAlert={onOpenPendingAlert}
           onCoupler={() => {
+            setReturnScrollOffset(null)
             setWorkstationFocused(true)
             navigateTo('MAINTENANCE // WORKSTATION', { type: 'OPEN_THREAD', thread: 'coupler' })
           }}
@@ -200,6 +340,7 @@ export function GameApp() {
           workOrderSerialObserved={state.observedWorkOrderFields.includes('parts') || state.observedWorkOrderFields.includes('completion')}
           onInspect={() => dispatch({ type: 'INSPECT_STORAGE_COUPLER' })}
           onCheckSerial={() => dispatch({ type: 'CHECK_STORAGE_SERIAL' })}
+          onModalChange={setStorageDetailOpen}
           onBack={() => navigateTo('INCIDENT HUB', { type: 'BACK_TO_HUB' })}
         />
       )
@@ -230,7 +371,8 @@ export function GameApp() {
 
     return (
       <ReflectionScene
-        usedQuickPin={Boolean(state.quickPin)}
+        usedQuickPin={state.quickPinReviewed}
+        interruptionCount={state.secondaryTaskComplete ? 1 : 0}
         evidenceCount={state.evidenceFound.length}
         firstThread={state.firstThreadAfterInterruption}
         theory={state.theory}
@@ -243,6 +385,13 @@ export function GameApp() {
           setMaintenanceInspection(null)
           setLocationTransition(null)
           setIncidentExpanded(false)
+          elapsedActiveMs.current = 0
+          setInterruptedPoint(null)
+          setPinOptions([])
+          setReturnScrollOffset(null)
+          setWorkstationDetailOpen(false)
+          setStorageDetailOpen(false)
+          setHintOpen(false)
           window.scrollTo({ top: 0, behavior: 'auto' })
           dispatch({ type: 'RESET' })
         }}
@@ -289,6 +438,7 @@ export function GameApp() {
           <ObjectiveTracker
             objective={objective}
             onOpenBriefing={isMaintenanceRoom ? () => setBriefingDismissed(false) : undefined}
+            onModalChange={setHintOpen}
           />
         )}
 
@@ -306,7 +456,8 @@ export function GameApp() {
           }
           canResumePin={canResumePin}
           onFollowStorageLead={followStorageLead}
-          onResumePin={() => navigateTo('MAINTENANCE // SAVED CONTEXT', { type: 'RESUME_PIN' })}
+          onResumePin={resumeSavedPin}
+          onReviewPin={() => dispatch({ type: 'REVIEW_PIN' })}
         />
 
         {locationTransition && (
@@ -320,7 +471,8 @@ export function GameApp() {
           incidentExpanded && !showBriefing ? (
             <IncomingInterruption
               pinned={Boolean(state.quickPin)}
-              onPin={() => dispatch({ type: 'PIN_CURRENT_CONTEXT', scrollOffset: maintenanceScroll })}
+              options={pinOptions}
+              onPin={saveSelectedPin}
               onHandle={handleIncident}
               onMinimize={() => setIncidentExpanded(false)}
             />

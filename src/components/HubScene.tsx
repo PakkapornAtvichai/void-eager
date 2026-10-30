@@ -8,6 +8,9 @@ type Props = {
   serialChecked: boolean
   powerReviewed: boolean
   theorySaved: boolean
+  alertComplete: boolean
+  alertPending: boolean
+  onOpenAlert: () => void
   onCoupler: () => void
   onStorage: () => void
   onPower: () => void
@@ -21,6 +24,9 @@ export function HubScene({
   serialChecked,
   powerReviewed,
   theorySaved,
+  alertComplete,
+  alertPending,
+  onOpenAlert,
   onCoupler,
   onStorage,
   onPower,
@@ -61,7 +67,7 @@ export function HubScene({
           </h2>
           <p className="muted">
             {theorySaved
-              ? 'End Session is available below.'
+              ? (alertComplete ? 'End Session is available below.' : 'C-17 requires a response before this session ends.')
               : serialChecked
                 ? 'Record a working theory in Case Review.'
                 : storageLeadUnlocked
@@ -111,7 +117,7 @@ export function HubScene({
                 {!serialChecked
                   ? 'Compare the part in Storage first.'
                   : theorySaved
-                    ? 'Finish or continue investigating.'
+                    ? (alertComplete ? 'Finish or continue investigating.' : 'Complete C-17 to finish; other routes remain open.')
                     : 'You can now record your conclusion.'}
               </small>
             </div>
@@ -122,7 +128,13 @@ export function HubScene({
               </button>
             )}
 
-            {theorySaved && (
+            {theorySaved && !alertComplete && (
+              <button className="console-choice hub-pending-alert" data-testid="hub-open-c17" onClick={onOpenAlert}>
+                {alertPending ? 'OPEN C-17 ALERT' : 'REVIEW SHIP ALERT C-17'}
+              </button>
+            )}
+
+            {theorySaved && alertComplete && (
               <button className="console-choice hub-end-session" data-testid="hub-end-session" onClick={onEndSession}>
                 End Session
               </button>

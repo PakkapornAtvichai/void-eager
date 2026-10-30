@@ -9,6 +9,7 @@ type Props = {
   opened: boolean
   restoreScrollOffset: number | null
   onScrollChange: (offset: number) => void
+  onModalChange: (open: boolean) => void
   observedFields: WorkOrderFieldId[]
   activeIntention: InvestigationIntention | null
   storageLeadUnlocked: boolean
@@ -34,6 +35,7 @@ export function WorkstationFocusScene({
   opened,
   restoreScrollOffset,
   onScrollChange,
+  onModalChange,
   observedFields,
   activeIntention,
   storageLeadUnlocked,
@@ -47,6 +49,11 @@ export function WorkstationFocusScene({
   const reportRef = useRef<HTMLElement>(null)
   const [selectedField, setSelectedField] = useState<WorkOrderFieldId | null>(null)
   const inspectedParts = observedFields.includes('parts')
+
+  useEffect(() => {
+    onModalChange(selectedField !== null)
+    return () => onModalChange(false)
+  }, [selectedField, onModalChange])
 
   useEffect(() => {
     if (!opened || restoreScrollOffset === null || !reportRef.current) return

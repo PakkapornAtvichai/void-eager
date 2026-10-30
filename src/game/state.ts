@@ -1,6 +1,8 @@
 import { COUPLER, STORAGE_COUPLER } from '../content/coupler'
 import { POWER_SPIKE } from '../content/power'
-import type { GameState, InvestigationIntention, ThreadId, WorkOrderFieldId } from './types'
+import type {
+  GameState, InvestigationIntention, QuickPin, ReturnPoint, ThreadId, WorkOrderFieldId,
+} from './types'
 
 export const initialGameState: GameState = {
   scene: 'maintenance',
@@ -10,6 +12,8 @@ export const initialGameState: GameState = {
   activeIntention: null,
   knowledgeFlags: [],
   quickPin: null,
+  quickPinReviewed: false,
+  interruptionArmed: false,
   interruptionStatus: 'idle',
   secondaryTaskComplete: false,
   secondaryResponse: null,
@@ -22,18 +26,21 @@ export const initialGameState: GameState = {
 const addOnce = <T extends string>(items: T[], value: T): T[] =>
   items.includes(value) ? items : [...items, value]
 
-const resumedThread = (state: GameState, thread: ThreadId) =>
-  state.secondaryTaskComplete && !state.firstThreadAfterInterruption
+const resumedThread = (state: GameState, thread: ThreadId | null) =>
+  state.secondaryTaskComplete && !state.firstThreadAfterInterruption && thread
     ? thread
     : state.firstThreadAfterInterruption
+
 export type GameAction =
   | { type: 'OPEN_WORK_ORDER' }
   | { type: 'OBSERVE_WORK_ORDER_FIELD'; field: WorkOrderFieldId }
   | { type: 'SET_WORKING_INTENTION'; intention: InvestigationIntention }
   | { type: 'TRIGGER_INTERRUPTION' }
-  | { type: 'PIN_CURRENT_CONTEXT'; scrollOffset: number }
+  | { type: 'PIN_CURRENT_CONTEXT'; pin: QuickPin }
+  | { type: 'REVIEW_PIN' }
   | { type: 'START_INTERRUPTION' }
   | { type: 'COMPLETE_SECONDARY_TASK'; response: string }
+  | { type: 'RETURN_TO_PREVIOUS_TASK'; point: ReturnPoint }
   | { type: 'RETURN_TO_HUB' }
   | { type: 'OPEN_THREAD'; thread: ThreadId }
   | { type: 'RESUME_PIN' }
@@ -48,6 +55,7 @@ export type GameAction =
   | { type: 'SAVE_THEORY'; answer: 'replaced' | 'not-replaced'; evidence: string[] }
   | { type: 'OPEN_REFLECTION' }
   | { type: 'RESET' }
+
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'OPEN_WORK_ORDER':
@@ -64,46 +72,40 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         observedWorkOrderFields: addOnce(state.observedWorkOrderFields, action.field),
       }
     case 'SET_WORKING_INTENTION': {
-      // Work Order intentions must be based on a field the player actually inspected.
       const allowed = action.intention === 'check-completion'
         ? state.observedWorkOrderFields.includes('completion')
         : state.observedWorkOrderFields.includes('parts')
-      return allowed ? { ...state, activeIntention: action.intention } : state
+      return allowed
+        ? { ...state, activeIntention: action.intention, interruptionArmed: true }
+        : state
     }
     case 'TRIGGER_INTERRUPTION':
       return state.interruptionStatus === 'idle'
-        ? { ...state, interruptionStatus: 'warning' }
+        ? { ...state, interruptionStatus: 'warning', interruptionArmed: true }
         : state
     case 'PIN_CURRENT_CONTEXT':
-      return {
-        ...state,
-        quickPin: {
-          threadId: COUPLER.threadId,
-          thread: COUPLER.thread,
-          location: 'Maintenance report',
-          context: `Replacement serial ${COUPLER.workOrder.replacementSerial}; installation verification not attached.`,
-          scrollOffset: action.scrollOffset,
-        },
-      }
+      if (state.interruptionStatus !== 'warning') return state
+      return { ...state, quickPin: action.pin, quickPinReviewed: false }
+    case 'REVIEW_PIN':
+      return state.quickPin ? { ...state, quickPinReviewed: true } : state
     case 'START_INTERRUPTION':
-      return {
-        ...state,
-        interruptionStatus: 'handled',
-        scene: 'secondary',
-      }
+      if (state.interruptionStatus !== 'warning') return state
+      return { ...state, interruptionStatus: 'handled', scene: 'secondary' }
     case 'COMPLETE_SECONDARY_TASK':
+      if (state.scene !== 'secondary') return state
+      return { ...state, secondaryTaskComplete: true, secondaryResponse: action.response }
+    case 'RETURN_TO_PREVIOUS_TASK':
+      if (!state.secondaryTaskComplete) return state
       return {
         ...state,
-        secondaryTaskComplete: true,
-        secondaryResponse: action.response,
-      }
-    case 'RETURN_TO_HUB':
-      return {
-        ...state,
-        scene: 'hub',
-        currentThread: null,
+        scene: action.point.scene,
+        currentThread: action.point.thread,
+        firstThreadAfterInterruption: resumedThread(state, action.point.thread),
         resumedFromPin: false,
       }
+    case 'RETURN_TO_HUB':
+      if (!state.secondaryTaskComplete) return state
+      return { ...state, scene: 'hub', currentThread: null, resumedFromPin: false }
     case 'OPEN_THREAD':
       return {
         ...state,
@@ -113,30 +115,30 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         resumedFromPin: false,
       }
     case 'RESUME_PIN':
-      if (!state.quickPin) return state
+      if (!state.quickPin || !state.secondaryTaskComplete) return state
       return {
         ...state,
-        scene: state.quickPin.threadId === 'coupler' ? 'maintenance' : 'power',
-        currentThread: state.quickPin.threadId,
-        firstThreadAfterInterruption: resumedThread(state, state.quickPin.threadId),
+        scene: state.quickPin.returnPoint.scene,
+        currentThread: state.quickPin.returnPoint.thread,
+        firstThreadAfterInterruption: resumedThread(state, state.quickPin.returnPoint.thread),
+        quickPinReviewed: true,
         resumedFromPin: true,
       }
     case 'UNLOCK_STORAGE_LEAD':
-      // A traced source is a navigation shortcut, not a door or a C-17 reward.
       if (!state.observedWorkOrderFields.includes('parts')) return state
-      return {
-        ...state,
-        knowledgeFlags: addOnce(state.knowledgeFlags, 'K_STORAGE_LEAD_UNLOCKED'),
-      }
+      return { ...state, knowledgeFlags: addOnce(state.knowledgeFlags, 'K_STORAGE_LEAD_UNLOCKED') }
     case 'GO_TO_STORAGE':
       return {
         ...state,
         scene: 'storage',
         currentThread: 'coupler',
+        firstThreadAfterInterruption: resumedThread(state, 'coupler'),
+        resumedFromPin: false,
       }
     case 'INSPECT_STORAGE_COUPLER':
       return {
         ...state,
+        interruptionArmed: true, // Storage-first engagement qualifies; crate opening alone does not.
         evidenceFound: addOnce(state.evidenceFound, STORAGE_COUPLER.evidenceId),
         knowledgeFlags: addOnce(state.knowledgeFlags, STORAGE_COUPLER.knowledgeFlag),
       }
@@ -159,28 +161,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         knowledgeFlags: addOnce(state.knowledgeFlags, 'K_PROTECTION_CONTAINED_SPIKE'),
       }
     case 'BACK_TO_HUB':
-      return {
-        ...state,
-        scene: 'hub',
-        currentThread: null,
-        resumedFromPin: false,
-      }
+      return { ...state, scene: 'hub', currentThread: null, resumedFromPin: false }
     case 'OPEN_DEDUCTION':
-      return {
-        ...state,
-        scene: 'deduction',
-      }
+      return { ...state, scene: 'deduction' }
     case 'SAVE_THEORY':
-      return {
-        ...state,
-        theory: action.answer,
-        theoryEvidence: action.evidence,
-      }
+      return { ...state, theory: action.answer, theoryEvidence: action.evidence }
     case 'OPEN_REFLECTION':
-      return {
-        ...state,
-        scene: 'reflection',
-      }
+      // Main serious-game loop MUST include a completed real interruption.
+      if (!state.theory || !state.secondaryTaskComplete) return state
+      return { ...state, scene: 'reflection' }
     case 'RESET':
       return initialGameState
     default:

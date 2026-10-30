@@ -11,6 +11,7 @@ type Props = {
   canResumePin: boolean
   onFollowStorageLead: () => void
   onResumePin: () => void
+  onReviewPin: () => void
 }
 
 const contextLabel = (state: GameState) => {
@@ -38,6 +39,7 @@ export function StatusRail({
   canResumePin,
   onFollowStorageLead,
   onResumePin,
+  onReviewPin,
 }: Props) {
   const reflection = state.scene === 'reflection'
   const storageCurrent = state.scene === 'storage' && !storageSerialChecked
@@ -96,7 +98,13 @@ export function StatusRail({
 
       {!reflection && (
         canResumePin && state.quickPin ? (
-          <details className="hud-pin" data-testid="quick-pin-entry">
+          <details
+            className="hud-pin"
+            data-testid="quick-pin-entry"
+            onToggle={(event) => {
+              if (event.currentTarget.open) onReviewPin()
+            }}
+          >
             <summary aria-label="Open saved Quick Pin context">
               <span>
                 <span className="hud-kicker">QUICK PIN</span>
@@ -114,7 +122,7 @@ export function StatusRail({
                 data-testid="resume-pin"
                 onClick={onResumePin}
               >
-                RESUME REPORT
+                RESUME TASK
               </button>
             </div>
           </details>

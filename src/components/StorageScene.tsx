@@ -11,14 +11,21 @@ type Props = {
   workOrderSerialObserved: boolean
   onInspect: () => void
   onCheckSerial: () => void
+  onModalChange: (open: boolean) => void
   onBack: () => void
 }
 
 type Detail = 'crate' | 'coupler' | 'serial'
 
-export function StorageScene({ inspected, serialChecked, workOrderSerialObserved, onInspect, onCheckSerial, onBack }: Props) {
+export function StorageScene({ inspected, serialChecked, workOrderSerialObserved, onInspect, onCheckSerial, onModalChange, onBack }: Props) {
   const [crateOpen, setCrateOpen] = useState(inspected || serialChecked)
   const [detail, setDetail] = useState<Detail | null>(null)
+  const [hintOpen, setStorageHintOpen] = useState(false)
+
+  useEffect(() => {
+    onModalChange(detail !== null || hintOpen)
+    return () => onModalChange(false)
+  }, [detail, hintOpen, onModalChange])
 
   useEffect(() => {
     if (inspected || serialChecked) setCrateOpen(true)
@@ -28,7 +35,7 @@ export function StorageScene({ inspected, serialChecked, workOrderSerialObserved
 
   return (
     <section className="storage-stage storage-stage--yoko" data-testid="storage-scene" aria-label="Storage B-04">
-      <ObjectiveTracker objective={storageObjective(phase)} />
+      <ObjectiveTracker objective={storageObjective(phase)} onModalChange={setStorageHintOpen} />
 
       <div className="storage-environment" data-testid="storage-environment" aria-hidden="true">
         <div className="storage-beam storage-beam--left" />
