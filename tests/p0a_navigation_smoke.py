@@ -36,19 +36,19 @@ with sync_playwright() as p:
    field(page,"completion")
    assert "COUPLER REPLACED" in page.get_by_test_id("workorder-field-dialog").inner_text()
    close(page)
-   assert page.get_by_test_id("choose-intention-check-completion").is_visible()
-   assert page.get_by_test_id("choose-intention-trace-part").count()==0
-   page.get_by_test_id("choose-intention-check-completion").click()
-   assert page.get_by_test_id("choose-intention-check-completion").get_attribute("aria-pressed")=="true"
+   assert page.get_by_test_id("workstation-focus-select").locator("option[value=\"check-completion\"]").count()==1
+   assert page.get_by_test_id("workstation-focus-select").locator("option[value=\"trace-part\"]").count()==0
+   page.get_by_test_id("workstation-focus-select").select_option("check-completion")
+   assert page.get_by_test_id("workstation-focus-select").input_value()=="check-completion"
    field(page,"parts")
    modal=scene(page,"workorder-field-dialog")
    details=modal.inner_text()
    assert "STORAGE B-04" in details and "NOT ATTACHED" in details
    assert "INVESTIGATOR'S QUESTION" not in details
    close(page)
-   page.get_by_test_id("choose-intention-trace-part").click()
-   assert page.get_by_test_id("choose-intention-trace-part").get_attribute("aria-pressed")=="true"
-   assert "Trace the issued part" in page.get_by_test_id("active-investigation-focus").inner_text()
+   page.get_by_test_id("workstation-focus-select").select_option("trace-part")
+   assert page.get_by_test_id("workstation-focus-select").input_value()=="trace-part"
+   assert page.get_by_test_id("workstation-focus-select").input_value()=="trace-part"
    assert page.get_by_test_id("unlock-storage-lead").is_enabled()
    if w==1464: page.screenshot(path=str(OUT/"VOID-EAGER-P0A-workstation-focus.png"))
    page.get_by_test_id("unlock-storage-lead").click()
@@ -70,7 +70,7 @@ with sync_playwright() as p:
    assert page.get_by_test_id("hub-maintenance-door").is_visible()
    hub_to_workstation(page)
    scene(page,"workstation-focus")
-   assert page.get_by_test_id("choose-intention-trace-part").get_attribute("aria-pressed")=="true"
+   assert page.get_by_test_id("workstation-focus-select").input_value()=="trace-part"
    assert page.get_by_test_id("unlock-storage-lead").is_disabled()
    assert page.get_by_test_id("workorder-field-dialog").count()==0
    mark(f"WO fields, focus persistence, Storage before C-17, return {w}x{h}")
@@ -120,7 +120,7 @@ with sync_playwright() as p:
   page.get_by_test_id("inspect-work-order").click()
   field(page,"parts")
   close(page)
-  assert page.get_by_test_id("choose-intention-trace-part").is_visible()
+  assert page.get_by_test_id("workstation-focus-select").locator("option[value=\"trace-part\"]").count()==1
   mark("Storage-first path preserves hidden Work Order info and later field access")
  except Exception as e:
   print("FAIL STORAGE_FIRST",type(e).__name__,str(e)[:1300],flush=True)

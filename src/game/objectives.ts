@@ -91,16 +91,29 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
 
   if (state.scene === 'hub') {
     if (state.theory) {
-      return state.secondaryTaskComplete ? {
-        id: 'hub-finish',
-        category: 'REVIEW',
-        title: 'Review your case or end the session',
-        hint: 'Use the central case board to revise your theory or end the session. The left corridor leads to Maintenance; the right to Engineering.',
-      } : {
+      if (state.secondaryTaskComplete) {
+        return state.firstThreadAfterInterruption ? {
+          id: 'hub-finish',
+          category: 'REVIEW',
+          title: 'Review your case or end the session',
+          hint: 'You returned to an investigation after C-17. The case board can now end the session or let you revise your theory.',
+        } : {
+          id: 'hub-return-to-task',
+          category: 'CASE',
+          title: 'Resume an investigation task',
+          hint: 'C-17 is logged. Use a corridor to return to any investigation thread before ending the session.',
+        }
+      }
+      return state.interruptionStatus === 'warning' ? {
         id: 'hub-alert-outstanding',
         category: 'ALERT',
-        title: 'Respond to outstanding C-17',
-        hint: 'You can open C-17 from the case board, or use the physical left/right corridors to keep investigating.',
+        title: 'Handle the pending C-17 alert',
+        hint: 'The alert interrupted your investigation and is still pending. Reopen it from the case board or the pending tab.',
+      } : {
+        id: 'hub-continue-active-investigation',
+        category: 'CASE',
+        title: 'Continue investigating your theory',
+        hint: 'Your theory is saved. C-17 has not occurred yet: use the left corridor, choose a Workstation focus or inspect a Storage Coupler, and continue that task.',
       }
     }
     if (hasCouplerObservation(state)) {

@@ -18,6 +18,7 @@ export const initialGameState: GameState = {
   quickPin: null,
   quickPinReviewed: false,
   interruptionArmed: false,
+  interruptionOccurredDuringInvestigation: false,
   interruptionStatus: 'idle',
   secondaryTaskComplete: false,
   secondaryResponse: null,
@@ -30,8 +31,11 @@ export const initialGameState: GameState = {
 const addOnce = <T extends string>(items: T[], value: T): T[] =>
   items.includes(value) ? items : [...items, value]
 
-const resumedThread = (state: GameState, thread: ThreadId | null) =>
-  state.secondaryTaskComplete && !state.firstThreadAfterInterruption && thread
+// Recovery is recorded only when the player actually interacts with a
+// source or selects a task focus AFTER C-17. Crossing a doorway is not
+// context recovery and must not complete the serious-game loop.
+const resumedOnActivity = (state: GameState, thread: ThreadId): ThreadId | null =>
+  state.secondaryTaskComplete && !state.firstThreadAfterInterruption
     ? thread
     : state.firstThreadAfterInterruption
 
@@ -41,7 +45,7 @@ export type GameAction =
   | { type: 'SAVE_COMPARISON' }
   | { type: 'OBSERVE_WORK_ORDER_FIELD'; field: WorkOrderFieldId }
   | { type: 'SET_WORKING_INTENTION'; intention: InvestigationIntention }
-  | { type: 'TRIGGER_INTERRUPTION' }
+  | { type: 'TRIGGER_INTERRUPTION'; point: ReturnPoint }
   | { type: 'PIN_CURRENT_CONTEXT'; pin: QuickPin }
   | { type: 'REVIEW_PIN' }
   | { type: 'START_INTERRUPTION' }
@@ -82,6 +86,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         evidenceFound: addOnce(state.evidenceFound, sourceId),
         observedWorkOrderFields: addOnce(state.observedWorkOrderFields, action.field),
         knowledgeFlags: addOnce(state.knowledgeFlags, COUPLER.knowledgeFlag),
+        firstThreadAfterInterruption: resumedOnActivity(state, 'coupler'),
       }
     }
     case 'OPEN_STORAGE_CRATE':
@@ -102,6 +107,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         comparedEvidenceIds: ids.reduce(
           (items, id) => addOnce(items, id), [...state.comparedEvidenceIds],
         ),
+        firstThreadAfterInterruption: resumedOnActivity(state, 'coupler'),
       }
     }
     case 'SET_WORKING_INTENTION': {
@@ -109,13 +115,40 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ? state.observedWorkOrderFields.includes('completion')
         : state.observedWorkOrderFields.includes('parts')
       return allowed
-        ? { ...state, activeIntention: action.intention, interruptionArmed: true }
+        ? {
+            ...state,
+            activeIntention: action.intention,
+            interruptionArmed: true,
+            firstThreadAfterInterruption: resumedOnActivity(state, 'coupler'),
+          }
         : state
     }
-    case 'TRIGGER_INTERRUPTION':
-      return state.interruptionStatus === 'idle'
-        ? { ...state, interruptionStatus: 'warning', interruptionArmed: true }
-        : state
+    case 'TRIGGER_INTERRUPTION': {
+      // Do not allow a Hub interaction to manufacture an investigation
+      // interruption. A valid alert must begin while an eligible Coupler task
+      // is actively being inspected, and its origin is preserved for recovery.
+      const point = action.point
+      const engagedInWorkstation =
+        point.scene === 'maintenance' &&
+        point.workstationFocused &&
+        state.workOrderOpened &&
+        state.activeIntention !== null
+      const engagedInStorage =
+        point.scene === 'storage' &&
+        state.storageCrateOpen &&
+        state.evidenceFound.some((id) => id === 'STO_NEW_COUPLER' || id === 'STO_NEW_COUPLER_SERIAL')
+      if (
+        state.interruptionStatus !== 'idle' ||
+        !state.interruptionArmed ||
+        point.scene !== state.scene ||
+        !(engagedInWorkstation || engagedInStorage)
+      ) return state
+      return {
+        ...state,
+        interruptionStatus: 'warning',
+        interruptionOccurredDuringInvestigation: true,
+      }
+    }
     case 'PIN_CURRENT_CONTEXT':
       if (state.interruptionStatus !== 'warning') return state
       return { ...state, quickPin: action.pin, quickPinReviewed: false }
@@ -133,7 +166,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         scene: action.point.scene,
         currentThread: action.point.thread,
-        firstThreadAfterInterruption: resumedThread(state, action.point.thread),
         resumedFromPin: false,
       }
     case 'RETURN_TO_HUB':
@@ -144,7 +176,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         scene: action.thread === 'coupler' ? 'maintenance' : 'power',
         currentThread: action.thread,
-        firstThreadAfterInterruption: resumedThread(state, action.thread),
         resumedFromPin: false,
       }
     case 'RESUME_PIN':
@@ -153,7 +184,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         scene: state.quickPin.returnPoint.scene,
         currentThread: state.quickPin.returnPoint.thread,
-        firstThreadAfterInterruption: resumedThread(state, state.quickPin.returnPoint.thread),
         quickPinReviewed: true,
         resumedFromPin: true,
       }
@@ -165,7 +195,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         scene: 'storage',
         currentThread: 'coupler',
-        firstThreadAfterInterruption: resumedThread(state, 'coupler'),
         resumedFromPin: false,
       }
     case 'INSPECT_STORAGE_COUPLER':
@@ -175,6 +204,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         interruptionArmed: true, // Storage-first engagement qualifies; crate opening alone does not.
         evidenceFound: addOnce(state.evidenceFound, STORAGE_COUPLER.evidenceId),
         knowledgeFlags: addOnce(state.knowledgeFlags, STORAGE_COUPLER.knowledgeFlag),
+        firstThreadAfterInterruption: resumedOnActivity(state, 'coupler'),
       }
     case 'CHECK_STORAGE_SERIAL':
       if (!state.storageCrateOpen) return state
@@ -183,18 +213,21 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         interruptionArmed: true,
         evidenceFound: addOnce(state.evidenceFound, STORAGE_COUPLER.serialEvidenceId),
         knowledgeFlags: addOnce(state.knowledgeFlags, STORAGE_COUPLER.serialFlag),
+        firstThreadAfterInterruption: resumedOnActivity(state, 'coupler'),
       }
     case 'INSPECT_POWER_SPIKE':
       return {
         ...state,
         evidenceFound: addOnce(state.evidenceFound, POWER_SPIKE.evidenceId),
         knowledgeFlags: addOnce(state.knowledgeFlags, 'K_POWER_SPIKE_FOUND'),
+        firstThreadAfterInterruption: resumedOnActivity(state, 'power'),
       }
     case 'INSPECT_POWER_PROTECTION':
       return {
         ...state,
         evidenceFound: addOnce(state.evidenceFound, POWER_SPIKE.protectionEvidenceId),
         knowledgeFlags: addOnce(state.knowledgeFlags, 'K_PROTECTION_CONTAINED_SPIKE'),
+        firstThreadAfterInterruption: resumedOnActivity(state, 'power'),
       }
     case 'BACK_TO_HUB':
       return { ...state, scene: 'hub', currentThread: null, resumedFromPin: false }
@@ -211,8 +244,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
     }
     case 'OPEN_REFLECTION':
-      // Main serious-game loop MUST include a completed real interruption.
-      if (!state.theory || !state.secondaryTaskComplete) return state
+      // Finishing requires a real interrupted investigation, the handled alert,
+      // and a subsequent return to a chosen investigation thread. The theory
+      // remains provisional and may have been saved before the interruption.
+      if (
+        !state.theory ||
+        !state.secondaryTaskComplete ||
+        !state.interruptionOccurredDuringInvestigation ||
+        state.firstThreadAfterInterruption === null
+      ) return state
       return { ...state, scene: 'reflection' }
     case 'RESET':
       return initialGameState

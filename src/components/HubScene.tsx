@@ -10,6 +10,7 @@ type Props = {
   theorySaved: boolean
   alertComplete: boolean
   alertPending: boolean
+  resumedAfterAlert: boolean
   onOpenAlert: () => void
   onMaintenance: () => void
   onEngineering: () => void
@@ -30,6 +31,7 @@ export function HubScene({
   theorySaved,
   alertComplete,
   alertPending,
+  resumedAfterAlert,
   onOpenAlert,
   onMaintenance,
   onEngineering,
@@ -77,8 +79,35 @@ export function HubScene({
           <h2 id="hub-title">{COUPLER.thread}</h2>
           <div className="hub-caseboard-stats" aria-label="Case status">
             <span><strong>{String(caseSources.length).padStart(2, '0')}</strong> SOURCES</span>
-            <span><strong>{comparisonSaved ? 'SAVED' : 'OPEN'}</strong> COMPARE</span>
-            <span><strong>{alertComplete ? 'LOGGED' : alertPending ? 'PENDING' : 'OPEN'}</strong> C-17</span>
+            <span><strong>{comparisonSaved ? 'SAVED' : 'NOT SAVED'}</strong> COMPARE</span>
+            <span><strong>{alertComplete ? 'LOGGED' : alertPending ? 'PENDING' : 'STANDBY'}</strong> C-17</span>
+          </div>
+          <div className="hub-caseboard-actions" data-testid="hub-case-actions">
+            {caseReady && (
+              <button className="console-choice" type="button" data-testid="hub-open-case-review" onClick={onCaseReview}>
+                {theorySaved ? 'REVISE THEORY' : 'CASE REVIEW'}
+              </button>
+            )}
+            {theorySaved && !alertComplete && !alertPending && (
+              <p className="hub-caseboard-guidance" data-testid="hub-investigate-before-alert">
+                THEORY SAVED // Continue your investigation via the left corridor. Choose a Workstation focus or inspect the Storage Coupler; C-17 will arrive during that task.
+              </p>
+            )}
+            {theorySaved && !alertComplete && alertPending && (
+              <button className="console-choice hub-pending-alert" type="button" data-testid="hub-open-c17" onClick={onOpenAlert}>
+                OPEN PENDING C-17
+              </button>
+            )}
+            {theorySaved && alertComplete && !resumedAfterAlert && (
+              <p className="hub-caseboard-guidance" data-testid="hub-resume-before-finish">
+                RESPONSE LOGGED // Continue an investigation task through either corridor, then return to finish your session.
+              </p>
+            )}
+            {theorySaved && alertComplete && resumedAfterAlert && (
+              <button className="console-choice hub-end-session" type="button" data-testid="hub-end-session" onClick={onEndSession}>
+                END SESSION
+              </button>
+            )}
           </div>
           <div className="hub-caseboard-evidence" data-testid="hub-evidence-index">
             <strong>OBSERVED SOURCE INDEX</strong>
@@ -89,23 +118,6 @@ export function HubScene({
             )}
             {caseSources.length > 2 && <small>+{caseSources.length - 2} earlier sources in Case Review</small>}
             {activeIntention && <small data-testid="hub-current-focus">CURRENT FOCUS // {focusNames[activeIntention]}</small>}
-          </div>
-          <div className="hub-caseboard-actions" data-testid="hub-case-actions">
-            {caseReady && (
-              <button className="console-choice" type="button" data-testid="hub-open-case-review" onClick={onCaseReview}>
-                {theorySaved ? 'REVISE THEORY' : 'CASE REVIEW'}
-              </button>
-            )}
-            {theorySaved && !alertComplete && (
-              <button className="console-choice hub-pending-alert" type="button" data-testid="hub-open-c17" onClick={onOpenAlert}>
-                {alertPending ? 'OPEN C-17' : 'HANDLE C-17'}
-              </button>
-            )}
-            {theorySaved && alertComplete && (
-              <button className="console-choice hub-end-session" type="button" data-testid="hub-end-session" onClick={onEndSession}>
-                END SESSION
-              </button>
-            )}
           </div>
         </div>
       </div>

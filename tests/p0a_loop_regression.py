@@ -16,7 +16,7 @@ def main_route(page,pin):
  page.get_by_test_id("inspect-work-order").click()
  page.get_by_test_id("inspect-wo-parts").click()
  page.get_by_test_id("close-evidence").click()
- page.get_by_test_id("choose-intention-trace-part").click()
+ page.get_by_test_id("workstation-focus-select").select_option("trace-part")
  page.clock.fast_forward(12500)
  page.get_by_test_id("incoming-interruption").wait_for()
  assert "C-17" in page.get_by_test_id("incoming-interruption").inner_text()
@@ -51,7 +51,7 @@ def main_route(page,pin):
  else:
   hub_to_workstation(page)
  page.get_by_test_id("workstation-focus").wait_for()
- assert page.get_by_test_id("choose-intention-trace-part").get_attribute("aria-pressed")=="true"
+ assert page.get_by_test_id("workstation-focus-select").input_value()=="trace-part"
  if page.get_by_test_id("unlock-storage-lead").is_enabled():
   page.get_by_test_id("unlock-storage-lead").click()
  workstation_to_storage(page)

@@ -46,6 +46,7 @@ export type GameState = {
   quickPin: QuickPin | null
   quickPinReviewed: boolean
   interruptionArmed: boolean
+  interruptionOccurredDuringInvestigation: boolean
   interruptionStatus: InterruptionStatus
   secondaryTaskComplete: boolean
   secondaryResponse: string | null

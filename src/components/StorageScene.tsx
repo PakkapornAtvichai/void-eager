@@ -191,14 +191,14 @@ export function StorageScene({
             </button>
             <button
               type="button"
-              className="navigation-button"
+              className="comparison-room-return"
               data-testid="storage-recheck-workorder"
               onClick={() => {
                 setDetail(null)
                 onRecheckWorkOrder()
               }}
             >
-              RECHECK WORK ORDER
+              RETURN TO MAINTENANCE
             </button>
           </div>
           {compared && <p role="status" data-testid="comparison-saved">Source pairing saved. You may continue investigating or file a working theory.</p>}

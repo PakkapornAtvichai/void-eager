@@ -132,6 +132,38 @@ export function WorkstationFocusScene({
             <b>WO//{order.id}</b>
           </div>
 
+          {opened && availableIntentions.length > 0 && (
+            <div className="workorder-focus-toolbar" data-testid="workorder-intentions">
+              <label htmlFor="workstation-next-focus">NEXT CHECK</label>
+              <select
+                id="workstation-next-focus"
+                data-testid="workstation-focus-select"
+                value={activeIntention && availableIntentions.includes(activeIntention) ? activeIntention : ''}
+                onChange={(event) => {
+                  const choice = event.currentTarget.value as InvestigationIntention
+                  if (availableIntentions.includes(choice)) onSetIntention(choice)
+                }}
+              >
+                <option value="" disabled>Choose investigation focus...</option>
+                {availableIntentions.map((intention) => (
+                  <option key={intention} value={intention}>{intentionLabels[intention]}</option>
+                ))}
+              </select>
+              {inspectedParts && (
+                <button
+                  type="button"
+                  className="console-subcommand workorder-save-lead"
+                  data-testid="unlock-storage-lead"
+                  onClick={onUnlockStorageLead}
+                  disabled={storageLeadUnlocked}
+                  title="Save the Storage B-04 location as a lead; travel via the Maintenance door"
+                >
+                  {storageLeadUnlocked ? 'B-04 LEAD SAVED' : 'SAVE B-04 LEAD'}
+                </button>
+              )}
+            </div>
+          )}
+
           {!opened ? (
             <button
               type="button"
@@ -167,44 +199,9 @@ export function WorkstationFocusScene({
                 </button>
               ))}
 
-              {availableIntentions.length > 0 && (
-                <div className="workorder-intentions" data-testid="workorder-intentions">
-                  <strong>WHAT WILL YOU CHECK NEXT?</strong>
-                  <div className="workorder-intention-choices">
-                    {availableIntentions.map((intention) => (
-                      <button
-                        key={intention}
-                        type="button"
-                        className={activeIntention === intention ? 'is-selected' : ''}
-                        data-testid={`choose-intention-${intention}`}
-                        aria-pressed={activeIntention === intention}
-                        onClick={() => onSetIntention(intention)}
-                      >
-                        {intentionLabels[intention]}
-                      </button>
-                    ))}
-                  </div>
-                  {activeIntention && (
-                    <p className="workorder-active-intention" data-testid="active-investigation-focus">
-                      CURRENT FOCUS // {intentionLabels[activeIntention]}
-                    </p>
-                  )}
-                </div>
-              )}
             </article>
           )}
 
-          {opened && inspectedParts && (
-            <button
-              type="button"
-              className={`console-subcommand ${storageLeadUnlocked ? 'is-complete' : 'is-new-action'}`}
-              data-testid="unlock-storage-lead"
-              onClick={onUnlockStorageLead}
-              disabled={storageLeadUnlocked}
-            >
-              {storageLeadUnlocked ? 'LEAD SAVED // STORAGE B-04' : 'TRACE PART SOURCE // B-04'}
-            </button>
-          )}
         </div>
       </div>
 

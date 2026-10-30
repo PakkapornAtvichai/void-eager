@@ -7,6 +7,8 @@
 
 **Scope:** REVIEW ONLY. The tests did not modify game source, NPCs, narrative, or assets. The findings below are confirmed observations unless explicitly marked as a recommendation.
 
+**Status update (30 October 2026):** The UX-01 through UX-04 issues documented below have since been fixed and verified; see [post-playtest implementation and regression evidence](33-UX-REAL-INTERRUPTION-AND-FOCUS-FIX.md). This file is retained as the original reproducible audit of the *previous* build.
+
 ## 1. Test result summary
 
 | Test / flow | Observed result |

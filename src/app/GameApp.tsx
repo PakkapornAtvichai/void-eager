@@ -140,14 +140,24 @@ export function GameApp() {
   const triggerIncident = useCallback(() => {
     if (state.interruptionStatus !== 'idle' || state.secondaryTaskComplete) return
     const point = captureReturnPoint()
+    // C-17 is generated only from the active-work timer. The reducer also
+    // validates this origin, independently of the visible Hub controls.
+    if (
+      !state.interruptionArmed ||
+      !((point.scene === 'maintenance' && point.workstationFocused && state.activeIntention !== null) ||
+        (point.scene === 'storage' && state.storageCrateOpen &&
+          (storageInspected || serialChecked)))
+    ) return
     setInterruptedPoint(point)
     setPinOptions(pinChoicesFor(point, state))
-    dispatch({ type: 'TRIGGER_INTERRUPTION' })
-  }, [state, captureReturnPoint])
+    dispatch({ type: 'TRIGGER_INTERRUPTION', point })
+  }, [state, captureReturnPoint, storageInspected, serialChecked])
 
+  // Eligibility matches the reducer's real-work origin checks. Merely
+  // entering a room after arming another task does not consume alert time.
   const eligibleForC17 =
-    (state.scene === 'maintenance' && workstationFocused && recordOpened) ||
-    state.scene === 'storage'
+    (state.scene === 'maintenance' && workstationFocused && recordOpened && state.activeIntention !== null) ||
+    (state.scene === 'storage' && state.storageCrateOpen && (storageInspected || serialChecked))
   const canTick =
     state.interruptionArmed &&
     state.interruptionStatus === 'idle' &&
@@ -231,9 +241,9 @@ export function GameApp() {
   }, [interruptedPoint, pinOptions])
 
   const onOpenPendingAlert = useCallback(() => {
-    if (state.interruptionStatus === 'idle') triggerIncident()
-    else if (state.interruptionStatus === 'warning') setIncidentExpanded(true)
-  }, [state.interruptionStatus, triggerIncident])
+    // Hub may re-open a genuinely pending alert; it cannot trigger a new one.
+    if (state.interruptionStatus === 'warning') setIncidentExpanded(true)
+  }, [state.interruptionStatus])
 
   const currentLocation = (() => {
     if (state.scene === 'maintenance') {
@@ -316,6 +326,7 @@ export function GameApp() {
           comparisonSaved={state.comparedEvidenceIds.length > 0}
           alertComplete={state.secondaryTaskComplete}
           alertPending={state.interruptionStatus === 'warning'}
+          resumedAfterAlert={state.firstThreadAfterInterruption !== null}
           onOpenAlert={onOpenPendingAlert}
           onMaintenance={() => {
             setReturnScrollOffset(null)

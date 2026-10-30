@@ -4694,3 +4694,111 @@ body {
   .hub-caseboard-actions .console-choice { min-height: 34px; min-width: 128px; font-size: 11px; }
   .maintenance-stage .world-hotspot--door .world-hotspot__label { font-size: 11px; }
 }
+
+/* UX-02: Keep the decision needed to arm C-17 visible at all times.
+   The evidence fields may scroll inside the monitor; the focus choice never does. */
+.workstation-report-slot .workorder-focus-toolbar {
+  z-index: 3;
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 46px;
+  padding: 4px 0 6px;
+}
+.workstation-report-slot .workorder-focus-toolbar label {
+  flex: 0 0 auto;
+  color: #a6eafc;
+  font: 800 clamp(11px, .81vw, 13px)/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  white-space: nowrap;
+}
+.workstation-report-slot .workorder-focus-toolbar select {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 41px;
+  padding: 7px 9px;
+  border: 1px solid rgba(120, 224, 250, .91);
+  border-radius: 2px;
+  background: #052334;
+  color: #effdff;
+  font: 700 clamp(11px, .87vw, 14px)/1.22 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  cursor: pointer;
+}
+.workstation-report-slot .workorder-focus-toolbar select:focus-visible {
+  outline: 2px solid #c1efff;
+  outline-offset: 2px;
+}
+.workstation-report-slot .workorder-focus-toolbar select option {
+  background: #061b2a;
+  color: #edf9ff;
+}
+.workstation-report-slot .workorder-focus-toolbar .workorder-save-lead {
+  flex: 0 0 auto;
+  max-width: 33%;
+  min-height: 41px;
+  margin: 0;
+  padding: 6px 9px;
+  border-color: rgba(121, 215, 170, .62);
+  color: #ddf6e4;
+  background: rgba(12, 60, 51, .89);
+  font: 800 clamp(10px, .75vw, 12px)/1.22 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.workstation-report-slot .workorder-focus-toolbar .workorder-save-lead:disabled {
+  opacity: .78;
+  cursor: default;
+}
+.workstation-report-slot .workorder-focus-toolbar + .workstation-report {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* UX-01: Explain exactly why a saved theory cannot yet end the session.
+   Neither message is an artificial way to spawn a shipwide alert from Hub. */
+.hub-caseboard-guidance {
+  flex: 1 1 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  padding: 7px 9px;
+  border-left: 3px solid rgba(231, 184, 98, .9);
+  background: rgba(44, 38, 23, .8);
+  color: #f2dfb9;
+  font: 650 clamp(11px, .75vw, 13px)/1.32 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1100px) {
+  .workstation-report-slot .workorder-focus-toolbar {
+    gap: 4px;
+    min-height: 42px;
+    padding: 2px 0 4px;
+  }
+  .workstation-report-slot .workorder-focus-toolbar label {
+    font-size: 10px;
+  }
+  .workstation-report-slot .workorder-focus-toolbar select {
+    min-height: 38px;
+    padding: 5px 6px;
+    font-size: 11px;
+  }
+  .workstation-report-slot .workorder-focus-toolbar .workorder-save-lead {
+    min-height: 38px;
+    padding: 5px;
+    font-size: 10px;
+    max-width: 30%;
+  }
+  .hub-caseboard-guidance { padding: 5px 6px; font-size: 11px; }
+}
+
+/* The Storage comparison return is an available action, not a disabled gray menu. */
+.source-comparison-actions .comparison-room-return {
+  background: linear-gradient(180deg, rgba(24, 96, 124, .94), rgba(5, 46, 67, .98));
+  border-color: rgba(134, 224, 245, .92);
+  color: #e8faff;
+  box-shadow: 0 3px 12px rgba(0,0,0,.32);
+}

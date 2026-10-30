@@ -14,7 +14,7 @@ with sync_playwright() as p:
   page.get_by_test_id("inspect-work-order").click()
   page.get_by_test_id("inspect-wo-parts").click()
   page.get_by_test_id("close-evidence").click()
-  page.get_by_test_id("choose-intention-trace-part").click()
+  page.get_by_test_id("workstation-focus-select").select_option("trace-part")
   r=page.get_by_test_id("workstation-report")
   r.evaluate("e=>{e.scrollTop=100;e.dispatchEvent(new Event('scroll',{bubbles:true}))}")
   before=r.evaluate("e=>e.scrollTop")
