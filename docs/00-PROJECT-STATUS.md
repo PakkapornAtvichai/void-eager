@@ -285,3 +285,10 @@ Production build passed; browser acceptance passed at 1024x576, 1280x720, 1464x8
 ## UI simplification — Option B layout specification (30 October 2026)
 
 Design-only deliverable: `docs/26-LOOP1-UI-MOCK-LAYOUT-SPEC.md`. Defined stage-relative wireframes and concrete layout rules for Maintenance, Workstation, Workbench/Junction, Storage, Incident Hub, shared HUD/objective chip, modal/incident layers, and 4 display sizes. Primary changes proposed: first-time brief becomes centered on-demand modal; no permanent left mission panel; tiny objective; top-left Hub nav; unobtrusive accessible hotspots; compact HUD; evidence and Quick Pin overlays never block other scenes. **No React/CSS gameplay source changed.** The next step is Option A implementation checklist from this specification, then graphic cleanup implementation and visual regression before P0-B.
+
+
+## Option A — Graphic Cleanup implementation checklist (30 October 2026)
+
+**Checklist only; NO source/CSS change yet.** Created docs/27-LOOP1-UI-IMPLEMENTATION-CHECKLIST.md based on the current code and the Option B wireframe spec (docs/26). Specific G0–G7 tasks cover stage-aware coordinates, first-time centered case brief, slim objective chip, accessible low-clutter Maintenance hotspots and Hub navigation, compact Workstation focus selector, optional inspection/Storage/Hub cleanup, HUD/modal stacking, and four-resolution screenshot/Playwright QA. Source concerns documented include the late CSS override that forces hotspot labels visible, fixed left briefing, right-side Hub button, and repeated HUD/popup selector definitions.
+
+**Implementation next:** G0 baseline screenshots and tests, then G1–G6 in small patches, finally G7 automated+visual verification. Keep P0-A case interactions, ungated Storage, and the old C-17/Pin behavior clearly separate from future P0-B. Files remain private; GitHub permissions were not changed.
