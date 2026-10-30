@@ -280,3 +280,8 @@ Implementation order: P0-A Workstation/ungated Storage; P0-B C-17/Pin/recovery; 
 Production build passed; browser acceptance passed at 1024x576, 1280x720, 1464x815 and 1920x1080. Existing full Loop 1 still reaches Reflection with and without Pin (0 page errors). Regression scripts are in tests/p0a_navigation_smoke.py and tests/p0a_loop_regression.py. Full implementation notes: docs/25-LOOP1-P0A-IMPLEMENTATION.md.
 
 **Still not implemented:** P0-B replaces the old 12-second C-17 timer, prewritten Quick Pin and forced Hub return; P0-C adds manual source comparisons/theory revision; P0-D makes Reflection interactive. No new art, rooms or dialogue.
+
+
+## UI simplification — Option B layout specification (30 October 2026)
+
+Design-only deliverable: `docs/26-LOOP1-UI-MOCK-LAYOUT-SPEC.md`. Defined stage-relative wireframes and concrete layout rules for Maintenance, Workstation, Workbench/Junction, Storage, Incident Hub, shared HUD/objective chip, modal/incident layers, and 4 display sizes. Primary changes proposed: first-time brief becomes centered on-demand modal; no permanent left mission panel; tiny objective; top-left Hub nav; unobtrusive accessible hotspots; compact HUD; evidence and Quick Pin overlays never block other scenes. **No React/CSS gameplay source changed.** The next step is Option A implementation checklist from this specification, then graphic cleanup implementation and visual regression before P0-B.

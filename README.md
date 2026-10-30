@@ -8,6 +8,7 @@ Void-eager is a browser-based mystery prototype about interruption, task switchi
 
 - **[Loop 1 Gameplay Design — Thai](docs/24-LOOP1-FINAL-GAMEPLAY-DESIGN-TH.md)** (read this first)
 - **[Loop 1 Final Gameplay Design / Implementation Contract](docs/24-LOOP1-FINAL-GAMEPLAY-DESIGN.md)** (full event rules, state and branch tests)
+- **[Loop 1 UI Mock Layout Specification](docs/26-LOOP1-UI-MOCK-LAYOUT-SPEC.md)** (Option B: visual wireframes, screen measurements, modal rules, and responsive criteria; design only)
 
 These documents supersede conflicting gameplay sequencing in older prototype notes. They do not authorize a return to the historical six-room mystery or new NPC conversations.
 
