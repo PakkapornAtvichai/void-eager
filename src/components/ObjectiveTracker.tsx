@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import type { Objective } from '../game/objectives'
 import { EvidenceModal } from './EvidenceModal'
 
-type Props = { objective: Objective }
+type Props = { objective: Objective; onOpenBriefing?: () => void }
 
 /** Minimal wayfinding chip. More detail is always optional. */
-export function ObjectiveTracker({ objective }: Props) {
+export function ObjectiveTracker({ objective, onOpenBriefing }: Props) {
   const [showHint, setShowHint] = useState(false)
 
   useEffect(() => {
@@ -41,6 +41,19 @@ export function ObjectiveTracker({ objective }: Props) {
         <EvidenceModal title="Where to look next" kicker="OPTIONAL GUIDANCE" onClose={() => setShowHint(false)} testId="objective-hint-dialog">
           <div data-testid="objective-hint" id="objective-hint">
             <p>{objective.hint}</p>
+            {onOpenBriefing && (
+              <button
+                type="button"
+                className="objective-hint__brief-action"
+                data-testid="reopen-case-brief"
+                onClick={() => {
+                  setShowHint(false)
+                  onOpenBriefing()
+                }}
+              >
+                CASE BRIEF
+              </button>
+            )}
           </div>
         </EvidenceModal>
       )}

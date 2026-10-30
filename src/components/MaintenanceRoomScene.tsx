@@ -5,13 +5,11 @@ import type { MaintenanceInspectionArea } from './MaintenanceInspectionScene'
 type Props = {
   onWorkstation: () => void
   onInspect: (area: MaintenanceInspectionArea) => void
-  briefingVisible: boolean
-  onDismissBriefing: () => void
   hubAvailable: boolean
   onHub: () => void
 }
 
-export function MaintenanceRoomScene({ onWorkstation, onInspect, briefingVisible, onDismissBriefing, hubAvailable, onHub }: Props) {
+export function MaintenanceRoomScene({ onWorkstation, onInspect, hubAvailable, onHub }: Props) {
   return (
     <section className="maintenance-stage" data-testid="maintenance-room" aria-label="Maintenance room">
       <div className="maintenance-canvas">
@@ -43,24 +41,6 @@ export function MaintenanceRoomScene({ onWorkstation, onInspect, briefingVisible
           onActivate={() => onInspect('junction')}
         />
 
-        {briefingVisible && (
-          <aside className="mission-briefing" data-testid="mission-briefing" aria-label="Investigation briefing">
-            <span className="mission-briefing__eyebrow">VOID-EAGER // INCIDENT SYSTEMS OFFICE</span>
-            <h1>Verify the Coupler</h1>
-            <p>Void-eager's stabilizer failed. Glint's log says the Coupler was replaced. Check that claim.</p>
-            <p className="mission-briefing__assignment">Start at Workstation. Workbench and Junction are optional.</p>
-            <div className="mission-briefing__actions">
-              <button type="button" data-testid="begin-coupler-investigation" onClick={onWorkstation}>
-                REVIEW WORK ORDER
-              </button>
-              <button type="button" className="mission-briefing__dismiss" onClick={onDismissBriefing}>
-                EXPLORE ROOM
-              </button>
-            </div>
-
-          </aside>
-        )}
-
         {hubAvailable && (
           <button
             type="button"
@@ -69,8 +49,7 @@ export function MaintenanceRoomScene({ onWorkstation, onInspect, briefingVisible
             onClick={onHub}
             aria-label="Leave Maintenance and return to the Incident Hub"
           >
-            <span>INCIDENT HUB</span>
-            <small>EXIT MAINTENANCE</small>
+            <span>← HUB</span>
           </button>
         )}
       </div>

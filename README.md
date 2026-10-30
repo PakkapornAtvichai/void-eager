@@ -4,12 +4,13 @@ Void-eager is a browser-based mystery prototype about interruption, task switchi
 
 ## Current Loop 1 design contract (29 October 2026)
 
-**Implementation status (30 October 2026): P0-A is implemented and tested. The UI cleanup has a completed design (Option B) and dev checklist (Option A) but is NOT implemented. P0-B, P0-C and P0-D remain unfinished.** The next code pass is P0-B (C-17, player-selected Quick Pin, context recovery). See [P0-A implementation and tests](docs/25-LOOP1-P0A-IMPLEMENTATION.md). The complete one-loop gameplay direction is in:
+**Implementation status (30 October 2026): P0-A and Graphic Cleanup G0–G3 are implemented and tested. G4–G6 and final G7 visual review are NEXT. P0-B, P0-C and P0-D remain unfinished.** The next code pass is P0-B (C-17, player-selected Quick Pin, context recovery). See [P0-A implementation and tests](docs/25-LOOP1-P0A-IMPLEMENTATION.md). The complete one-loop gameplay direction is in:
 
 - **[Loop 1 Gameplay Design — Thai](docs/24-LOOP1-FINAL-GAMEPLAY-DESIGN-TH.md)** (read this first)
 - **[Loop 1 Final Gameplay Design / Implementation Contract](docs/24-LOOP1-FINAL-GAMEPLAY-DESIGN.md)** (full event rules, state and branch tests)
 - **[Loop 1 UI Mock Layout Specification](docs/26-LOOP1-UI-MOCK-LAYOUT-SPEC.md)** (Option B: visual wireframes, screen measurements, modal rules, and responsive criteria; design only)
-- **[Loop 1 Graphic Cleanup Implementation Checklist](docs/27-LOOP1-UI-IMPLEMENTATION-CHECKLIST.md)** (Option A: exact component/CSS tasks, dependencies, test matrix; checklist only)
+- **[Loop 1 Graphic Cleanup Implementation Checklist](docs/27-LOOP1-UI-IMPLEMENTATION-CHECKLIST.md)** (Option A: exact component/CSS tasks, dependencies, test matrix)
+- **[Graphic Cleanup G0–G3 implementation and QA](docs/28-GRAPHIC-CLEANUP-G0-G3-IMPLEMENTED.md)** (centered brief, slim objective, relocated Hub, accessible hotspot labels)
 
 These documents supersede conflicting gameplay sequencing in older prototype notes. They do not authorize a return to the historical six-room mystery or new NPC conversations.
 

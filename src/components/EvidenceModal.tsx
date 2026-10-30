@@ -13,6 +13,7 @@ type Props = {
 export function EvidenceModal({ title, kicker = 'INSPECTED DETAIL', children, onClose, testId = 'evidence-dialog' }: Props) {
   const titleId = useId()
   const closeRef = useRef<HTMLButtonElement>(null)
+  const dialogRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null
@@ -23,9 +24,21 @@ export function EvidenceModal({ title, kicker = 'INSPECTED DETAIL', children, on
         onClose()
       }
       if (event.key === 'Tab') {
-        // There is one focusable action: Close. Don't let focus travel behind the modal.
-        event.preventDefault()
-        closeRef.current?.focus()
+        // Support optional actions inside Hint while keeping focus inside the modal.
+        const buttons = Array.from(dialogRef.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? [])
+        const first = buttons[0]
+        const last = buttons[buttons.length - 1]
+        if (!first || !last) return
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault()
+          last.focus()
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault()
+          first.focus()
+        } else if (!dialogRef.current?.contains(document.activeElement)) {
+          event.preventDefault()
+          first.focus()
+        }
       }
     }
     document.addEventListener('keydown', onKey)
@@ -43,7 +56,7 @@ export function EvidenceModal({ title, kicker = 'INSPECTED DETAIL', children, on
         if (event.target === event.currentTarget) onClose()
       }}
     >
-      <section className="evidence-modal" role="dialog" aria-modal="true" aria-labelledby={titleId} data-testid={testId}>
+      <section ref={dialogRef} className="evidence-modal" role="dialog" aria-modal="true" aria-labelledby={titleId} data-testid={testId}>
         <div className="evidence-modal__header">
           <span>{kicker}</span>
           <button

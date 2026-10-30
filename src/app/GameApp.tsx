@@ -13,6 +13,7 @@ import { ReflectionScene } from '../components/ReflectionScene'
 import { SecondaryScene } from '../components/SecondaryScene'
 import { StatusRail } from '../components/StatusRail'
 import { ObjectiveTracker } from '../components/ObjectiveTracker'
+import { CaseBriefDialog } from '../components/CaseBriefDialog'
 import { currentObjective } from '../game/objectives'
 import { StorageScene } from '../components/StorageScene'
 import { gameReducer, initialGameState } from '../game/state'
@@ -145,8 +146,6 @@ export function GameApp() {
           />
         ) : (
           <MaintenanceScene
-            briefingVisible={!briefingDismissed && !state.secondaryTaskComplete}
-            onDismissBriefing={() => setBriefingDismissed(true)}
             onWorkstation={() => {
               setBriefingDismissed(true)
               setMaintenanceInspection(null)
@@ -250,6 +249,10 @@ export function GameApp() {
       />
     )
   })()
+  const isMaintenanceRoom =
+    state.scene === 'maintenance' && !workstationFocused && !maintenanceInspection
+  const showBriefing = isMaintenanceRoom && !briefingDismissed
+
   // The saved cue is actionable from the Incident Hub, not an overlay that follows
   // the player into Storage, Power, or an evidence inspection.
   const canResumePin =
@@ -282,7 +285,12 @@ export function GameApp() {
 
         {scene}
 
-        {state.scene !== 'storage' && <ObjectiveTracker objective={objective} />}
+        {state.scene !== 'storage' && !showBriefing && (
+          <ObjectiveTracker
+            objective={objective}
+            onOpenBriefing={isMaintenanceRoom ? () => setBriefingDismissed(false) : undefined}
+          />
+        )}
 
         <StatusRail
           state={state}
@@ -309,7 +317,7 @@ export function GameApp() {
         )}
 
         {state.interruptionStatus === 'warning' && state.scene !== 'secondary' && (
-          incidentExpanded ? (
+          incidentExpanded && !showBriefing ? (
             <IncomingInterruption
               pinned={Boolean(state.quickPin)}
               onPin={() => dispatch({ type: 'PIN_CURRENT_CONTEXT', scrollOffset: maintenanceScroll })}
@@ -317,8 +325,22 @@ export function GameApp() {
               onMinimize={() => setIncidentExpanded(false)}
             />
           ) : (
-            <PendingIncidentTab onOpen={() => setIncidentExpanded(true)} />
+            <PendingIncidentTab onOpen={() => {
+              setBriefingDismissed(true)
+              setIncidentExpanded(true)
+            }} />
           )
+        )}
+
+        {showBriefing && (
+          <CaseBriefDialog
+            onExplore={() => setBriefingDismissed(true)}
+            onWorkstation={() => {
+              setBriefingDismissed(true)
+              setMaintenanceInspection(null)
+              setWorkstationFocused(true)
+            }}
+          />
         )}
       </div>
     </main>
