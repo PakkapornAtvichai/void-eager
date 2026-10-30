@@ -5,11 +5,12 @@ import type { MaintenanceInspectionArea } from './MaintenanceInspectionScene'
 type Props = {
   onWorkstation: () => void
   onInspect: (area: MaintenanceInspectionArea) => void
+  onStorage: () => void
   hubAvailable: boolean
   onHub: () => void
 }
 
-export function MaintenanceRoomScene({ onWorkstation, onInspect, hubAvailable, onHub }: Props) {
+export function MaintenanceRoomScene({ onWorkstation, onInspect, onStorage, hubAvailable, onHub }: Props) {
   return (
     <section className="maintenance-stage" data-testid="maintenance-room" aria-label="Maintenance room">
       <div className="maintenance-canvas">
@@ -40,6 +41,13 @@ export function MaintenanceRoomScene({ onWorkstation, onInspect, hubAvailable, o
           testId="junction-hotspot"
           onActivate={() => onInspect('junction')}
         />
+        <WorldAssetHotspot
+          label="Enter Storage B-04"
+          bounds={HOTSPOT_BOUNDS.storageDoor}
+          testId="maintenance-storage-door"
+          className="world-hotspot--door"
+          onActivate={onStorage}
+        />
 
         {hubAvailable && (
           <button
@@ -49,7 +57,7 @@ export function MaintenanceRoomScene({ onWorkstation, onInspect, hubAvailable, o
             onClick={onHub}
             aria-label="Leave Maintenance and return to the Incident Hub"
           >
-            <span>← HUB</span>
+            <span>← HUB CORRIDOR</span>
           </button>
         )}
       </div>

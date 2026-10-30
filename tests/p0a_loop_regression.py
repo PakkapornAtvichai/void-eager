@@ -1,6 +1,7 @@
 import traceback, os, tempfile
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+from physical_nav import hub_to_maintenance, hub_to_workstation, hub_to_storage, workstation_to_storage, storage_to_hub, hub_to_power
 OUT=Path(os.environ.get("VOID_EAGER_TEST_OUT", tempfile.gettempdir()))
 passed=[]
 def mark(name):
@@ -32,7 +33,7 @@ def main_route(page,pin):
   page.get_by_test_id("maintenance-hub-exit").click()
   page.get_by_test_id("hub-scene").wait_for()
   assert page.get_by_test_id("pending-incident-tab").is_visible()
-  page.get_by_test_id("hub-visit-storage").click()
+  hub_to_storage(page)
   page.get_by_test_id("storage-scene").wait_for()
   assert page.get_by_test_id("pending-incident-tab").is_visible()
   see(page,"pending-at-storage")
@@ -48,12 +49,12 @@ def main_route(page,pin):
   page.get_by_test_id("quick-pin-entry").locator("summary").click()
   page.get_by_test_id("resume-pin").click()
  else:
-  page.get_by_test_id("open-coupler-thread").click()
+  hub_to_workstation(page)
  page.get_by_test_id("workstation-focus").wait_for()
  assert page.get_by_test_id("choose-intention-trace-part").get_attribute("aria-pressed")=="true"
  if page.get_by_test_id("unlock-storage-lead").is_enabled():
   page.get_by_test_id("unlock-storage-lead").click()
- page.get_by_test_id("storage-lead").click()
+ workstation_to_storage(page)
  page.get_by_test_id("storage-scene").wait_for()
  page.get_by_test_id("storage-open-crate").click()
  page.get_by_test_id("close-evidence").click()
@@ -66,7 +67,7 @@ def main_route(page,pin):
  page.get_by_test_id("serial-comparison").wait_for()
  page.get_by_test_id("save-comparison").click()
  page.get_by_test_id("close-evidence").click()
- page.get_by_test_id("storage-back-hub").click()
+ storage_to_hub(page)
  page.get_by_test_id("hub-open-case-review").click()
  page.get_by_label("The recorded replacement did not actually happen.").check()
  page.get_by_label("Storage B-04: the replacement Coupler was observed unused.").check()
@@ -106,8 +107,10 @@ with sync_playwright() as p:
    page.get_by_test_id("maintenance-hub-exit").click()
    page.get_by_test_id("hub-scene").wait_for()
    hub=page.locator(".hub-screen-interface")
-   buttons=[page.get_by_test_id("open-coupler-thread"),page.get_by_test_id("hub-visit-storage"),page.get_by_test_id("open-power-thread")]
+   buttons=[page.get_by_test_id("hub-maintenance-door"),page.get_by_test_id("hub-engineering-door")]
    assert all(b.count()==1 and b.is_enabled() for b in buttons)
+   assert page.get_by_test_id('hub-case-board').is_visible()
+   assert page.get_by_test_id('hub-visit-storage').count()==0
    dims=hub.evaluate("""e=>({clientHeight:e.clientHeight,scrollHeight:e.scrollHeight,overflow:getComputedStyle(e).overflowY})""")
    print("HUB_LAYOUT",f"{w}x{h}",dims,flush=True)
    if w==1464:page.screenshot(path=str(OUT/"VOID-EAGER-P0A-new-hub.png"))

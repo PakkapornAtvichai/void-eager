@@ -1,152 +1,111 @@
 import { COUPLER } from '../content/coupler'
-import { POWER_SPIKE } from '../content/power'
 import { YOKO_PACK_ASSETS } from '../content/yokoPackAssets'
+import { evidenceCatalog } from '../game/evidence'
+import type { InvestigationIntention } from '../game/types'
 
 type Props = {
-  storageLeadUnlocked: boolean
-  recordOpened: boolean
-  serialChecked: boolean
-  powerReviewed: boolean
-  theorySaved: boolean
-  caseEvidenceAvailable: boolean
+  observedEvidence: string[]
+  activeIntention: InvestigationIntention | null
   comparisonSaved: boolean
+  theorySaved: boolean
   alertComplete: boolean
   alertPending: boolean
   onOpenAlert: () => void
-  onCoupler: () => void
-  onStorage: () => void
-  onPower: () => void
+  onMaintenance: () => void
+  onEngineering: () => void
   onCaseReview: () => void
   onEndSession: () => void
 }
 
+const focusNames: Record<InvestigationIntention, string> = {
+  'check-completion': 'Check the completion record',
+  'trace-part': 'Trace the issued part',
+  'check-verification': 'Look for installation verification',
+}
+
 export function HubScene({
-  storageLeadUnlocked,
-  recordOpened,
-  serialChecked,
-  powerReviewed,
-  theorySaved,
-  caseEvidenceAvailable,
+  observedEvidence,
+  activeIntention,
   comparisonSaved,
+  theorySaved,
   alertComplete,
   alertPending,
   onOpenAlert,
-  onCoupler,
-  onStorage,
-  onPower,
+  onMaintenance,
+  onEngineering,
   onCaseReview,
   onEndSession,
 }: Props) {
+  const caseSources = evidenceCatalog.filter(({ id }) => observedEvidence.includes(id))
+  const caseReady = caseSources.some(({ id }) => id.startsWith('MAI_') || id.startsWith('STO_'))
+  const recentSources = caseSources.slice(-2)
+
   return (
-    <section className="hub-stage" data-testid="hub-scene" aria-labelledby="hub-title">
+    <section className="hub-stage hub-stage--door-navigation" data-testid="hub-scene" aria-labelledby="hub-title">
       <img
         className="hub-background"
         src={YOKO_PACK_ASSETS.hubBackground}
-        alt="Incident Hub aboard Void-eager with a central command display and corridors leading deeper into the ship"
+        alt="Incident Hub on Void-eager, with the Maintenance corridor on the left, Engineering corridor on the right, and a central case computer"
       />
 
-      <div className="hub-location-tag hub-location-tag--left" aria-hidden="true">
-        MAINTENANCE ACCESS
-      </div>
-      <div className="hub-location-tag hub-location-tag--right" aria-hidden="true">
-        ENGINEERING ACCESS
-      </div>
+      <button
+        type="button"
+        className="hub-door hub-door--maintenance"
+        data-testid="hub-maintenance-door"
+        onClick={onMaintenance}
+        aria-label="Enter the Maintenance Room through the left corridor"
+      >
+        <span className="hub-door__label">◀ MAINTENANCE</span>
+      </button>
+      <button
+        type="button"
+        className="hub-door hub-door--engineering"
+        data-testid="hub-engineering-door"
+        onClick={onEngineering}
+        aria-label="Enter Engineering through the right corridor to inspect the optional Power Log"
+      >
+        <span className="hub-door__label">ENGINEERING ▶</span>
+      </button>
 
-      <div className="hub-screen-interface">
+      <div className="hub-screen-interface hub-screen-interface--caseboard" data-testid="hub-case-board">
         <header className="hub-screen-header">
-          <span>INCIDENT HUB // ACTIVE INVESTIGATION</span>
-          <strong>{theorySaved ? 'CASE REVIEWED' : 'SESSION OPEN'}</strong>
+          <span>INCIDENT HUB // CASE BOARD</span>
+          <strong>{theorySaved ? 'THEORY SAVED' : 'CASE OPEN'}</strong>
         </header>
-
         <div className="hub-screen-body">
-          <p className="eyebrow">INCIDENT REVIEW</p>
-          <h2 id="hub-title">
-            {theorySaved
-              ? 'Working theory saved'
-              : caseEvidenceAvailable
-                ? 'Review observed evidence'
-                : storageLeadUnlocked
-                  ? 'Storage lead available'
-                  : 'Continue the Coupler case'}
-          </h2>
-          <p className="muted">
-            {theorySaved
-              ? (alertComplete ? 'You may revise your theory or end the session.' : 'You may revise your theory. C-17 still needs a response.')
-              : caseEvidenceAvailable
-                ? 'A provisional theory can be saved now or after investigating further.'
-                : storageLeadUnlocked
-                  ? 'Follow the Storage B-04 lead in the bottom HUD.'
-                  : 'Choose Workstation or Storage. Power is optional.'}
-          </p>
-
-          <div className="hub-thread-grid">
-            <article className="hub-thread-card">
-              <span>MAIN CASE // MAINTENANCE</span>
-              <strong>{COUPLER.thread}</strong>
-              <small>
-                {serialChecked
-                  ? 'SERIAL LOGGED'
-                  : storageLeadUnlocked
-                    ? 'STORAGE LEAD READY'
-                    : recordOpened ? 'WORK ORDER OPEN' : 'WORK ORDER NOT YET OPEN'}
-              </small>
-              <div className="hub-coupler-navigation">
-                <button className="console-choice" data-testid="open-coupler-thread" onClick={onCoupler}>
-                  WORKSTATION
-                </button>
-                <button className="console-choice" data-testid="hub-visit-storage" onClick={onStorage}>
-                  STORAGE B-04
-                </button>
-              </div>
-            </article>
-
-            <article className="hub-thread-card">
-              <span>OPTIONAL // POWER LOG</span>
-              <strong>{POWER_SPIKE.thread}</strong>
-              <small>
-                {powerReviewed
-                  ? 'TIMELINE REVIEWED'
-                  : 'EXTRA CONTEXT'}
-              </small>
-              <button className="console-choice" data-testid="open-power-thread" onClick={onPower}>
-                {powerReviewed ? 'REVIEW POWER LOG' : 'VIEW POWER LOG'}
-              </button>
-            </article>
+          <p className="eyebrow">INVESTIGATION OVERVIEW</p>
+          <h2 id="hub-title">{COUPLER.thread}</h2>
+          <div className="hub-caseboard-stats" aria-label="Case status">
+            <span><strong>{String(caseSources.length).padStart(2, '0')}</strong> SOURCES</span>
+            <span><strong>{comparisonSaved ? 'SAVED' : 'OPEN'}</strong> COMPARE</span>
+            <span><strong>{alertComplete ? 'LOGGED' : alertPending ? 'PENDING' : 'OPEN'}</strong> C-17</span>
           </div>
-
-          <div className="hub-case-actions">
-            <div>
-              <span>CASE REVIEW</span>
-              <small>
-                {!caseEvidenceAvailable
-                  ? 'Inspect any Coupler source to start a provisional theory.'
-                  : theorySaved
-                    ? (alertComplete ? 'Revise your theory or finish the session.' : 'Revise your theory; C-17 remains outstanding.')
-                    : comparisonSaved
-                      ? 'A source comparison is saved. Record a working theory if ready.'
-                      : 'Choose what you currently believe; you can revise it later.'}
-              </small>
-            </div>
-
-            <div className="hub-case-buttons">
-              {caseEvidenceAvailable && (
-                <button className="console-choice" data-testid="hub-open-case-review" onClick={onCaseReview}>
-                  {theorySaved ? 'REVISE THEORY' : 'CASE REVIEW'}
-                </button>
-              )}
-
-              {theorySaved && !alertComplete && (
-                <button className="console-choice hub-pending-alert" data-testid="hub-open-c17" onClick={onOpenAlert}>
-                  {alertPending ? 'OPEN C-17 ALERT' : 'REVIEW SHIP ALERT C-17'}
-                </button>
-              )}
-
-              {theorySaved && alertComplete && (
-                <button className="console-choice hub-end-session" data-testid="hub-end-session" onClick={onEndSession}>
-                  End Session
-                </button>
-              )}
-            </div>
+          <div className="hub-caseboard-evidence" data-testid="hub-evidence-index">
+            <strong>OBSERVED SOURCE INDEX</strong>
+            {recentSources.length ? (
+              recentSources.map((source) => <p key={source.id}>{source.label}</p>)
+            ) : (
+              <p>No case evidence inspected yet. Search Maintenance or Storage B-04.</p>
+            )}
+            {caseSources.length > 2 && <small>+{caseSources.length - 2} earlier sources in Case Review</small>}
+            {activeIntention && <small data-testid="hub-current-focus">CURRENT FOCUS // {focusNames[activeIntention]}</small>}
+          </div>
+          <div className="hub-caseboard-actions" data-testid="hub-case-actions">
+            {caseReady && (
+              <button className="console-choice" type="button" data-testid="hub-open-case-review" onClick={onCaseReview}>
+                {theorySaved ? 'REVISE THEORY' : 'CASE REVIEW'}
+              </button>
+            )}
+            {theorySaved && !alertComplete && (
+              <button className="console-choice hub-pending-alert" type="button" data-testid="hub-open-c17" onClick={onOpenAlert}>
+                {alertPending ? 'OPEN C-17' : 'HANDLE C-17'}
+              </button>
+            )}
+            {theorySaved && alertComplete && (
+              <button className="console-choice hub-end-session" type="button" data-testid="hub-end-session" onClick={onEndSession}>
+                END SESSION
+              </button>
+            )}
           </div>
         </div>
       </div>

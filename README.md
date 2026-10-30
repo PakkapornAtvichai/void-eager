@@ -4,7 +4,7 @@ Void-eager is a browser-based mystery prototype about interruption, task switchi
 
 ## Current Loop 1 design contract (29 October 2026)
 
-**Implementation status (30 October 2026): P0-A (investigation), P0-B (C-17 and context recovery), P0-C (evidence and revisable theory), and Graphic Cleanup G0–G3 are implemented and tested. G4–G6 graphic cleanup and P0-D interactive reflection remain unfinished.** See [P0-A implementation and tests](docs/25-LOOP1-P0A-IMPLEMENTATION.md). The complete one-loop gameplay direction is in:
+**Implementation status (30 October 2026): P0-A (investigation), P0-B (C-17 and context recovery), P0-C (observed evidence and revisable theory), Graphic Cleanup G0–G3, and the physical Hub/door navigation correction are implemented and tested. Remaining: Workstation focus/HUD graphic cleanup and P0-D interactive reflection.** See [P0-A implementation and tests](docs/25-LOOP1-P0A-IMPLEMENTATION.md). The complete one-loop gameplay direction is in:
 
 - **[Loop 1 Gameplay Design — Thai](docs/24-LOOP1-FINAL-GAMEPLAY-DESIGN-TH.md)** (read this first)
 - **[Loop 1 Final Gameplay Design / Implementation Contract](docs/24-LOOP1-FINAL-GAMEPLAY-DESIGN.md)** (full event rules, state and branch tests)
@@ -13,6 +13,7 @@ Void-eager is a browser-based mystery prototype about interruption, task switchi
 - **[Graphic Cleanup G0–G3 implementation and QA](docs/28-GRAPHIC-CLEANUP-G0-G3-IMPLEMENTED.md)** (centered brief, slim objective, relocated Hub, accessible hotspot labels)
 - **[P0-B Interruption & Context Recovery implementation](docs/29-P0B-INTERRUPTION-RECOVERY-IMPLEMENTED.md)** (meaningful C-17, player-chosen cue, deliberate return, guaranteed completed incident)
 - **[P0-C Evidence & Deduction implementation](docs/30-P0C-EVIDENCE-DEDUCTION-IMPLEMENTED.md)** (observed-only citations, explicit comparison, Storage-first, revisable theory, optional Power fact gating)
+- **[Physical Hub Navigation & Case Board Correction](docs/31-PHYSICAL-NAVIGATION-AND-HUB-CASEBOARD.md)** (left/right corridors are actual room movement, Storage through Maintenance yellow door, Hub central screen is evidence/theory rather than teleport navigation)
 
 These documents supersede conflicting gameplay sequencing in older prototype notes. They do not authorize a return to the historical six-room mystery or new NPC conversations.
 

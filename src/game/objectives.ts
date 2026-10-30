@@ -94,38 +94,38 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
       return state.secondaryTaskComplete ? {
         id: 'hub-finish',
         category: 'REVIEW',
-        title: 'Finish or continue investigating',
-        hint: 'Your working theory is saved. You can end the session or revisit the case.',
+        title: 'Review your case or end the session',
+        hint: 'Use the central case board to revise your theory or end the session. The left corridor leads to Maintenance; the right to Engineering.',
       } : {
         id: 'hub-alert-outstanding',
         category: 'ALERT',
         title: 'Respond to outstanding C-17',
-        hint: 'The working theory is saved. The shipwide alert still needs your response before the session can end.',
+        hint: 'You can open C-17 from the case board, or use the physical left/right corridors to keep investigating.',
       }
     }
     if (hasCouplerObservation(state)) {
       return {
         id: 'hub-theory',
         category: 'CASE',
-        title: 'Review your observed evidence',
-        hint: 'The Case Review accepts a provisional theory based on sources you actually inspected. More exploration is optional.',
+        title: 'Use the Case Board or a corridor',
+        hint: 'The central Hub computer shows only your observed sources and lets you file or revise a theory. Left corridor: Maintenance and Storage. Right corridor: optional Engineering.',
       }
     }
     if (view.storageLeadUnlocked) {
       return {
         id: 'hub-storage',
         category: 'CASE',
-        title: 'Follow the replacement serial to Storage B-04',
-        hint: 'Select the REPLACEMENT SERIAL lead in the bottom LEADS section. Power is optional and can be checked at any time.',
+        title: 'Follow the part to Storage B-04',
+        hint: 'Walk through the left Maintenance corridor, then use the yellow Storage door on the right of that room. The HUD lead is a reminder, not a teleport.',
       }
     }
     return {
       id: 'hub-resume',
       category: 'CASE',
-      title: 'Resume the Coupler case',
+      title: 'Choose a corridor or inspect the case board',
       hint: state.quickPin
-        ? 'You may review your saved Quick Pin, or choose Workstation or Storage yourself.'
-        : 'Choose Workstation or Storage. Power is optional.',
+        ? 'You can review your Quick Pin in the Hub. Left corridor: Maintenance (and Storage); right corridor: optional Engineering.'
+        : 'Use the physical left doorway for Maintenance, the right doorway for Engineering, or the central computer to check the case.',
     }
   }
 
@@ -155,8 +155,8 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
       return {
         id: 'find-workstation',
         category: 'CASE',
-        title: 'Open the Workstation',
-        hint: 'Click Open Workstation on the central desk. Workbench and Junction are optional places to explore first.',
+      title: 'Open the Workstation',
+      hint: 'Click the central desk to read Glint\'s records. The yellow door on the right goes to Storage B-04; the top-left exit returns to the Hub.',
       }
     }
     if (view.serialChecked || state.theory) {
@@ -171,15 +171,15 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
       return {
         id: 'maintenance-follow-storage',
         category: 'CASE',
-        title: 'Follow the replacement serial to Storage B-04',
-        hint: 'Select the green REPLACEMENT SERIAL item under LEADS in the bottom HUD; your room exploration can wait.',
+        title: 'Find Storage through the yellow door',
+        hint: 'Leave the Workstation, then use the yellow door on the right side of Maintenance to enter Storage B-04.',
       }
     }
     return {
       id: 'back-to-workstation',
       category: 'CASE',
       title: 'Continue examining the Coupler report',
-      hint: 'You can return to the Workstation, visit Storage from the Hub, or explore other equipment.',
+      hint: 'You can reopen the Workstation, use the yellow Storage doorway in this room, or return through the Hub corridor.',
     }
   }
 
@@ -223,7 +223,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
     id: 'continue-chosen-focus',
     category: 'CASE',
     title: 'Continue your investigation',
-    hint: 'Follow the focus you selected. The parts source can be traced from the report or visited directly via the Incident Hub.',
+    hint: 'Follow your chosen focus. The Storage B-04 component can be reached through the yellow door in the Maintenance room.',
   }
 }
 

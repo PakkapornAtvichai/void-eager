@@ -4493,3 +4493,204 @@ body {
     font-size: 12px;
   }
 }
+
+/* G4 navigation correction: the Hub is an actual junction. Its two painted
+   corridors, not the center computer, are the movement controls. */
+.hub-stage--door-navigation .hub-door {
+  position: absolute;
+  z-index: 9;
+  top: 23%;
+  width: 17.5%;
+  height: 51%;
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #eafcff;
+  cursor: pointer;
+}
+.hub-door--maintenance { left: 1.5%; }
+.hub-door--engineering { right: 1.5%; }
+.hub-door__label {
+  position: absolute;
+  display: block;
+  left: 50%;
+  bottom: 16%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 95%;
+  min-height: 36px;
+  padding: 10px 13px;
+  border: 1px solid rgba(134, 228, 253, .86);
+  border-radius: 3px;
+  background: linear-gradient(160deg, rgba(5, 45, 66, .96), rgba(3, 22, 35, .97));
+  color: #e7fbff;
+  font: 800 clamp(12px, .85vw, 15px)/1.1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .035em;
+  white-space: nowrap;
+  box-shadow: 0 0 0 3px rgba(32, 147, 186, .08), 0 5px 16px rgba(0,0,0,.72);
+  text-align: center;
+}
+.hub-stage--door-navigation .hub-door:hover,
+.hub-stage--door-navigation .hub-door:focus-visible {
+  outline: 2px solid rgba(143, 225, 252, .75);
+  outline-offset: -2px;
+  background: rgba(24, 132, 167, .075);
+}
+.hub-stage--door-navigation .hub-door:hover .hub-door__label,
+.hub-stage--door-navigation .hub-door:focus-visible .hub-door__label {
+  border-color: #e1faff;
+  box-shadow: 0 0 24px rgba(103, 223, 250, .32), 0 5px 16px rgba(0,0,0,.65);
+  background: rgba(13, 97, 125, .96);
+}
+
+/* The central physical Hub monitor is a case board, not a teleport menu. */
+.hub-screen-interface--caseboard {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.hub-screen-interface--caseboard .hub-screen-header { flex: 0 0 auto; }
+.hub-screen-interface--caseboard .hub-screen-body {
+  min-height: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #6bc8e3 rgba(6, 28, 39, .65);
+}
+.hub-screen-interface--caseboard .eyebrow {
+  margin: 0;
+  color: #8dd9ee;
+  font-size: clamp(11px, .79vw, 13px);
+  letter-spacing: .045em;
+}
+.hub-screen-interface--caseboard h2 {
+  margin: 0;
+  color: #f1fbff;
+  font-size: clamp(15px, 1.15vw, 19px);
+  line-height: 1.15;
+}
+.hub-caseboard-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.hub-caseboard-stats > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  min-height: 26px;
+  padding: 5px 7px;
+  border: 1px solid rgba(100, 183, 211, .36);
+  background: rgba(5, 42, 58, .72);
+  color: #b3d7e4;
+  font: 800 clamp(10px, .7vw, 12px)/1.1 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.hub-caseboard-stats strong { color: #e7fbff; }
+.hub-caseboard-evidence {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid rgba(110, 206, 232, .38);
+  background: rgba(1, 17, 27, .65);
+}
+.hub-caseboard-evidence > strong {
+  color: #a8ebff;
+  font: 800 clamp(11px, .76vw, 13px)/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .045em;
+}
+.hub-caseboard-evidence p {
+  margin: 0;
+  min-width: 0;
+  color: #d9edf4;
+  font: 650 clamp(11px, .78vw, 13px)/1.25 ui-monospace, SFMono-Regular, Menlo, monospace;
+  overflow-wrap: anywhere;
+}
+.hub-caseboard-evidence p::before {
+  content: "•";
+  padding-right: 7px;
+  color: #8be9ff;
+}
+.hub-caseboard-evidence small {
+  color: #9bbfcb;
+  font: 700 clamp(10px, .7vw, 12px)/1.25 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.hub-caseboard-actions {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 2px 0 4px;
+}
+.hub-caseboard-actions .console-choice {
+  width: auto;
+  min-width: 140px;
+  min-height: 39px;
+  padding: 7px 13px;
+  font: 800 clamp(12px, .86vw, 14px)/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.hub-caseboard-actions .hub-pending-alert {
+  color: #ffe3a9;
+  filter: hue-rotate(-32deg);
+}
+
+/* The yellow Maintenance doorway is a physical route to Storage B-04.
+   Junction's hit target was separated from the door in maintenanceAssets.ts. */
+.maintenance-stage .world-hotspot--door {
+  z-index: 8;
+}
+.maintenance-stage .world-hotspot--door::after {
+  bottom: 23%;
+  border-color: #ffe7aa;
+  background: rgba(155, 101, 27, .8);
+  box-shadow: 0 0 0 4px rgba(196, 128, 28, .16), 0 0 14px rgba(255, 189, 84, .7);
+}
+.maintenance-stage .world-hotspot--door .world-hotspot__label {
+  opacity: .96;
+  bottom: 7%;
+  max-width: 96%;
+  padding: 8px 11px;
+  border-color: rgba(245, 196, 100, .84);
+  border-radius: 3px;
+  background: rgba(37, 26, 13, .94);
+  color: #ffe9b8;
+  font-weight: 800;
+  box-shadow: 0 4px 15px rgba(0,0,0,.66);
+}
+.maintenance-stage .world-hotspot--door:hover .world-hotspot__label,
+.maintenance-stage .world-hotspot--door:focus-visible .world-hotspot__label {
+  opacity: 1;
+  border-color: #fff0bd;
+}
+.hud-lead--wayfinding {
+  cursor: default !important;
+}
+.hud-lead--wayfinding em { color: #afebd1; }
+.hud-lead--wayfinding small {
+  color: #a5d2dd;
+  font-size: clamp(10px, .72vw, 12px);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1100px) {
+  .hub-stage--door-navigation .hub-door { top: 22%; height: 55%; width: 19%; }
+  .hub-door--maintenance { left: .6%; }
+  .hub-door--engineering { right: .6%; }
+  .hub-door__label {
+    min-height: 33px;
+    padding: 8px 9px;
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+  .hub-screen-interface--caseboard h2 { font-size: 14px; }
+  .hub-caseboard-stats > span { font-size: 10px; min-height: 23px; }
+  .hub-caseboard-evidence { padding: 5px 6px; gap: 3px; }
+  .hub-caseboard-evidence p { font-size: 11px; }
+  .hub-caseboard-actions .console-choice { min-height: 34px; min-width: 128px; font-size: 11px; }
+  .maintenance-stage .world-hotspot--door .world-hotspot__label { font-size: 11px; }
+}

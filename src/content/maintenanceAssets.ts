@@ -27,5 +27,8 @@ export type HotspotBounds = {
 export const HOTSPOT_BOUNDS = {
   workbench: { left: 0, top: 296, width: 517, height: 527 },
   workstation: { left: 636, top: 399, width: 663, height: 371 },
-  junction: { left: 1414, top: 233, width: 506, height: 559 },
+  // Junction is the wall service panel LEFT of the yellow door; it must not cover the exit.
+  junction: { left: 1410, top: 340, width: 200, height: 365 },
+  // The yellow door on the right leads toward the adjacent Storage B-04 depot.
+  storageDoor: { left: 1620, top: 260, width: 265, height: 530 },
 } as const satisfies Record<string, HotspotBounds>

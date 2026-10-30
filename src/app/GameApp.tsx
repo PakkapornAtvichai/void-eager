@@ -187,10 +187,6 @@ export function GameApp() {
     }, 360)
   }, [locationTransition])
 
-  const followStorageLead = useCallback(() => {
-    navigateTo('STORAGE // B-04', { type: 'GO_TO_STORAGE' })
-  }, [navigateTo])
-
   const handleIncident = useCallback(() => {
     setIncidentExpanded(false)
     navigateTo('SHIPWIDE SYSTEM // C-17', { type: 'START_INTERRUPTION' })
@@ -290,6 +286,7 @@ export function GameApp() {
               setBriefingDismissed(true)
               setMaintenanceInspection(area)
             }}
+            onStorage={() => navigateTo('STORAGE // B-04', { type: 'GO_TO_STORAGE' })}
             hubAvailable={true}
             onHub={() => navigateTo('INCIDENT HUB', { type: 'BACK_TO_HUB' })}
           />
@@ -313,23 +310,20 @@ export function GameApp() {
     if (state.scene === 'hub') {
       return (
         <HubScene
-          storageLeadUnlocked={storageLeadUnlocked}
-          recordOpened={recordOpened}
-          serialChecked={serialChecked}
-          powerReviewed={protectionFound}
+          observedEvidence={state.evidenceFound}
+          activeIntention={state.activeIntention}
           theorySaved={Boolean(state.theory)}
-          caseEvidenceAvailable={caseEvidenceAvailable}
           comparisonSaved={state.comparedEvidenceIds.length > 0}
           alertComplete={state.secondaryTaskComplete}
           alertPending={state.interruptionStatus === 'warning'}
           onOpenAlert={onOpenPendingAlert}
-          onCoupler={() => {
+          onMaintenance={() => {
             setReturnScrollOffset(null)
-            setWorkstationFocused(true)
-            navigateTo('MAINTENANCE // WORKSTATION', { type: 'OPEN_THREAD', thread: 'coupler' })
+            setWorkstationFocused(false)
+            setMaintenanceInspection(null)
+            navigateTo('MAINTENANCE ROOM', { type: 'OPEN_THREAD', thread: 'coupler' })
           }}
-          onStorage={() => navigateTo('STORAGE // B-04', { type: 'GO_TO_STORAGE' })}
-          onPower={() => navigateTo('ENGINEERING // POWER LOG', { type: 'OPEN_THREAD', thread: 'power' })}
+          onEngineering={() => navigateTo('ENGINEERING // POWER LOG', { type: 'OPEN_THREAD', thread: 'power' })}
           onCaseReview={() => dispatch({ type: 'OPEN_DEDUCTION' })}
           onEndSession={() => dispatch({ type: 'OPEN_REFLECTION' })}
         />
@@ -350,11 +344,11 @@ export function GameApp() {
           onCheckSerial={() => dispatch({ type: 'CHECK_STORAGE_SERIAL' })}
           onSaveComparison={() => dispatch({ type: 'SAVE_COMPARISON' })}
           onRecheckWorkOrder={() => {
-            setWorkstationFocused(true)
-            navigateTo('MAINTENANCE // WORKSTATION', { type: 'OPEN_THREAD', thread: 'coupler' })
+            setWorkstationFocused(false)
+            navigateTo('MAINTENANCE ROOM', { type: 'OPEN_THREAD', thread: 'coupler' })
           }}
           onModalChange={setStorageDetailOpen}
-          onBack={() => navigateTo('INCIDENT HUB', { type: 'BACK_TO_HUB' })}
+          onBack={() => navigateTo('MAINTENANCE ROOM', { type: 'OPEN_THREAD', thread: 'coupler' })}
         />
       )
     }
@@ -461,15 +455,7 @@ export function GameApp() {
           location={currentLocation}
           storageLeadUnlocked={storageLeadUnlocked}
           storageSerialChecked={serialChecked}
-          canFollowStorageLead={
-            storageLeadUnlocked &&
-            state.scene !== 'secondary' &&
-            state.scene !== 'storage' &&
-            state.scene !== 'deduction' &&
-            state.scene !== 'reflection'
-          }
           canResumePin={canResumePin}
-          onFollowStorageLead={followStorageLead}
           onResumePin={resumeSavedPin}
           onReviewPin={() => dispatch({ type: 'REVIEW_PIN' })}
         />

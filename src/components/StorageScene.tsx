@@ -129,8 +129,8 @@ export function StorageScene({
         )}
       </div>
 
-      <button type="button" className="storage-simple-exit navigation-button" data-testid="storage-back-hub" onClick={onBack}>
-        ← INCIDENT HUB
+      <button type="button" className="storage-simple-exit navigation-button" data-testid="storage-back-maintenance" onClick={onBack}>
+        ← MAINTENANCE
       </button>
 
       {detail === 'crate' && (

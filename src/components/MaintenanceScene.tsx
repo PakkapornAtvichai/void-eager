@@ -4,15 +4,17 @@ import type { MaintenanceInspectionArea } from './MaintenanceInspectionScene'
 type Props = {
   onWorkstation: () => void
   onInspect: (area: MaintenanceInspectionArea) => void
+  onStorage: () => void
   hubAvailable: boolean
   onHub: () => void
 }
 
-export function MaintenanceScene({ onWorkstation, onInspect, hubAvailable, onHub }: Props) {
+export function MaintenanceScene({ onWorkstation, onInspect, onStorage, hubAvailable, onHub }: Props) {
   return (
     <MaintenanceRoomScene
       onWorkstation={onWorkstation}
       onInspect={onInspect}
+      onStorage={onStorage}
       hubAvailable={hubAvailable}
       onHub={onHub}
     />

@@ -3,6 +3,7 @@ from pathlib import Path
 OUT = Path(os.environ.get('VOID_EAGER_TEST_OUT', tempfile.gettempdir()))
 OUT.mkdir(parents=True, exist_ok=True)
 from playwright.sync_api import sync_playwright
+from physical_nav import hub_to_maintenance, hub_to_workstation, hub_to_storage, workstation_to_storage, storage_to_hub, hub_to_power
 with sync_playwright() as p:
  browser=p.chromium.launch(channel="chrome",headless=True)
  page=browser.new_page(viewport={"width":1464,"height":815})
@@ -45,7 +46,7 @@ with sync_playwright() as p:
   page.goto("http://127.0.0.1:5173/")
   page.get_by_test_id("mission-briefing").get_by_text("EXPLORE ROOM").click()
   page.get_by_test_id("maintenance-hub-exit").click()
-  page.get_by_test_id("hub-visit-storage").click()
+  hub_to_storage(page)
   page.get_by_test_id("storage-open-crate").click();page.get_by_test_id("close-evidence").click()
   page.get_by_test_id("inspect-storage-coupler").click();page.get_by_test_id("close-evidence").click()
   page.clock.fast_forward(7150)

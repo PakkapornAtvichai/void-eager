@@ -93,12 +93,12 @@ export function WorkstationFocusScene({
         <img className="maintenance-layer" src={MAINTENANCE_ASSETS.workstationTechnical} alt="" aria-hidden="true" />
 
         <div className="console-screen console-screen--nav" aria-hidden="true">
-          <div className="console-title"><span>MNT.SYS</span><b>ONLINE</b></div>
-          <div className="console-menu">
-            <span className="active">WORK ORDERS</span>
-            <span>DIAGNOSTICS</span>
-            <span>PARTS TRACE</span>
-            <span>SERVICE CACHE</span>
+          <div className="console-title"><span>GLINT // LOCAL</span><b>READ ONLY</b></div>
+          <div className="console-menu console-menu--local">
+            <span>MAINTENANCE TERMINAL</span>
+            <span>RECORD // {order.id}</span>
+            <span>THREE SOURCE FIELDS</span>
+            <span>USE THE MAIN MONITOR</span>
           </div>
           <div className="console-bars">
             <i style={{ '--level': '78%' } as CSSProperties} />

@@ -5,6 +5,7 @@ type Props = {
   label: string
   bounds: HotspotBounds
   testId?: string
+  className?: string
   disabled?: boolean
   onActivate?: () => void
 }
@@ -20,13 +21,14 @@ export function WorldAssetHotspot({
   label,
   bounds,
   testId,
+  className = '',
   disabled = false,
   onActivate,
 }: Props) {
   return (
     <button
       type="button"
-      className="world-hotspot"
+      className={["world-hotspot", className].filter(Boolean).join(" ")}
       style={percentStyle(bounds)}
       data-testid={testId}
       aria-label={label}

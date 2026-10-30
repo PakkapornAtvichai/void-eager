@@ -1,6 +1,7 @@
 import traceback, json, os, tempfile
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+from physical_nav import hub_to_maintenance, hub_to_workstation, hub_to_storage, workstation_to_storage, storage_to_hub, hub_to_power
 BASE="http://127.0.0.1:5173/"
 OUT=Path(os.environ.get("VOID_EAGER_TEST_OUT", tempfile.gettempdir()))
 OUT.mkdir(parents=True,exist_ok=True)
@@ -32,13 +33,13 @@ def submit_c17(page,return_to="previous"):
  else:
   page.get_by_test_id("return-investigation").click()
 def end_from_storage(page):
- page.get_by_test_id("hub-visit-storage").click()
+ hub_to_storage(page)
  page.get_by_test_id("storage-scene").wait_for()
  for target in ["storage-open-crate","inspect-storage-coupler","check-storage-serial"]:
   if page.get_by_test_id(target).count():
    page.get_by_test_id(target).click()
    page.get_by_test_id("close-evidence").click()
- page.get_by_test_id("storage-back-hub").click()
+ storage_to_hub(page)
  page.get_by_test_id("hub-scene").wait_for()
  page.get_by_test_id("hub-open-case-review").click()
  page.get_by_label("The recorded replacement did not actually happen.").check()
@@ -111,7 +112,7 @@ def storage_first(page):
  page.get_by_test_id("mission-briefing").get_by_text("EXPLORE ROOM").click()
  page.get_by_test_id("maintenance-hub-exit").click()
  page.get_by_test_id("hub-scene").wait_for()
- page.get_by_test_id("hub-visit-storage").click()
+ hub_to_storage(page)
  page.get_by_test_id("storage-open-crate").click()
  page.get_by_test_id("close-evidence").click()
  page.clock.fast_forward(24000)
@@ -144,7 +145,7 @@ def pending(page):
  page.get_by_test_id("back-to-maintenance").click()
  page.get_by_test_id("maintenance-hub-exit").click()
  page.get_by_test_id("hub-scene").wait_for()
- page.get_by_test_id("hub-visit-storage").click()
+ hub_to_storage(page)
  page.get_by_test_id("storage-scene").wait_for()
  check(page.get_by_test_id("pending-incident-tab").is_visible(),"Pending alert lost at Storage")
  shot(page,"pending-storage")
@@ -196,7 +197,7 @@ def storage_armed_cumulative(page):
  page.get_by_test_id("hub-scene").wait_for()
  page.clock.fast_forward(35000)
  check(page.get_by_test_id("incoming-interruption").count()==0,"C-17 fired while at Hub")
- page.get_by_test_id("hub-visit-storage").click()
+ hub_to_storage(page)
  page.get_by_test_id("storage-scene").wait_for()
  page.clock.fast_forward(4500)
  page.get_by_test_id("incoming-interruption").wait_for()

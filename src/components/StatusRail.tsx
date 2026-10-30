@@ -7,23 +7,21 @@ type Props = {
   location: string
   storageLeadUnlocked: boolean
   storageSerialChecked: boolean
-  canFollowStorageLead: boolean
   canResumePin: boolean
-  onFollowStorageLead: () => void
   onResumePin: () => void
   onReviewPin: () => void
 }
 
 const contextLabel = (state: GameState) => {
   if (state.scene === 'secondary') return 'CURRENT TASK'
-  if (state.scene === 'hub') return 'THREAD SELECTION'
+  if (state.scene === 'hub') return 'CASE BOARD'
   if (state.scene === 'reflection') return 'CASE STATUS'
   return 'CURRENT THREAD'
 }
 
 const contextText = (state: GameState) => {
   if (state.scene === 'secondary') return 'Coolant telemetry incident C-17'
-  if (state.scene === 'hub') return 'Choose an investigation thread'
+  if (state.scene === 'hub') return 'Inspect sources and review your theory'
   if (state.scene === 'reflection') return 'Loop complete'
   if (state.currentThread === 'coupler') return COUPLER.thread
   if (state.currentThread === 'power') return POWER_SPIKE.thread
@@ -35,9 +33,7 @@ export function StatusRail({
   location,
   storageLeadUnlocked,
   storageSerialChecked,
-  canFollowStorageLead,
   canResumePin,
-  onFollowStorageLead,
   onResumePin,
   onReviewPin,
 }: Props) {
@@ -81,17 +77,11 @@ export function StatusRail({
               <small>STORAGE B-04 // CURRENT</small>
             </div>
           ) : (
-            <button
-              type="button"
-              className="hud-lead is-new-lead"
-              data-testid="storage-lead"
-              onClick={onFollowStorageLead}
-              disabled={!canFollowStorageLead}
-            >
-              <em>AVAILABLE</em>
-              <span>TRACE REPLACEMENT SERIAL</span>
-              <small>GSC-8842-A → STORAGE B-04</small>
-            </button>
+            <div className="hud-lead is-new-lead hud-lead--wayfinding" data-testid="storage-lead">
+              <em>LOCATION FOUND</em>
+              <span>REPLACEMENT SERIAL</span>
+              <small>STORAGE B-04 // VIA MAINTENANCE DOOR</small>
+            </div>
           )}
         </section>
       )}

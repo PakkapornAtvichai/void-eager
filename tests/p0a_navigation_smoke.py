@@ -1,6 +1,7 @@
 import traceback, json, os, tempfile
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+from physical_nav import hub_to_maintenance, hub_to_workstation, hub_to_storage, workstation_to_storage, storage_to_hub, hub_to_power
 OUT=Path(os.environ.get("VOID_EAGER_TEST_OUT", tempfile.gettempdir()))
 passed=[]
 def mark(name): passed.append(name); print("PASS "+name,flush=True)
@@ -51,9 +52,9 @@ with sync_playwright() as p:
    assert page.get_by_test_id("unlock-storage-lead").is_enabled()
    if w==1464: page.screenshot(path=str(OUT/"VOID-EAGER-P0A-workstation-focus.png"))
    page.get_by_test_id("unlock-storage-lead").click()
-   assert page.get_by_test_id("storage-lead").is_enabled()
+   assert page.get_by_test_id("storage-lead").is_visible()
    assert "Empty" in page.get_by_test_id("quick-pin-entry").inner_text()
-   page.get_by_test_id("storage-lead").click()
+   workstation_to_storage(page)
    scene(page,"storage-scene")
    assert page.get_by_test_id("pending-incident-tab").count()==0
    if w==1464: page.screenshot(path=str(OUT/"VOID-EAGER-P0A-storage-before-c17.png"))
@@ -64,10 +65,10 @@ with sync_playwright() as p:
    page.get_by_test_id("check-storage-serial").click()
    assert "UNIT SERIAL: GSC-8842-A" in scene(page,"storage-evidence").inner_text()
    close(page)
-   page.get_by_test_id("storage-back-hub").click()
+   storage_to_hub(page)
    scene(page,"hub-scene")
-   assert page.get_by_test_id("hub-visit-storage").is_visible()
-   page.get_by_test_id("open-coupler-thread").click()
+   assert page.get_by_test_id("hub-maintenance-door").is_visible()
+   hub_to_workstation(page)
    scene(page,"workstation-focus")
    assert page.get_by_test_id("choose-intention-trace-part").get_attribute("aria-pressed")=="true"
    assert page.get_by_test_id("unlock-storage-lead").is_disabled()
@@ -89,9 +90,9 @@ with sync_playwright() as p:
   page.get_by_test_id("mission-briefing").get_by_text("EXPLORE ROOM").click()
   page.get_by_test_id("maintenance-hub-exit").click()
   scene(page,"hub-scene")
-  assert page.get_by_test_id("hub-visit-storage").is_visible()
-  assert "WORK ORDER NOT YET OPEN" in page.get_by_test_id("hub-scene").inner_text()
-  page.get_by_test_id("hub-visit-storage").click()
+  assert page.get_by_test_id("hub-maintenance-door").is_visible()
+  assert "No case evidence inspected yet" in page.get_by_test_id("hub-case-board").inner_text()
+  hub_to_storage(page)
   scene(page,"storage-scene")
   page.get_by_test_id("storage-open-crate").click()
   close(page)
@@ -105,7 +106,7 @@ with sync_playwright() as p:
   assert page.get_by_test_id("storage-compare-sources").count()==0
   page.screenshot(path=str(OUT/"VOID-EAGER-P0A-storage-first-no-spoiler.png"))
   close(page)
-  page.get_by_test_id("storage-back-hub").click()
+  storage_to_hub(page)
   scene(page,"hub-scene")
   assert page.get_by_test_id("hub-open-case-review").is_visible()
   page.get_by_test_id("hub-open-case-review").click()
@@ -114,7 +115,7 @@ with sync_playwright() as p:
   assert "replacement Coupler was observed unused" in page.get_by_test_id("deduction-scene").inner_text()
   page.get_by_test_id("case-review-back-hub").click()
   scene(page,"hub-scene")
-  page.get_by_test_id("open-coupler-thread").click()
+  hub_to_workstation(page)
   scene(page,"workstation-focus")
   page.get_by_test_id("inspect-work-order").click()
   field(page,"parts")
