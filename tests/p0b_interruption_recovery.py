@@ -2,6 +2,7 @@ import traceback, json, os, tempfile
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from physical_nav import hub_to_maintenance, hub_to_workstation, hub_to_storage, workstation_to_storage, storage_to_hub, hub_to_power
+from active_work import prepare_workstation_check, second_storage_inspection
 BASE="http://127.0.0.1:5173/"
 OUT=Path(os.environ.get("VOID_EAGER_TEST_OUT", tempfile.gettempdir()))
 OUT.mkdir(parents=True,exist_ok=True)
@@ -77,10 +78,11 @@ def workstation(page):
  page.get_by_test_id("workstation-focus-select").select_option("trace-part")
  page.get_by_test_id("inspect-wo-service").click()
  page.clock.fast_forward(20000)
- check(page.get_by_test_id("incoming-interruption").count()==0,"C-17 opened over evidence modal")
+ check(page.get_by_test_id("incoming-interruption").count()==0,"C-17 armed by focus without an active check")
  check(page.locator("[role='dialog']").count()==1,"Unexpected modal layering while paused")
  page.get_by_test_id("close-evidence").click()
- page.clock.fast_forward(7150)
+ prepare_workstation_check(page,"check-installation")
+ page.clock.fast_forward(1100)
  page.get_by_test_id("incoming-interruption").wait_for()
  check(page.locator("[role='dialog']").count()==1,"Two dialogs at once")
  shot(page,"c17-workstation")
@@ -120,9 +122,10 @@ def storage_first(page):
  page.get_by_test_id("inspect-storage-coupler").click()
  page.get_by_test_id("storage-detail-dialog").wait_for()
  page.clock.fast_forward(18000)
- check(page.get_by_test_id("incoming-interruption").count()==0,"C-17 appears over Storage modal")
+ check(page.get_by_test_id("incoming-interruption").count()==0,"C-17 fires on first inspection or over Storage modal")
  page.get_by_test_id("close-evidence").click()
- page.clock.fast_forward(7250)
+ second_storage_inspection(page,"condition")
+ page.clock.fast_forward(1100)
  page.get_by_test_id("incoming-interruption").wait_for()
  check(page.locator("[role='dialog']").count()==1,"Stacked alert at Storage")
  page.get_by_test_id("pin-current-context").click()
@@ -138,7 +141,8 @@ def pending(page):
  open_workstation(page)
  inspect_wo(page,"parts")
  page.get_by_test_id("workstation-focus-select").select_option("check-verification")
- page.clock.fast_forward(7200)
+ prepare_workstation_check(page,"check-installation")
+ page.clock.fast_forward(1100)
  page.get_by_test_id("incoming-interruption").wait_for()
  page.get_by_test_id("minimize-incident").click()
  check(page.get_by_test_id("pending-incident-tab").is_visible(),"Pending tab missing")
@@ -166,7 +170,10 @@ def theory_gate(page):
  shot(page,"hub-gated-c17")
  hub_to_storage(page)
  page.get_by_test_id("storage-scene").wait_for()
- page.clock.fast_forward(7200)
+ # Both physical sources were inspected before the theory; a deliberate
+ # reinspection now causes the scripted interruption.
+ second_storage_inspection(page,"condition")
+ page.clock.fast_forward(1100)
  page.get_by_test_id("incoming-interruption").wait_for()
  check(page.get_by_test_id("incoming-interruption").is_visible(),"Eligible Storage task did not trigger C-17")
  page.get_by_test_id("minimize-incident").click()
@@ -198,7 +205,8 @@ def pin_not_used(page):
  open_workstation(page)
  inspect_wo(page,"parts")
  page.get_by_test_id("workstation-focus-select").select_option("trace-part")
- page.clock.fast_forward(7150)
+ prepare_workstation_check(page)
+ page.clock.fast_forward(1100)
  page.get_by_test_id("incoming-interruption").wait_for()
  page.get_by_test_id("pin-current-context").click()
  page.get_by_test_id("save-selected-pin").click()
@@ -213,8 +221,8 @@ def storage_armed_cumulative(page):
  open_workstation(page)
  inspect_wo(page,"parts")
  page.get_by_test_id("workstation-focus-select").select_option("trace-part")
- page.clock.fast_forward(3000)
- check(page.get_by_test_id("incoming-interruption").count()==0,"Too early alert")
+ page.clock.fast_forward(30000)
+ check(page.get_by_test_id("incoming-interruption").count()==0,"Waiting at focus is not a scripted source check")
  page.get_by_test_id("back-to-maintenance").click()
  page.get_by_test_id("maintenance-hub-exit").click()
  page.get_by_test_id("hub-scene").wait_for()
@@ -228,14 +236,18 @@ def storage_armed_cumulative(page):
  page.get_by_test_id("close-evidence").click()
  page.get_by_test_id("inspect-storage-coupler").click()
  page.get_by_test_id("close-evidence").click()
- page.clock.fast_forward(4500)
+ page.clock.fast_forward(30000)
+ check(page.get_by_test_id("incoming-interruption").count()==0,"First physical inspection should not trigger C-17")
+ second_storage_inspection(page,"serial")
+ page.clock.fast_forward(1100)
  page.get_by_test_id("incoming-interruption").wait_for()
- check(page.get_by_test_id("incoming-interruption").is_visible(),"Accumulated active-work time lost")
+ check(page.get_by_test_id("incoming-interruption").is_visible(),"Second deliberate inspection must trigger C-17")
 def small(page):
  open_workstation(page)
  inspect_wo(page,"parts")
  page.get_by_test_id("workstation-focus-select").select_option("trace-part")
- page.clock.fast_forward(7150)
+ prepare_workstation_check(page)
+ page.clock.fast_forward(1100)
  page.get_by_test_id("incoming-interruption").wait_for()
  page.get_by_test_id("pin-current-context").click()
  page.get_by_test_id("save-selected-pin").click()
@@ -251,7 +263,7 @@ for name,test,size in [
  ("pending-across-locations-returns-original",pending,(1464,815)),
  ("theory-gate-and-alert-fallback",theory_gate,(1464,815)),
  ("pin-saved-but-not-used",pin_not_used,(1464,815)),
- ("eligible-time-cumulative",storage_armed_cumulative,(1464,815)),
+ ("active-inspection-not-idle-time",storage_armed_cumulative,(1464,815)),
  ("small-screen-interruption",small,(1024,576)),
 ]:run(name,test,*size)
 print("TOTAL_PASSED",len(passed),"TOTAL_FAILED",len(issues),flush=True)

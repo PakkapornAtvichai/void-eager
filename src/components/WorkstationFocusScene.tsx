@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { COUPLER } from '../content/coupler'
 import { MAINTENANCE_ASSETS } from '../content/maintenanceAssets'
-import type { InvestigationIntention, WorkOrderFieldId } from '../game/types'
+import type { InvestigationIntention, VerificationNextStep, WorkOrderFieldId } from '../game/types'
 import { EvidenceModal } from './EvidenceModal'
 
 type Props = {
@@ -12,10 +12,13 @@ type Props = {
   onModalChange: (open: boolean) => void
   observedFields: WorkOrderFieldId[]
   activeIntention: InvestigationIntention | null
+  verificationNextStep: VerificationNextStep | null
+  resumedAfterAlert: boolean
   storageLeadUnlocked: boolean
   onOpen: () => void
   onObserveField: (field: WorkOrderFieldId) => void
   onSetIntention: (intention: InvestigationIntention) => void
+  onPrepareCheck: (nextStep: VerificationNextStep) => void
   onUnlockStorageLead: () => void
   onBack: () => void
 }
@@ -24,6 +27,11 @@ const fieldNames: Record<WorkOrderFieldId, string> = {
   service: '01 // SERVICE RECORD',
   completion: '02 // RECORDED COMPLETION',
   parts: '03 // PARTS REFERENCE',
+}
+const verificationLabels: Record<VerificationNextStep, string> = {
+  'review-completion': 'Re-read the recorded completion',
+  'trace-issued-unit': 'Trace the issued unit to Storage B-04',
+  'check-installation': 'Look for installation verification',
 }
 const intentionLabels: Record<InvestigationIntention, string> = {
   'check-completion': 'Check the completion record',
@@ -38,22 +46,27 @@ export function WorkstationFocusScene({
   onModalChange,
   observedFields,
   activeIntention,
+  verificationNextStep,
+  resumedAfterAlert,
   storageLeadUnlocked,
   onOpen,
   onObserveField,
   onSetIntention,
+  onPrepareCheck,
   onUnlockStorageLead,
   onBack,
 }: Props) {
   const order = COUPLER.workOrder
   const reportRef = useRef<HTMLElement>(null)
   const [selectedField, setSelectedField] = useState<WorkOrderFieldId | null>(null)
+  const [checkOpen, setCheckOpen] = useState(false)
+  const [nextStepChoice, setNextStepChoice] = useState<VerificationNextStep | null>(null)
   const inspectedParts = observedFields.includes('parts')
 
   useEffect(() => {
-    onModalChange(selectedField !== null)
+    onModalChange(selectedField !== null || checkOpen)
     return () => onModalChange(false)
-  }, [selectedField, onModalChange])
+  }, [selectedField, checkOpen, onModalChange])
 
   useEffect(() => {
     if (!opened || restoreScrollOffset === null || !reportRef.current) return
@@ -68,6 +81,11 @@ export function WorkstationFocusScene({
   const availableIntentions: InvestigationIntention[] = [
     ...(observedFields.includes('completion') ? ['check-completion' as const] : []),
     ...(inspectedParts ? ['trace-part' as const, 'check-verification' as const] : []),
+  ]
+
+  const verificationChoices: VerificationNextStep[] = [
+    ...(observedFields.includes('completion') ? ['review-completion' as const] : []),
+    ...(inspectedParts ? ['trace-issued-unit' as const, 'check-installation' as const] : []),
   ]
 
   return (
@@ -149,6 +167,19 @@ export function WorkstationFocusScene({
                   <option key={intention} value={intention}>{intentionLabels[intention]}</option>
                 ))}
               </select>
+              {activeIntention && !verificationNextStep && (
+                <button
+                  type="button"
+                  className="console-subcommand workorder-prepare-check"
+                  data-testid="workstation-prepare-check"
+                  onClick={() => {
+                    setNextStepChoice(null)
+                    setCheckOpen(true)
+                  }}
+                >
+                  PREPARE CHECK
+                </button>
+              )}
               {inspectedParts && (
                 <button
                   type="button"
@@ -161,6 +192,13 @@ export function WorkstationFocusScene({
                   {storageLeadUnlocked ? 'B-04 LEAD SAVED' : 'SAVE B-04 LEAD'}
                 </button>
               )}
+            </div>
+          )}
+
+          {verificationNextStep && (
+            <div className="workorder-unfinished-check" data-testid="unfinished-verification-check">
+              <strong>{resumedAfterAlert ? 'CHECK RESUMED' : 'CHECK IN PROGRESS'}</strong>
+              <span>{verificationLabels[verificationNextStep]}</span>
             </div>
           )}
 
@@ -204,6 +242,48 @@ export function WorkstationFocusScene({
 
         </div>
       </div>
+
+      {checkOpen && (
+        <EvidenceModal
+          title="Prepare a source check"
+          kicker="WORKSTATION // VERIFICATION WORKSHEET"
+          testId="verification-worksheet"
+          onClose={() => setCheckOpen(false)}
+        >
+          <div className="verification-worksheet-body">
+            <p>YOUR FOCUS // <strong>{activeIntention ? intentionLabels[activeIntention] : 'not selected'}</strong></p>
+            <p><strong>Step 1 of 2:</strong> Choose the source to follow next. Your choice is not graded.</p>
+            <fieldset className="verification-next-choices" data-testid="verification-next-choices">
+              <legend>Which source will you follow up next?</legend>
+              {verificationChoices.map((choice) => (
+                <label key={choice}>
+                  <input
+                    type="radio"
+                    name="verification-next-step"
+                    checked={nextStepChoice === choice}
+                    onChange={() => setNextStepChoice(choice)}
+                  />
+                  {verificationLabels[choice]}
+                </label>
+              ))}
+            </fieldset>
+            <p className="verification-worksheet-note">This check stays open until you follow up the source.</p>
+            <button
+              type="button"
+              className="primary verification-continue-button"
+              data-testid="continue-verification"
+              disabled={!nextStepChoice}
+              onClick={() => {
+                if (!nextStepChoice) return
+                onPrepareCheck(nextStepChoice)
+                setCheckOpen(false)
+              }}
+            >
+              KEEP THIS CHECK OPEN
+            </button>
+          </div>
+        </EvidenceModal>
+      )}
 
       {selectedField && (
         <EvidenceModal

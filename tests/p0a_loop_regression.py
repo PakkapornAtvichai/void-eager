@@ -2,6 +2,7 @@ import traceback, os, tempfile
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from physical_nav import hub_to_maintenance, hub_to_workstation, hub_to_storage, workstation_to_storage, storage_to_hub, hub_to_power
+from active_work import prepare_workstation_check, second_storage_inspection
 OUT=Path(os.environ.get("VOID_EAGER_TEST_OUT", tempfile.gettempdir()))
 passed=[]
 def mark(name):
@@ -17,6 +18,7 @@ def main_route(page,pin):
  page.get_by_test_id("inspect-wo-parts").click()
  page.get_by_test_id("close-evidence").click()
  page.get_by_test_id("workstation-focus-select").select_option("trace-part")
+ prepare_workstation_check(page)
  page.clock.fast_forward(12500)
  page.get_by_test_id("incoming-interruption").wait_for()
  assert "C-17" in page.get_by_test_id("incoming-interruption").inner_text()

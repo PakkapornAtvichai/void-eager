@@ -82,7 +82,7 @@ export function CaseBriefDialog({ onExplore, onWorkstation }: Props) {
             EXPLORE ROOM
           </button>
         </div>
-        <small>Workbench and Junction are optional. You can revisit this brief through HINT.</small>
+        <small>YOU ARE IN MAINTENANCE // Hub: upper-left exit. Storage B-04: yellow door on the right. Workbench and Junction are optional. Reopen this brief through HINT.</small>
       </section>
     </div>
   )

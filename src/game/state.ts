@@ -3,6 +3,7 @@ import { POWER_SPIKE } from '../content/power'
 import { canCompareSourceSerials, hasCouplerObservation } from './evidence'
 import type {
   GameState, InvestigationIntention, QuickPin, ReturnPoint, ThreadId, WorkOrderFieldId,
+  ReflectionKey, ReflectionAnswers, VerificationNextStep,
 } from './types'
 
 export const initialGameState: GameState = {
@@ -18,6 +19,8 @@ export const initialGameState: GameState = {
   quickPin: null,
   quickPinReviewed: false,
   interruptionArmed: false,
+  interruptionReady: false,
+  verificationNextStep: null,
   interruptionOccurredDuringInvestigation: false,
   interruptionStatus: 'idle',
   secondaryTaskComplete: false,
@@ -26,6 +29,8 @@ export const initialGameState: GameState = {
   theoryEvidence: [],
   firstThreadAfterInterruption: null,
   resumedFromPin: false,
+  reflectionAnswers: { difficulty: null, support: null, change: null },
+  reflectionSubmitted: false,
 }
 
 const addOnce = <T extends string>(items: T[], value: T): T[] =>
@@ -45,6 +50,7 @@ export type GameAction =
   | { type: 'SAVE_COMPARISON' }
   | { type: 'OBSERVE_WORK_ORDER_FIELD'; field: WorkOrderFieldId }
   | { type: 'SET_WORKING_INTENTION'; intention: InvestigationIntention }
+  | { type: 'PREPARE_VERIFICATION_CHECK'; nextStep: VerificationNextStep }
   | { type: 'TRIGGER_INTERRUPTION'; point: ReturnPoint }
   | { type: 'PIN_CURRENT_CONTEXT'; pin: QuickPin }
   | { type: 'REVIEW_PIN' }
@@ -64,6 +70,9 @@ export type GameAction =
   | { type: 'OPEN_DEDUCTION' }
   | { type: 'SAVE_THEORY'; answer: 'replaced' | 'not-replaced'; evidence: string[] }
   | { type: 'OPEN_REFLECTION' }
+  | { type: 'SET_REFLECTION_ANSWER'; key: ReflectionKey; value: string | null }
+  | { type: 'SUBMIT_REFLECTION' }
+  | { type: 'SKIP_REFLECTION' }
   | { type: 'RESET' }
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -110,6 +119,23 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         firstThreadAfterInterruption: resumedOnActivity(state, 'coupler'),
       }
     }
+    case 'PREPARE_VERIFICATION_CHECK': {
+      // Player makes an actual follow-up plan using an inspected source. This
+      // leaves a clearly unfinished investigation step for C-17 to interrupt.
+      const allowed = action.nextStep === 'review-completion'
+        ? state.observedWorkOrderFields.includes('completion')
+        : state.observedWorkOrderFields.includes('parts')
+      if (!allowed || !state.workOrderOpened || state.scene !== 'maintenance' ||
+          !state.activeIntention) return state
+      return {
+        ...state,
+        verificationNextStep: action.nextStep,
+        // If C-17 is already pending/handled, the player may still plan a
+        // follow-up without generating another interruption.
+        interruptionReady: state.interruptionStatus === 'idle',
+        firstThreadAfterInterruption: resumedOnActivity(state, 'coupler'),
+      }
+    }
     case 'SET_WORKING_INTENTION': {
       const allowed = action.intention === 'check-completion'
         ? state.observedWorkOrderFields.includes('completion')
@@ -119,6 +145,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             ...state,
             activeIntention: action.intention,
             interruptionArmed: true,
+            // A focus choice alone is not the action that gets interrupted.
+            // The follow-up verification worksheet must be completed next.
             firstThreadAfterInterruption: resumedOnActivity(state, 'coupler'),
           }
         : state
@@ -140,12 +168,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (
         state.interruptionStatus !== 'idle' ||
         !state.interruptionArmed ||
+        !state.interruptionReady ||
         point.scene !== state.scene ||
         !(engagedInWorkstation || engagedInStorage)
       ) return state
       return {
         ...state,
         interruptionStatus: 'warning',
+        interruptionReady: false,
         interruptionOccurredDuringInvestigation: true,
       }
     }
@@ -201,7 +231,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (!state.storageCrateOpen) return state
       return {
         ...state,
-        interruptionArmed: true, // Storage-first engagement qualifies; crate opening alone does not.
+        interruptionArmed: true,
+        // The second deliberate inspection (even rechecking a source) arms
+        // delivery after the evidence window closes; never while reading it.
+        interruptionReady: state.interruptionReady ||
+          (state.interruptionStatus === 'idle' &&
+            (state.evidenceFound.includes(STORAGE_COUPLER.evidenceId) ||
+             state.evidenceFound.includes(STORAGE_COUPLER.serialEvidenceId))),
         evidenceFound: addOnce(state.evidenceFound, STORAGE_COUPLER.evidenceId),
         knowledgeFlags: addOnce(state.knowledgeFlags, STORAGE_COUPLER.knowledgeFlag),
         firstThreadAfterInterruption: resumedOnActivity(state, 'coupler'),
@@ -211,6 +247,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         interruptionArmed: true,
+        interruptionReady: state.interruptionReady ||
+          (state.interruptionStatus === 'idle' &&
+            (state.evidenceFound.includes(STORAGE_COUPLER.evidenceId) ||
+             state.evidenceFound.includes(STORAGE_COUPLER.serialEvidenceId))),
         evidenceFound: addOnce(state.evidenceFound, STORAGE_COUPLER.serialEvidenceId),
         knowledgeFlags: addOnce(state.knowledgeFlags, STORAGE_COUPLER.serialFlag),
         firstThreadAfterInterruption: resumedOnActivity(state, 'coupler'),
@@ -243,6 +283,35 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         theoryEvidence: [...new Set(action.evidence)],
       }
     }
+    case 'SET_REFLECTION_ANSWER': {
+      if (state.scene !== 'reflection') return state
+      const allowed: Record<ReflectionKey, readonly string[]> = {
+        difficulty: ['easy', 'some-effort', 'difficult', 'unsure'],
+        support: ['pin', 're-read', 'memory', 'other', 'unsure'],
+        change: ['yes', 'no', 'unsure'],
+      }
+      if (action.value !== null && !allowed[action.key].includes(action.value)) return state
+      return {
+        ...state,
+        reflectionSubmitted: false,
+        reflectionAnswers: {
+          ...state.reflectionAnswers,
+          [action.key]: action.value,
+        } as ReflectionAnswers,
+      }
+    }
+    case 'SUBMIT_REFLECTION':
+      return state.scene === 'reflection'
+        ? { ...state, reflectionSubmitted: true }
+        : state
+    case 'SKIP_REFLECTION':
+      return state.scene === 'reflection'
+        ? {
+            ...state,
+            reflectionSubmitted: true,
+            reflectionAnswers: { difficulty: null, support: null, change: null },
+          }
+        : state
     case 'OPEN_REFLECTION':
       // Finishing requires a real interrupted investigation, the handled alert,
       // and a subsequent return to a chosen investigation thread. The theory

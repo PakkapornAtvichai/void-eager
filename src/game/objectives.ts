@@ -219,7 +219,7 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
       id: 'choose-working-focus',
       category: 'CASE',
       title: 'Choose what to check next',
-      hint: 'Inspect the report fields, then select an investigation focus below them. You can change it later.',
+      hint: 'Use the visible NEXT CHECK selector above the report. Then choose PREPARE CHECK to plan a specific follow-up from sources you have inspected.'
     }
   }
 
@@ -235,8 +235,10 @@ export function currentObjective(state: GameState, view: ObjectiveView): Objecti
   return {
     id: 'continue-chosen-focus',
     category: 'CASE',
-    title: 'Continue your investigation',
-    hint: 'Follow your chosen focus. The Storage B-04 component can be reached through the yellow door in the Maintenance room.',
+    title: 'Continue a specific source check',
+    hint: state.interruptionStatus === 'idle' && !state.verificationNextStep
+      ? 'Use PREPARE CHECK beside your focus to choose a follow-up source. C-17 arrives during that unfinished verification, not from a timer.'
+      : 'Your follow-up source remains open. You can reread a field or use the yellow Maintenance doorway to visit Storage B-04.'
   }
 }
 

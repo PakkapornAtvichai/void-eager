@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import { useCallback, useEffect, useReducer, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { DeductionScene } from '../components/DeductionScene'
 import { HubScene } from '../components/HubScene'
@@ -24,9 +24,10 @@ import type { GameState, ReturnPoint } from '../game/types'
 import { COUPLER } from '../content/coupler'
 import { YOKO_PACK_ASSETS } from '../content/yokoPackAssets'
 
-// The C-17 trigger is based on eligible time spent investigating, not time since
-// someone opened a report. It is not a visible countdown and never runs in a dialog.
-const INTERRUPT_AFTER_ACTIVE_MS = 7000
+// C-17 is SCRIPTED to follow a meaningful player investigation action,
+// never elapsed inactivity. Delay is only a brief transition after a
+// worksheet/evidence modal has been safely closed.
+const AFTER_ACTION_ALERT_MS = 650
 
 const pointLabel = (point: ReturnPoint | null): string => {
   if (!point) return 'Incident Hub'
@@ -53,6 +54,16 @@ const pinChoicesFor = (point: ReturnPoint, state: GameState): PinCueOption[] => 
   }
   if (point.scene === 'maintenance' && point.workstationFocused) {
     const choices: PinCueOption[] = []
+    // This is the player's OWN unfinished verification plan, not an
+    // automatically generated clue or developer-supplied conclusion.
+    if (state.verificationNextStep) {
+      const labels = {
+        'review-completion': 'Re-read the completion record I selected',
+        'trace-issued-unit': 'Trace the issued unit to Storage B-04',
+        'check-installation': 'Look for installation verification',
+      } as const
+      choices.push({ id: 'planned-' + state.verificationNextStep, label: labels[state.verificationNextStep] })
+    }
     if (state.observedWorkOrderFields.includes('completion')) {
       choices.push({ id: 'check-completion', label: 'Check the recorded completion' })
     }
@@ -64,9 +75,12 @@ const pinChoicesFor = (point: ReturnPoint, state: GameState): PinCueOption[] => 
     }
     // The player's chosen focus, if any, should be the first and default choice.
     const selected = choices.findIndex((option) => option.id === state.activeIntention)
-    if (selected > 0) choices.unshift(...choices.splice(selected, 1))
-    return choices.length
-      ? choices
+    if (!state.verificationNextStep && selected > 0) choices.unshift(...choices.splice(selected, 1))
+    const uniqueChoices = choices.filter((choice, index) =>
+      choices.findIndex((other) => other.label === choice.label) === index,
+    )
+    return uniqueChoices.length
+      ? uniqueChoices
       : [{ id: 'continue-workorder', label: 'Continue reviewing the Work Order' }]
   }
   if (point.scene === 'power') return [{ id: 'review-power', label: 'Continue checking the power timeline' }]
@@ -87,7 +101,6 @@ export function GameApp() {
   const [interruptedPoint, setInterruptedPoint] = useState<ReturnPoint | null>(null)
   const [pinOptions, setPinOptions] = useState<PinCueOption[]>([])
   const [returnScrollOffset, setReturnScrollOffset] = useState<number | null>(null)
-  const elapsedActiveMs = useRef(0)
 
   const recordOpened = state.workOrderOpened
   const caseEvidenceAvailable = hasCouplerObservation(state)
@@ -138,53 +151,33 @@ export function GameApp() {
   }), [state.scene, state.currentThread, workstationFocused, maintenanceInspection, maintenanceScroll])
 
   const triggerIncident = useCallback(() => {
-    if (state.interruptionStatus !== 'idle' || state.secondaryTaskComplete) return
+    if (state.interruptionStatus !== 'idle' ||
+        state.secondaryTaskComplete || !state.interruptionReady) return
     const point = captureReturnPoint()
-    // C-17 is generated only from the active-work timer. The reducer also
-    // validates this origin, independently of the visible Hub controls.
-    if (
-      !state.interruptionArmed ||
-      !((point.scene === 'maintenance' && point.workstationFocused && state.activeIntention !== null) ||
-        (point.scene === 'storage' && state.storageCrateOpen &&
-          (storageInspected || serialChecked)))
-    ) return
+    if (!((point.scene === 'maintenance' && point.workstationFocused &&
+           state.activeIntention !== null && state.verificationNextStep !== null) ||
+          (point.scene === 'storage' && state.storageCrateOpen &&
+           (storageInspected || serialChecked)))) return
     setInterruptedPoint(point)
     setPinOptions(pinChoicesFor(point, state))
     dispatch({ type: 'TRIGGER_INTERRUPTION', point })
   }, [state, captureReturnPoint, storageInspected, serialChecked])
 
-  // Eligibility matches the reducer's real-work origin checks. Merely
-  // entering a room after arming another task does not consume alert time.
-  const eligibleForC17 =
-    (state.scene === 'maintenance' && workstationFocused && recordOpened && state.activeIntention !== null) ||
-    (state.scene === 'storage' && state.storageCrateOpen && (storageInspected || serialChecked))
-  const canTick =
-    state.interruptionArmed &&
-    state.interruptionStatus === 'idle' &&
-    !state.secondaryTaskComplete &&
-    eligibleForC17 &&
-    !workstationDetailOpen &&
-    !storageDetailOpen &&
-    !hintOpen &&
-    !locationTransition
-
+  // A follow-up check was deliberately prepared (Workstation), or a second
+  // physical inspection completed (Storage). Deliver at the first safe
+  // non-modal point. Waiting on a focus dropdown alone never triggers C-17.
   useEffect(() => {
-    if (!canTick) return
-    const beganAt = Date.now()
-    const remaining = Math.max(0, INTERRUPT_AFTER_ACTIVE_MS - elapsedActiveMs.current)
-    const timer = window.setTimeout(() => {
-      elapsedActiveMs.current = INTERRUPT_AFTER_ACTIVE_MS
-      // Always wait for the current evidence/help dialog to close.
-      if (!document.querySelector('[role="dialog"]')) triggerIncident()
-    }, remaining)
-    return () => {
-      window.clearTimeout(timer)
-      elapsedActiveMs.current = Math.min(
-        INTERRUPT_AFTER_ACTIVE_MS,
-        elapsedActiveMs.current + Math.max(0, Date.now() - beganAt),
-      )
-    }
-  }, [canTick, triggerIncident])
+    if (!state.interruptionReady ||
+        state.interruptionStatus !== 'idle' ||
+        workstationDetailOpen || storageDetailOpen || hintOpen ||
+        locationTransition || document.querySelector('[role="dialog"]')) return
+    const timer = window.setTimeout(triggerIncident, AFTER_ACTION_ALERT_MS)
+    return () => window.clearTimeout(timer)
+  }, [
+    state.interruptionReady, state.interruptionStatus,
+    workstationDetailOpen, storageDetailOpen, hintOpen, locationTransition,
+    triggerIncident,
+  ])
 
   // Only player-directed navigation gets a location transition.
   // The system interruption continues to take over the current workstation in place.
@@ -271,6 +264,9 @@ export function GameApp() {
             storageLeadUnlocked={storageLeadUnlocked}
             observedFields={state.observedWorkOrderFields}
             activeIntention={state.activeIntention}
+            verificationNextStep={state.verificationNextStep}
+            resumedAfterAlert={state.firstThreadAfterInterruption !== null}
+            onPrepareCheck={(nextStep) => dispatch({ type: 'PREPARE_VERIFICATION_CHECK', nextStep })}
             onObserveField={(field) => dispatch({ type: 'OBSERVE_WORK_ORDER_FIELD', field })}
             onSetIntention={(intention) => dispatch({ type: 'SET_WORKING_INTENTION', intention })}
             onOpen={() => dispatch({ type: 'OPEN_WORK_ORDER' })}
@@ -397,6 +393,11 @@ export function GameApp() {
         theory={state.theory}
         theoryEvidenceCount={state.theoryEvidence.length}
         secondaryResponse={state.secondaryResponse}
+        answers={state.reflectionAnswers}
+        submitted={state.reflectionSubmitted}
+        onAnswer={(key, value) => dispatch({ type: 'SET_REFLECTION_ANSWER', key, value })}
+        onSubmit={() => dispatch({ type: 'SUBMIT_REFLECTION' })}
+        onSkip={() => dispatch({ type: 'SKIP_REFLECTION' })}
         onRestart={() => {
           setMaintenanceScroll(0)
           setBriefingDismissed(false)
@@ -404,7 +405,6 @@ export function GameApp() {
           setMaintenanceInspection(null)
           setLocationTransition(null)
           setIncidentExpanded(false)
-          elapsedActiveMs.current = 0
           setInterruptedPoint(null)
           setPinOptions([])
           setReturnScrollOffset(null)

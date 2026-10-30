@@ -2,6 +2,13 @@ export type ThreadId = 'coupler' | 'power'
 
 export type WorkOrderFieldId = 'service' | 'completion' | 'parts'
 export type InvestigationIntention = 'check-completion' | 'trace-part' | 'check-verification'
+export type VerificationNextStep = 'review-completion' | 'trace-issued-unit' | 'check-installation'
+export type ReflectionKey = 'difficulty' | 'support' | 'change'
+export type ReflectionAnswers = {
+  difficulty: 'easy' | 'some-effort' | 'difficult' | 'unsure' | null
+  support: 'pin' | 're-read' | 'memory' | 'other' | 'unsure' | null
+  change: 'yes' | 'no' | 'unsure' | null
+}
 
 export type Scene =
   | 'maintenance'
@@ -46,6 +53,8 @@ export type GameState = {
   quickPin: QuickPin | null
   quickPinReviewed: boolean
   interruptionArmed: boolean
+  interruptionReady: boolean
+  verificationNextStep: VerificationNextStep | null
   interruptionOccurredDuringInvestigation: boolean
   interruptionStatus: InterruptionStatus
   secondaryTaskComplete: boolean
@@ -54,4 +63,6 @@ export type GameState = {
   theoryEvidence: string[]
   firstThreadAfterInterruption: ThreadId | null
   resumedFromPin: boolean
+  reflectionAnswers: ReflectionAnswers
+  reflectionSubmitted: boolean
 }

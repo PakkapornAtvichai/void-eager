@@ -6,6 +6,7 @@ import os, tempfile, traceback
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from physical_nav import hub_to_maintenance, hub_to_storage, storage_to_hub, hub_to_workstation
+from active_work import prepare_workstation_check, second_storage_inspection
 
 BASE="http://127.0.0.1:5173/"
 OUT=Path(os.environ.get("VOID_EAGER_TEST_OUT",tempfile.gettempdir()))
@@ -90,7 +91,10 @@ def short_route_cannot_bypass(page):
  page.get_by_test_id("workstation-focus").wait_for()
  inspect_wo(page,"parts")
  page.get_by_test_id("workstation-focus-select").select_option("trace-part")
- page.clock.fast_forward(7300)
+ page.clock.fast_forward(30000)
+ check(page.get_by_test_id("incoming-interruption").count()==0,"Waiting after selecting a focus must not trigger C-17")
+ prepare_workstation_check(page)
+ page.clock.fast_forward(1100)
  page.get_by_test_id("incoming-interruption").wait_for()
  check(page.get_by_test_id("workstation-focus").count()==1,"Alert not triggered during Workstation investigation")
  snap(page,"genuine-workstation-alert")
@@ -141,7 +145,9 @@ def storage_first_resume(page):
  page.get_by_test_id("case-review-back-hub").click()
  check(page.get_by_test_id("hub-open-c17").count()==0,"Storage-first early theory summoned alert")
  hub_to_storage(page)
- page.clock.fast_forward(7250)
+ # Second physical inspection, rather than idle waiting, starts C-17.
+ second_storage_inspection(page,"condition")
+ page.clock.fast_forward(1100)
  page.get_by_test_id("incoming-interruption").wait_for()
  page.get_by_test_id("pin-current-context").click()
  page.get_by_test_id("save-selected-pin").click()

@@ -4,7 +4,7 @@ Void-eager is a browser-based mystery prototype about interruption, task switchi
 
 ## Current Loop 1 design contract (29 October 2026)
 
-**Implementation status (30 October 2026): P0-A (investigation), P0-B (genuine C-17 and activity-based recovery), P0-C (observed evidence and revisable theory), G0–G4 navigation/UI, and the visible Workstation focus control are implemented and tested. Remaining: G5–G6 visual/HUD refinement and P0-D interactive reflection.** See [P0-A implementation and tests](docs/25-LOOP1-P0A-IMPLEMENTATION.md). The complete one-loop gameplay direction is in:
+**Implementation status (30 October 2026): P0-A (investigation), P0-B (genuine task-based C-17), P0-C (observed evidence and revisable theory), P0-D (optional interactive Reflection), physical Hub navigation (G4), and critical small-screen UI corrections are implemented and browser-tested. Remaining: further G5–G6 polish and first-time human playtesting.** See [P0-A implementation and tests](docs/25-LOOP1-P0A-IMPLEMENTATION.md). The complete one-loop gameplay direction is in:
 
 - **[Loop 1 Gameplay Design — Thai](docs/24-LOOP1-FINAL-GAMEPLAY-DESIGN-TH.md)** (read this first)
 - **[Loop 1 Final Gameplay Design / Implementation Contract](docs/24-LOOP1-FINAL-GAMEPLAY-DESIGN.md)** (full event rules, state and branch tests)
@@ -16,7 +16,8 @@ Void-eager is a browser-based mystery prototype about interruption, task switchi
 - **[Physical Hub Navigation & Case Board Correction](docs/31-PHYSICAL-NAVIGATION-AND-HUB-CASEBOARD.md)** (left/right corridors are actual room movement, Storage through Maintenance yellow door, Hub central screen is evidence/theory rather than teleport navigation)
 - **[Independent navigation & gameplay playtest audit](docs/32-NAVIGATION-PLAYTEST-UX-AUDIT.md)** (historical reproduction of UX-01 through UX-04, now addressed in the next report)
 - **[Post-playtest UX fixes: Genuine C-17 and visible Workstation focus](docs/33-UX-REAL-INTERRUPTION-AND-FOCUS-FIX.md)** (real interrupted investigation, actual task re-engagement before ending, fixed NEXT CHECK selector, accurate route/status labels)
-- **[Follow-up exploratory browser playtest](docs/34-POSTFIX-EXPLORATORY-PLAYTEST.md)** (three complete game routes passed; Storage OPEN CRATE CTA and Reflection Restart hidden behind HUD at 1024x576; recommended small-screen fixes)
+- **[Follow-up exploratory browser playtest](docs/34-POSTFIX-EXPLORATORY-PLAYTEST.md)** (historical reproduction of Storage/Reflection HUD overlap; fixed in the implementation below)
+- **[Active Interruption and Interactive Reflection (P0-D) implementation](docs/35-ACTIVE-INTERRUPTION-AND-REFLECTION-IMPLEMENTED.md)** (source-check worksheet, C-17 after meaningful actions rather than idle time, safe Storage/Reflection UI, optional answerable reflection, regression QA)
 
 These documents supersede conflicting gameplay sequencing in older prototype notes. They do not authorize a return to the historical six-room mystery or new NPC conversations.
 
